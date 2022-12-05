@@ -45,19 +45,18 @@ class BG_comp:
       self.name = name
       self.dom = BG_comp.comp[type]['dom']
       self.description = BG_comp.comp[type]['description'] 
-
       if type in ['Ce','Se','C','Ve']:
             self.para = [[BG_comp.comp[type]['p'][0] + '_' + name, BG_comp.comp[type]['p'][1], CellMLft.IO['pub-in']],
                          [BG_comp.dom[self.dom]['q'][0]+ '_' + name + '_init', BG_comp.dom[self.dom]['q'][1], CellMLft.IO['pub-in']]]
-            self.input = [[BG_comp.dom[self.dom]['f'][0]+ '_' + name, BG_comp.dom[self.dom]['f'][1], CellMLft.IO['priv-in']]]
-            self.output = [[BG_comp.dom[self.dom]['e'][0]+ '_' + name, BG_comp.dom[self.dom]['e'][1], CellMLft.IO['pub-out']],
-                           [BG_comp.dom[self.dom]['q'][0]+ '_' + name, BG_comp.dom[self.dom]['q'][1], CellMLft.IO['pub-out']]] 
+            self.input = [[BG_comp.dom[self.dom]['f'][0]+ '_' + name, BG_comp.dom[self.dom]['f'][1], CellMLft.IO['internal']]]
+            self.output = [[BG_comp.dom[self.dom]['e'][0]+ '_' + name, BG_comp.dom[self.dom]['e'][1], CellMLft.IO['pub-out-priv-out']],
+                           [BG_comp.dom[self.dom]['q'][0]+ '_' + name, BG_comp.dom[self.dom]['q'][1], 'init:'+BG_comp.dom[self.dom]['q'][0]+ '_' + name + '_init,'+CellMLft.IO['pub-out']]] 
             if type in ['Ce','Se']:   
                self.eq = [f'{self.output[0][0]} = R*T*ln({self.para[0][0]}*{self.output[1][0]});\n'] # constitutive relation
-            else:
-               self.eq = [f'{self.output[0][0]} = {self.output[1][0]}/{self.para[0][0]};\n'] # constitutive relation
+            else: # 'C','Ve'
+               self.eq = [f'{self.output[0][0]} = {self.output[1][0]}/{self.para[0][0]};\n'] # constitutive relation 
             if type in ['Ce','C']:
-               self.eq = self.eq + [f'ode({self.output[0][0]},t) = {self.input[0][0]};\n']            
+               self.eq = self.eq + [f'ode({self.output[1][0]},t) = {self.input[0][0]};\n']            
       elif type == 'Re':
          self.para = [[BG_comp.comp[type]['p'][0] + '_' + name, BG_comp.comp[type]['p'][1], CellMLft.IO['pub-in']]]
          self.input = [[BG_comp.dom[self.dom]['e'][0]+ '_' + name + '_in', BG_comp.dom[self.dom]['e'][1], CellMLft.IO['internal']],
@@ -77,17 +76,20 @@ class BG_comp:
          self.eq.append(offset_eq3 + f'{self.para[0][0]}*(exp({self.input[0][0]}/(R*T))-exp({self.input[1][0]}/(R*T)));\n')
          self.eq.append(offset_eq2 + f'otherwise:\n')
          self.eq.append(offset_eq3 + f'{self.para[0][0]}*{self.input[2][0]}/(R*T)/(exp({self.input[2][0]}/(R*T))-1{{dimensionless}})*(exp({self.input[0][0]}/(R*T))-exp({self.input[1][0]}/(R*T)));\n')
-      else:
+      else: # "R"
          self.para = [[BG_comp.comp[type]['p'][0] + '_' + name, BG_comp.comp[type]['p'][1], CellMLft.IO['pub-in']]]
          self.input = [[BG_comp.dom[self.dom]['e'][0]+ '_' + name , BG_comp.dom[self.dom]['e'][1], CellMLft.IO['internal']]]
          self.output = [[BG_comp.dom[self.dom]['f'][0]+ '_' + name, BG_comp.dom[self.dom]['f'][1], CellMLft.IO['internal']]]
          self.eq =  [f'{self.output[0][0]} = {self.para[0]}*{self.input[0][0]};\n'] # constitutive relation
       
-
 class BG_module(object):
    # Build a module based on the stoichiometric matrices
    def __init__(self, name, comps, compd, Nf, Nr):
-      # attribute: name, comps (energy storage components, 0 node), compd (energy dissipation components, 1 node), direc, para, input, output, eq, Nf, Nr
+      # attribute: name, comps (energy storage components, 0 node), compd (energy dissipation components, 1 node), direc, 
+      # para (domain conversion factor F, constants R, temperature T and TF:z), 
+      # input (potential of species), output (flow contribution),
+      # eq: input flow equations for energy storage components, and input potentials (mu_in, mu_out, mu_mod) for energy dissipation components
+      # Nf, Nr (remove units)
       self.name = name
       self.comps = comps
       self.compd = compd
@@ -100,11 +102,11 @@ class BG_module(object):
       mu_in={}
       mu_out={}
       mu_mod={}
-      outsign = '+'
-      insign = '-'
+      outsign = '-'
+      insign = '+'
       for i,e in enumerate(comps):        
          vComp = []
-         # domain conversion
+         # domain conversion factor F, constants R and temperature T
          if e.type in ['C','Ve']:
             TF = '*F'
             TF2 = 'F*'
@@ -116,8 +118,10 @@ class BG_module(object):
             TF2 =''
             zSet.add(('R','J_per_K_per_mol', CellMLft.IO['pub-in']))
             zSet.add(('T','kelvin', CellMLft.IO['pub-in']))
-         self.input = self.input + [[e.output[0][0], e.output[0][1], CellMLft.IO['pub-in']]]
-         self.output = self.output + [[e.input[0][0], e.input[0][1], CellMLft.IO['pub-out']]]
+         # module interface with the energy storage components (e.g., species) 
+         self.input = self.input + [[e.output[0][0], e.output[0][1], CellMLft.IO['pub-in']]] # potential of species
+         self.output = self.output + [[e.input[0][0], e.input[0][1], CellMLft.IO['pub-out']]] # flow contribution
+         # get the parameter z, input flow equations for energy storage components, and input potentials (mu_in, mu_out, mu_mod) for energy dissipation components 
          for j in range(len(Nf[0,:])):
             cellf,cellr = Nf[i,j],Nr[i,j]
             if '/' in cellf:
@@ -208,8 +212,8 @@ class BG_module(object):
       def_import = [CellMLft.indent + f'def import using "{unitLib}" for\n']
       def_model= [f'def model {mName} as\n']
       def_comp=[CellMLft.indent + f'def comp {mName} as\n']     
-      vars = []
-      eqs = []
+      vars = [] # the parameters, input and output of the module and the energy dissipation components
+      eqs = [] # the equations of the module and the energy dissipation components
       units = []
       unitset = set()
       list_all = self.para + self.input + self.output
@@ -236,87 +240,89 @@ class BG_module(object):
       cid.close()
 
    def write2CellML_d (self,fpath,unitLib,kappa,extraPara):
+      # hide the parameters of the module
+      # extraPara,i.e., temperature T, TF: z
       mName = f'{self.name}'
+      varMap = {} # between the module and the parameter e.g., vars kappa_Re1 and kappa_Re1;, between the module and the interface e.g., vars v_Eo and v_Eo;
+      # for the module file
       def_import = [CellMLft.indent + f'def import using "{unitLib}" for\n']
       def_model= [f'def model {mName} as\n']
       def_comp=[CellMLft.indent + f'def comp {mName} as\n'] 
       def_group=[CellMLft.indent + f'def group as encapsulation for\n']+ [CellMLft.indent*2 + f'comp {mName} incl\n']
+      # for the module parameter file
       def_model_para= [f'def model {mName}_para as\n']
       def_comp_para=[CellMLft.indent + f'def comp {mName}_para as\n']
       predef_para= [CellMLft.indent*2 + f'var R: J_per_K_per_mol {{init: 8.31, pub: out}};\n'] + [CellMLft.indent*2 + f'var F: C_per_mol {{init: 96485, pub: out}};\n']    
-      vars_para = []
-      values_para =[]
-      units_para=[]
+      vars_para = [] # the variables of extra parameter and the parameter of the energy dissipation components
+      values_para =[] # the values of extra parameter and the parameter of the energy dissipation components
+      units_para=[] # the unit of extra parameter and the parameter of the energy dissipation components
       impunits_para=[]
-      paras_para = []
-      unitset_para=set()
+      paras_para = [] # lines for extra parameter and the parameter of the energy dissipation components
+      unitset_para=set(['J_per_K_per_mol','C_per_mol'])  # the unit of the pre-defined constants R and T, extra parameter and the parameter of the energy dissipation components  
       for p in extraPara:
          unitset_para.add(extraPara[p][1])
          vars_para.append(p)
          values_para.append(extraPara[p][0])
-         units_para.append(extraPara[p][1])
-      vars = []
-      units = []
-      unitset = set()
-      varMap = {}
-      varmaps=[] 
+         units_para.append(extraPara[p][1])    
       for p in self.para:
          if mName+'_para' in varMap:
             varMap[f'{mName}_para'].append([p[0], p[0]])
          else:
             varMap[f'{mName}_para']=[[p[0], p[0]]]
-      for i, p in enumerate(self.compd[0].para):
-         if mName+'_para' in varMap:
-            varMap[f'{mName}_para'].append([p[0], p[0]])
-         else:
-            varMap[f'{mName}_para']=[[p[0], p[0]]]
-         unitset_para.add(p[1])
-         vars_para.append(p[0])
-         values_para.append(kappa[i])
-         units_para.append(p[1]) 
+      for d in self.compd:      
+         for i, p in enumerate(d.para):
+            if mName+'_para' in varMap:
+               varMap[f'{mName}_para'].append([p[0], p[0]])
+            else:
+               varMap[f'{mName}_para']=[[p[0], p[0]]]
+            unitset_para.add(p[1])
+            vars_para.append(p[0])
+            values_para.append(kappa[i])
+            units_para.append(p[1]) 
       for unit in unitset_para:
          if unit not in CellMLft.defUnit:
              impunits_para.append(CellMLft.indent*2 + f'unit {unit} using unit {unit};\n')
       for i,para in enumerate(vars_para):
          paras_para.append(CellMLft.indent*2 + f'var {para}: {units_para[i]} {{init:{values_para[i]}, pub: out}};\n')
-
       lines_para=def_model_para + def_import + impunits_para + CellMLft.end_comp +def_comp_para+ predef_para+ paras_para+ CellMLft.end_comp + CellMLft.end_model
       with open(f'{fpath}{mName}_para.txt', 'w') as cid:
          cid.writelines(lines_para)
       cid.close()
+      # The vars, units of the module input and output (modified the interface type), and the mapping
+      vars = []
+      units = []
+      unitset = set()
+      varmaps=[]
       for e in self.input+self.output:
          if self.name+'_1' in varMap:
             varMap[f'{self.name}_1'].append([e[0], e[0] ])
          else:
             varMap[f'{self.name}_1']=[[e[0], e[0] ]]
          unitset.add(e[1])        
-         if len(e[2])>0:
-            if e[2] == 'pub: in':
-               vars.append(CellMLft.indent*2 + 'var '+ e[0] + ': '+ e[1] +' {' + CellMLft.IO['pub-in-priv-out'] + '};\n')
-            else:
-               vars.append(CellMLft.indent*2 + 'var '+ e[0] + ': '+ e[1] +' {' + CellMLft.IO['pub-out-priv-in'] + '};\n')
+         if e[2] == 'pub: in':
+            vars.append(CellMLft.indent*2 + 'var '+ e[0] + ': '+ e[1] +' {' + CellMLft.IO['pub-in-priv-out'] + '};\n')
          else:
-            vars.append(CellMLft.indent*2 + 'var '+ e[0] + ': '+ e[1]+';\n')    
+            vars.append(CellMLft.indent*2 + 'var '+ e[0] + ': '+ e[1] +' {' + CellMLft.IO['pub-out-priv-in'] + '};\n')   
       for unit in unitset:
          if unit not in CellMLft.defUnit:
             units.append(CellMLft.indent*2 + f'unit {unit} using unit {unit};\n')
+      # encapsulation and import the components
       encap=[]
       impt=[]         
       for imp in [f'{self.name}_1'] + [f'{mName}_para']:
          encap = encap + [CellMLft.indent*3+f'comp {imp};\n']
-         impt = impt + [CellMLft.indent + f'def import using "{imp}.cellml" for\n'] + [CellMLft.indent*2 + f'comp {imp} using comp {imp}\n'] + CellMLft.end_comp
+         impt = impt + [CellMLft.indent + f'def import using "{imp}.cellml" for\n'] + [CellMLft.indent*2 + f'comp {imp} using comp {imp};\n'] + CellMLft.end_comp
       encap = encap + [CellMLft.indent*2+'endcomp;\n']+ CellMLft.end_comp
-
+      # var mapping
       imp = f'{self.name}_1'
       varmaps = varmaps + [CellMLft.indent + f'def map between {imp} and {mName} for\n']
       for var in varMap[imp]:
-         varmaps = varmaps + [CellMLft.indent*2 + f'vars {var[0]} and {var[1]}\n']
+         varmaps = varmaps + [CellMLft.indent*2 + f'vars {var[0]} and {var[1]};\n']
       varmaps = varmaps + CellMLft.end_comp
-
       imp = f'{mName}_para'
       varmaps = varmaps + [CellMLft.indent + f'def map between {imp} and {self.name}_1 for\n']
       for var in varMap[imp]:
-         varmaps = varmaps + [CellMLft.indent*2 + f'vars {var[0]} and {var[1]}\n']
+         varmaps = varmaps + [CellMLft.indent*2 + f'vars {var[0]} and {var[1]};\n']
       varmaps = varmaps + CellMLft.end_comp  
 
       lines= def_model + def_import + units + CellMLft.end_comp + impt+ def_comp + vars + CellMLft.end_comp +def_group+encap+ varmaps+ CellMLft.end_model
@@ -366,7 +372,7 @@ class BG_model(object):
             else:
                emap[e.name]=[[m.name,m.direc]] 
          for p in m.para:
-            paraset.add((p[0], p[1], CellMLft.IO['pub-in-priv-out']))
+            paraset.add((p[0], p[1], CellMLft.IO['pub-in']))
            # self.varMap[m.name].append([p[0], p[0]])
       for para in paraset:
          self.para.append(list(para)) 
@@ -392,16 +398,17 @@ class BG_model(object):
               self.eindx = compUnique.index(comp)
 
            if moduledirec == 'in':
-              eq= eq + '-' + BG_comp.dom[tempcomps[indx].dom]['f'][0]+ '_' + comp + '_' + modulename + ';\n'
+              eq= eq + '-' + BG_comp.dom[tempcomps[indx].dom]['f'][0]+ '_' + comp + '_' + modulename
            else:
-              eq= eq + '+' + BG_comp.dom[tempcomps[indx].dom]['f'][0]+ '_' + comp + '_' + modulename + ';\n'
+              eq= eq + '+' + BG_comp.dom[tempcomps[indx].dom]['f'][0]+ '_' + comp + '_' + modulename
          else: # if duplicate          
-            if len(set(types))>0: # if the component types are different, ask user to decide
+            if len(set(types))>1: # if the component types are different, ask user to decide
               print(f'The type of {comp} is inconsistent:{types}')
               ctype = input(f"Please specify the type of {comp}:\n")
               typeKeep.append(ctype)
             else:
               typeKeep.append(compType[compIdx[0]]) # only keep the first one
+              ctype = compType[compIdx[0]]
             if ctype in ['Ce','Se']:
               self.Kunique.append(comp)
             else:
@@ -413,7 +420,7 @@ class BG_model(object):
                  eq= eq +'-' + BG_comp.dom[tempcomps[indx].dom]['f'][0]+ '_' + comp + '_' + modulename
                else:
                  eq= eq +'+' + BG_comp.dom[tempcomps[indx].dom]['f'][0]+ '_' + comp + '_' + modulename            
-            self.eq.append(eq+';\n')                     
+         self.eq.append(eq+';\n')                     
       for i, e in enumerate(compUnique):
          compi= BG_comp(e, typeKeep[i])
          self.comps.append(compi)
@@ -446,15 +453,16 @@ class BG_model(object):
       impt = []
       varmap =[]
       encap=[]
-      unitset = set()
+      unitset = set(['J_per_K_per_mol'])
       list_all = self.input
       eq_all = [] 
       for imp in self.imp + [self.name+'_para']:
-         encap = encap + [CellMLft.indent*3+f'comp {imp};\n']
-         impt = impt + [CellMLft.indent + f'def import using "{imp}.cellml" for\n'] + [CellMLft.indent*2 + f'comp {imp} using comp {imp}\n'] + CellMLft.end_comp
+         if imp not in [self.name+'_para']:
+            encap = encap + [CellMLft.indent*3+f'comp {imp};\n']
+         impt = impt + [CellMLft.indent + f'def import using "{imp}.cellml" for\n'] + [CellMLft.indent*2 + f'comp {imp} using comp {imp};\n'] + CellMLft.end_comp
          varmap = varmap + [CellMLft.indent + f'def map between {imp} and {self.name} for\n']
          for var in self.varMap[imp]:
-            varmap = varmap + [CellMLft.indent*2 + f'vars {var[0]} and {var[1]}\n']
+            varmap = varmap + [CellMLft.indent*2 + f'vars {var[0]} and {var[1]};\n']
          varmap = varmap + CellMLft.end_comp  
       encap = encap + [CellMLft.indent*2+'endcomp;\n']+ CellMLft.end_comp
       for comp in self.comps:
@@ -472,7 +480,7 @@ class BG_model(object):
             units.append(CellMLft.indent*2 + f'unit {unit} using unit {unit};\n')
       for e in eq_all:
          eqs.append(CellMLft.indent*2 + e)
-      lines=def_model + def_import + units + CellMLft.end_comp + impt + CellMLft.end_comp+def_comp+ CellMLft.line_sys1+vars + eqs + CellMLft.end_comp + def_group+ encap+ varmap+ CellMLft.end_model
+      lines=def_model + def_import + units + CellMLft.end_comp + impt +def_comp+ CellMLft.line_sys1+vars + eqs + CellMLft.end_comp + def_group+ encap+ varmap+ CellMLft.end_model
 
       with open(f'{fpath}{self.name}.txt', 'w') as cid:
          cid.writelines(lines)
@@ -552,7 +560,7 @@ def writePara (model, K, q_init, extraPara, fpath,unitLib):
    def_model= [f'def model {model.name}_para as\n']
    def_comp=[CellMLft.indent + f'def comp {model.name}_para as\n']
    predef= [CellMLft.indent*2 + f'var R: J_per_K_per_mol {{init: 8.31, pub: out}};\n'] + [CellMLft.indent*2 + f'var F: C_per_mol {{init: 96485, pub: out}};\n']
-   unitset=set()
+   unitset=set(['J_per_K_per_mol','C_per_mol'])
    vars = []
    values =[]
    units=[]
@@ -568,7 +576,7 @@ def writePara (model, K, q_init, extraPara, fpath,unitLib):
       values.append(K[i])
       units.append('per_fmol')
    for i,comp in enumerate(model.Kunique):
-      vars.append('q_init_'+comp)
+      vars.append('q_'+comp+'_init')
       values.append(q_init[i])
       units.append('fmol')
 
