@@ -21,7 +21,7 @@ def parseCellMLFile(cellmlFile):
         sys.exit('The CellML file is not v1.1')
     # Get the model name
     modelName = root.attrib['name']
-    # Get the model units
+    # Get the units
     modelUnits = []
     modelComponents = []
     modelEquations = []
@@ -45,7 +45,7 @@ def parseCellMLFile(cellmlFile):
                     unit_list.append(unit)
             units.children = unit_list        
             modelUnits.append(units)
-    # Get the model components and corresponding variables  
+    # Get the components and corresponding variables  
         if child.tag == '{http://www.cellml.org/cellml/1.1#}component':
             component = Component(child.attrib['name'])
             variable_list=[]
@@ -60,7 +60,6 @@ def parseCellMLFile(cellmlFile):
                         variable.public_interface = grandchild.attrib['public_interface']
                     if 'private_interface' in grandchild.attrib:
                         variable.private_interface = grandchild.attrib['private_interface']
-                    # Add the variable to the component
                     variable_list.append(variable)
                 if grandchild.tag == '{http://www.w3.org/1998/Math/MathML}math':
                     # Get the equations by parsing the MathML <apply> tags
@@ -71,9 +70,9 @@ def parseCellMLFile(cellmlFile):
                                 id = grandgrandchild.attrib['id']
                             else:
                                 id = 'eq'
-                            #get the equation and add it to the equation dictionary with the id as key
-                            #equation = ET.tostring(grandgrandchild, encoding='unicode', method='xml')
+                            #get the equation as element and add it to the equation dictionary with the id as key
                             modelEquations.append(Math(id, grandgrandchild, parent=component))
+            # Add the variable to the component
             component.children=variable_list
             modelComponents.append(component) 
     
@@ -98,6 +97,16 @@ def createCellMLComponent():
     params = OrderedSet()
     for component_name, groupi in gdf:
         # Create CellMLVariable for each variable in the component and add it to the component
+        # Rules: 1. if the param column is eq, then the variable is an equation id;
+        #        2. if public_interface is var, then the variable is an internal variable and the public_interface is None;
+        #        3. if the initial_value is nan, then the initial_value is None;
+        #        4. if the param column is the same as the variable name, then the variable is a parameter and it will be added to the params list; 
+        #           The initial_value of the variable will be None; 
+        #           The initial_value of the parameter will be the value in the initial_value column;
+        #        5. if the param column is init, then the variable is a state variable, and the variable name + '_init' will be added to the params list;
+        #           The initial_value of the variable will be variable name + '_init'; 
+        #           The initial_value of the parameter (variable name + '_init') will be the value in the initial_value column;
+        #        6. if the param column is not eq, init, or param, the initial_value of the variable will be the value in the initial_value column.
         variables = OrderedSet()
         equations = OrderedSet()
         for index, row in groupi.iterrows():
@@ -110,10 +119,10 @@ def createCellMLComponent():
                     public_interface = None
                 else:
                     public_interface = row['public_interface']
-    
+
                 if pd.isna(row['initial_value']):
                     initial_value = None
-                elif row["param"]==name:
+                elif row["param"]=='param':
                     initial_value = None
                     param_name = name                
                 elif row['param'] == 'init':
@@ -121,9 +130,9 @@ def createCellMLComponent():
                     param_name= name+'_init'
                 else:
                     initial_value = row['initial_value']
-                    variables.add(Variable(name,units,initial_value=initial_value,public_interface=public_interface,children=None))
-                    if param_name is not None:
-                        params.add(Variable(param_name,units,initial_value=row['initial_value'],public_interface='out',children=None))
+                variables.add(Variable(name,units,initial_value=initial_value,public_interface=public_interface,children=None))
+                if param_name is not None:
+                    params.add(Variable(param_name,units,initial_value=row['initial_value'],public_interface='out',children=None))
 
         component = Component(component_name,children=variables.union(equations))
         components.add(component)
@@ -133,10 +142,8 @@ def createCellMLComponent():
     
     return components
 
-def importCellMLComponent():
-    # Ask the user if importing components from a CellML file
-    # Get the current working directory
-    start = os.getcwd()
+def importCellMLComponent(start):
+    # Ask the user if importing components from a CellML file      
     Imports=[]
     while True:
         questions = [
@@ -151,6 +158,7 @@ def importCellMLComponent():
         if answers['import']:
             Import_components=[]
             # Get the CellML file from the user
+            print('Select the CellML file to import components from:')
             root = tk.Tk()
             root.withdraw()
             file_path = filedialog.askopenfilename()
@@ -211,9 +219,7 @@ def importCellMLComponent():
         return None
     return Imports
 
-def importCellMLunits(model):
-    # Get the current working directory
-    start = os.getcwd()
+def importCellMLunits(model,start):
     # Ask the user if importing units from a CellML file; assume that the units are in the same file
     units=model.units_namespace
     # Ask the user if they want to import the units from a CellML file, if yes, ask the user to select the unit file to import
@@ -228,6 +234,8 @@ def importCellMLunits(model):
         answers = inquirer.prompt(questions)
         # Check if the user wants to import the units and components from a CellML file
         if answers['import']:
+            # Get the CellML file from the user
+            print('Select the CellML file to import units from:')
             root = tk.Tk()
             root.withdraw()
             file_path = filedialog.askopenfilename()
@@ -239,76 +247,103 @@ def importCellMLunits(model):
         else:
             break
         
-
 def encapCellMLcomponent(model):
     # Ask the user if they want to encapsulate the components (# TODO: need to be improved)
-    while True:
+    questions = [
+        inquirer.Confirm(
+            'encapsulate',
+            message="Do you want to encapsulate the components?",
+            default=False,
+        ),
+    ]
+    answers = inquirer.prompt(questions)
+    # Check if the user wants to encapsulate the components
+    top_level_component_refs = []
+    if answers['encapsulate']:
+        # Ask the user to name the top level components for the encapsulation
         questions = [
-            inquirer.Confirm(
-                'encapsulate',
-                message="Do you want to encapsulate the components?",
-                default=False,
-            ),
-        ]
+                inquirer.Checkbox(
+                    'top_level',
+                    message=f"Select top level components for the encapsulation",
+                    choices=model.component_namespace,
+                ),
+            ]
         answers = inquirer.prompt(questions)
-        # Check if the user wants to encapsulate the components
-        top_level_component_refs = []
-        if answers['encapsulate']:
-            # Ask the user to name the top level components for the encapsulation
+        # Get the top level components
+        top_level_components = answers['top_level']
+        # Ask if the user wants to encapsulate the components for each top level component
+        for top_level_component in top_level_components:
+            # Ask the user to select the components to encapsulate
             questions = [
-                    inquirer.Checkbox(
-                        'top_level',
-                        message=f"Select top level components for the encapsulation",
-                        choices=model.component_namespace,
-                    ),
-                ]
+                inquirer.Checkbox(
+                    'components',
+                    message=f"Select the components to encapsulate for {top_level_component}",
+                    choices=list(set(model.component_namespace)-set(top_level_components)),
+                ),
+            ]
             answers = inquirer.prompt(questions)
-            # Get the top level components
-            top_level_components = answers['top_level']
-            # Ask if the user wants to encapsulate the components for each top level component
-            for top_level_component in top_level_components:
-                # Ask the user to select the components to encapsulate
-                questions = [
-                    inquirer.Checkbox(
-                        'components',
-                        message=f"Select the components to encapsulate for {top_level_component}",
-                        choices=model.component_namespace,
-                    ),
-                ]
-                answers = inquirer.prompt(questions)
-                if answers['components']:
-                    # Get the components to encapsulate
-                    children_comp = answers['components']
-                    # Create the top level component ref
-                    children_refs = [Component_ref(child,children=None) for child in children_comp]
-                    top_level_component_ref = Component_ref(top_level_component,children=children_refs)
-                    top_level_component_refs+=[top_level_component_ref]         
-                else:
-                    top_level_component_ref = Component_ref(top_level_component,children=None)
-                    top_level_component_refs+=[top_level_component_ref]
-        else:
-            break
+            if answers['components']:
+                # Get the components to encapsulate
+                children_comp = answers['components']
+                # Create the top level component ref
+                children_refs = [Component_ref(child,children=None) for child in children_comp]
+                top_level_component_ref = Component_ref(top_level_component, children=children_refs)
+                top_level_component_refs+=[top_level_component_ref]         
+            else:
+                top_level_component_ref = Component_ref(top_level_component, children=None)
+                top_level_component_refs+=[top_level_component_ref]
+    
     if len(top_level_component_refs)>0:
        encap = Encapsulation(parent=model,children=top_level_component_refs)
     else:
         encap = None
+    
     return encap
 
-def connectCellMLcomponent(model):
-     # Print all the components in the model 
-    # Get the imported components
-    imported_components = [item.component_def for item in model.Import_components]
-    imported_components_name = [item.name for item in model.Import_components]
-    
+def getComponentByName(model,name):
+        # Get the imported components
+        imported_components = [item.component_def for item in model.Import_components]
+        imported_components_name = [item.name for item in model.Import_components]
+        if name in imported_components_name:
+            component= imported_components[imported_components_name.index(name)]
+        else:
+            component = model.components[model.component_namespace.index(name)]
+        return component
+
+def addConnection(model,comp1,comp2):
+    # Create the connection pair
+    Connection_pair=Connection(comp1,comp2)           
+    variable_map = Map_variables_suggestion(comp1,comp2)
+    vars_map=[]
+    for vars in variable_map:
+        vars_map += [Map_variables(vars[0],vars[1],parent=Connection_pair)]   
+    Connection_pair.children=vars_map    
+    model.children.append(Connection_pair)
+
+def connectCellMLcomponent(model):     
+    # Map the encapsulated components
+    def mapComponent_ref(component_ref):
+        if component_ref.children is not None:
+            component1 = getComponentByName(model, component_ref.component)
+            for child in component_ref.children:
+                component2 = getComponentByName(model, child.component)
+                addConnection(model,component1,component2)
+                mapComponent_ref(child)
+    if model.encapsulation is not None:
+       print('Map the encapsulated components:')
+       for item in model.encapsulation.children:
+           mapComponent_ref(item)
+
     print(f'The model {model.name} contains components:')
     for i,component in enumerate(model.component_namespace):
-        print(str(i)+':'+ str(component))
+        print(str(i)+':'+ str(component))                
     # Ask the user to type the component pairs to connect
     while True:
         questions = [
             inquirer.Text(
                 'connection pairs',
                 message="Type the component pairs to connect: comp1_index,comp1_index",
+                default=False,
             ),
         ]
         answers = inquirer.prompt(questions)
@@ -318,23 +353,9 @@ def connectCellMLcomponent(model):
             pairs = answers['connection pairs'].split(',')
             component1_name = model.component_namespace[int(pairs[0])]
             component2_name = model.component_namespace[int(pairs[1])] 
-            # Check if the components are imported
-            if component1_name in imported_components_name:
-                component1 = imported_components[imported_components_name.index(component1_name)]
-            else:
-                component1 = model.components[int(pairs[0])]
-            if component2_name in imported_components_name:
-                component2 = imported_components[imported_components_name.index(component2_name)]
-            else:
-                component2 = model.components[int(pairs[1])]
-            # Create the connection pair
-            Connection_pair=Connection(component1,component2)           
-            variable_map = Map_variables_suggestion(component1,component2)
-            vars_map=[]
-            for vars in variable_map:
-                vars_map += [Map_variables(vars[0],vars[1],parent=Connection_pair)]   
-            Connection_pair.children=vars_map    
-            model.children.append(Connection_pair)
+            component1 = getComponentByName(model,component1_name)
+            component2 = getComponentByName(model,component2_name)
+            addConnection(model,component1,component2)
         else:
             break
 
@@ -374,16 +395,39 @@ def Map_variables_suggestion(comp1,comp2):
             print('No parameters found')
             parameters = []
         else:
+            # Print the possible parameters and ask the user to select or deselect the parameters.
+            # If the user chooses select, the selected parameters will be added to the list of parameters;
+            # if the user chooses deselect, the deselected parameters will be removed from the list of parameters.
             questions = [
-                inquirer.Checkbox(
-                    'parameters',
+                inquirer.List(
+                    'select',
                     message="Select the parameters",
-                    choices=[variable.name for variable in possible_parameters],
+                    choices=['Select','De-select'],
                 ),
             ]
-            answers = inquirer.prompt(questions)            
-            print(answers['parameters'])
-            parameters=[variable for variable in possible_parameters if variable.name in answers['parameters']]
+            answers = inquirer.prompt(questions)
+            select = answers['select']
+            if select == 'Select':
+                questions = [
+                    inquirer.Checkbox(
+                        'parameters',
+                        message="Select the parameters that will be added to the first component",
+                        choices=[variable.name for variable in possible_parameters],
+                    ),
+                ]
+                answers = inquirer.prompt(questions)
+                parameters=[variable for variable in possible_parameters if variable.name in answers['parameters']]
+            else:
+                questions = [
+                    inquirer.Checkbox(
+                        'parameters',
+                        message="Select the non-parameters and the remaining parameters will be added to the first component",
+                        choices=[variable.name for variable in possible_parameters],
+                    ),
+                ]
+                answers = inquirer.prompt(questions)
+                parameters=[variable for variable in possible_parameters if variable.name not in answers['parameters']]
+
         # Add the parameters to the first component with private interface "out" and to the variable map
         for parameter in parameters:
             # Get the variable from the list of possible parameters and make a copy of it
@@ -404,20 +448,47 @@ def Map_variables_suggestion(comp1,comp2):
                 if variable1.name == variable2.name and ((variable1.public_interface =='in' and variable2.public_interface =='out') or (variable1.public_interface =='out' and variable2.public_interface =='in')):
                     variable_map.append([variable1, variable2])
  
+    # Print the variable map suggestion and ask the user to select the variables to map
+    print('Variable map suggestion:')
+    for variable1, variable2 in variable_map:
+        print(str(variable_map.index([variable1, variable2]))+":"+variable1.cellMLText()+' <-> '+variable2.cellMLText())
     questions = [
-    inquirer.Checkbox(
-        "variable_map",
+    inquirer.List(
+        "select",
         message="Select the variables to map:",
-        choices=[str(variable_map.index([variable1, variable2]))+":"+variable1.cellMLText()+' <-> '+variable2.cellMLText() for variable1, variable2 in variable_map],
+        choices=['Select','De-select'],
     ),
     ]
-
     answers = inquirer.prompt(questions)
-    variable_map_index = []
-    # get the variable map based on the user selection
-    for i in answers['variable_map']:
-        ianswer = i.split(':')[0]
-        variable_map_index.append(int(ianswer))
+    select = answers['select']
+    if select == 'Select':
+        questions = [
+        inquirer.Checkbox(
+            "variable_map",
+            message="Select the variables to map:",
+            choices=[str(variable_map.index([variable1, variable2]))+":"+variable1.cellMLText()+' <-> '+variable2.cellMLText() for variable1, variable2 in variable_map],
+        ),
+        ]
+        answers = inquirer.prompt(questions)
+        variable_map_index = []
+        # get the variable map based on the user selection
+        for i in answers['variable_map']:
+            ianswer = i.split(':')[0]
+            variable_map_index.append(int(ianswer))
+    else:
+        questions = [
+        inquirer.Checkbox(
+            "variable_map",
+            message="Select the non-mapped variables:",
+            choices=[str(variable_map.index([variable1, variable2]))+":"+variable1.cellMLText()+' <-> '+variable2.cellMLText() for variable1, variable2 in variable_map],
+        ),
+        ]
+        answers = inquirer.prompt(questions)
+        variable_map_index = [i for i in range(len(variable_map))]
+        # get the variable map based on the user selection
+        for i in answers['variable_map']:
+            ianswer = i.split(':')[0]
+            variable_map_index.remove(int(ianswer))
 
     variable_map = [variable_map[i] for i in variable_map_index]    
     # Update the private interface of the variables in the first component based on the user selection
@@ -518,11 +589,21 @@ def createCellMLModel():
         # Create the model
         if answers['name'] != '':
             model = Model(answers['name'])
+           # Save the model by writing the CellML text to a file using the save file dialog
+           # Ask the user to select the file name and location
+            print('Save the model:')
+            root = tk.Tk()
+            root.withdraw()
+            file_path = filedialog.asksaveasfilename()
+            root.update()
+            root.destroy()
+            # Get the directory of the file
+            directory = os.path.dirname(file_path)
             # Ask the user to select the new components for the model
             questions = [
                 inquirer.Checkbox(
                     'components',
-                    message="Select the components",
+                    message="Select the new components",
                     choices=[component.name for component in new_components],
                 ),
             ]
@@ -530,24 +611,36 @@ def createCellMLModel():
             # Get the selected components
             new_components = [component for component in new_components if component.name in answers['components']]
             getEquations(new_components)
-            imports=importCellMLComponent()
+            # Ask the user to select the components to import
+            imports=importCellMLComponent(directory)
             if imports is not None:     
                model.children =new_components+imports
             else:
                 model.children =new_components
+            # Ask the user to select the components to encapsulate
             encap = encapCellMLcomponent(model)
             if encap is not None:
-               model.children.append(encap)
-            importCellMLunits(model) 
+               model.children.append(encap)            
+            importCellMLunits(model,directory) 
+            # Ask the user to select the components to connect
             connectCellMLcomponent(model)
             # Print the model
             for pre, fill, node in RenderTree(model):
                 print("%s%s" % (pre, node))
-            # Save the model by writing the CellML text to a file using the save file dialog
-            root = tk.Tk()
-            root.withdraw()
-            file_path = filedialog.asksaveasfilename()
-            model.cellML(file_path)
+            # Ask if the user wants to write the model to a CellML file
+            questions = [
+                inquirer.Confirm(
+                    'write',
+                    message="Write the model to a CellML file?",
+                    default=True,
+                ),
+            ]
+            answers = inquirer.prompt(questions)
+            if answers['write']:
+                # Write the model to a CellML file
+                model.cellML(file_path)
+            else:
+                break            
         else:
             break
     

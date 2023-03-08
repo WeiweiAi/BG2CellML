@@ -130,11 +130,10 @@ class Model(cellMLNodeBase, NodeMixin):
         """Using xml.etree.ElementTree to build XML documents (cellml/1.1#)"""
         # Create the root element
         root = ET.Element('model', attrib={'name':self.name})
-        # Add the namespace
+        # Add namespace
         root.set('xmlns', 'http://www.cellml.org/cellml/1.1#')
         root.set('xmlns:cellml', 'http://www.cellml.org/cellml/1.1#')
-        root.set('xmlns:mathml', 'http://www.w3.org/1998/Math/MathML')
-        root.set('xmlns:xlink', 'http://www.w3.org/1999/xlink')
+        root.set('xmlns:xlink', 'http://www.w3.org/1999/xlink')        
         # Add the children as subelements
         for child in self.children:
             if isinstance(child, Import):
@@ -183,9 +182,10 @@ class Model(cellMLNodeBase, NodeMixin):
                             grandchild_element.set('initial_value', grandchild.initial_value)
                     # Add the math as subelements
                     elif isinstance(grandchild, Math):
-                        grandchild_element=ET.SubElement(child_element, 'math', attrib={'xmlns': 'http://www.w3.org/1998/Math/MathML'})
+                        grandchild_element=ET.SubElement(child_element, 'math')
+                        grandchild_element.set('xmlns', 'http://www.w3.org/1998/Math/MathML')
                         grandchild_element.tail = "\n"
-                        grandchild_element.text = grandchild.math
+                        grandchild_element.append(grandchild.math)
             elif isinstance(child, Connection):
                 # Add the connection as subelements, <connection>  </connection>
                 child_element=ET.SubElement(root, 'connection')
@@ -223,7 +223,7 @@ class Model(cellMLNodeBase, NodeMixin):
 
         tree = ET.ElementTree(root)
         ET.indent(tree, space="\t", level=0)
-        tree.write(filename, encoding='utf-8', xml_declaration=True)
+        tree.write(filename, encoding='utf-8', xml_declaration=True, method = 'xml')
 
 class Encapsulation(cellMLNodeBase, NodeMixin):
     """Class to store a CellML encapsulation, as a child of a model element."""
@@ -567,8 +567,7 @@ class Import(cellMLNodeBase, NodeMixin):
         super(cellMLNodeBase, self).__init__()
         self.href = href
         self._parent = parent
-        if children:
-            self._children = children
+        self._children = children
 
     @property
     def parent(self):
