@@ -18,7 +18,8 @@ class Model(cellMLNodeBase, NodeMixin):
     def __init__(self, name, parent=None, children=None):
         """Initialise the CellML model."""
         super(cellMLNodeBase, self).__init__()
-        self.name = name   
+        self.name = name
+        self.id = 'model.'+ name   
         self.parent = parent
         self._children = children
 
@@ -130,15 +131,18 @@ class Model(cellMLNodeBase, NodeMixin):
         """Using xml.etree.ElementTree to build XML documents (cellml/1.1#)"""
         # Create the root element
         root = ET.Element('model', attrib={'name':self.name})
+        if self.id is not None:
+            root.set('cmeta:id', self.id)
         # Add namespace
         root.set('xmlns', 'http://www.cellml.org/cellml/1.1#')
         root.set('xmlns:cellml', 'http://www.cellml.org/cellml/1.1#')
-        root.set('xmlns:xlink', 'http://www.w3.org/1999/xlink')        
+        root.set('xmlns:xlink', 'http://www.w3.org/1999/xlink')
+        root.set('xmlns:math', 'http://www.w3.org/1998/Math/MathML')
+        root.set('xmlns:cmeta="http://www.cellml.org/metadata/1.0#')        
         # Add the children as subelements
         for child in self.children:
             if isinstance(child, Import):
                 child_element=ET.SubElement(root, 'import', attrib={'xlink:href': child.href})
-                child_element.tail = "\n" 
                 # Add the grandchildren as subelements
                 for grandchild in child.children:
                     # Add the import component as subelements
@@ -147,10 +151,11 @@ class Model(cellMLNodeBase, NodeMixin):
                         grandchild_element=ET.SubElement(child_element, 'component', attrib={'name': grandchild.name,'component_ref': grandchild.component_ref})
                     elif isinstance(grandchild, Import_units):
                         grandchild_element=ET.SubElement(child_element, 'units', attrib={'name': grandchild.name,'units_ref': grandchild.units_ref})
+                    if grandchild.id is not None:
+                        grandchild_element.set('cmeta:id', grandchild.id)
                     grandchild_element.tail = "\n"
             elif isinstance(child, Units):
                 child_element=ET.SubElement(root, 'units', attrib={'name': child.name})
-                child_element.tail = "\n"
                 # Add the grandchildren as subelements
                 for grandchild in child.children:
                     # Add the unit as subelements
@@ -167,12 +172,13 @@ class Model(cellMLNodeBase, NodeMixin):
                             grandchild_element.set('offset', grandchild.offset)                        
             elif isinstance(child, Component):
                 child_element=ET.SubElement(root, 'component', attrib={'name': child.name})
-                child_element.tail = "\n"
                 # Add the grandchildren as subelements
                 for grandchild in child.children:
                     # Add the variable as subelements
                     if isinstance(grandchild, Variable):
                         grandchild_element=ET.SubElement(child_element, 'variable', attrib={'name': grandchild.name,'units': grandchild.units})
+                        if grandchild.id is not None:
+                            grandchild_element.set('cmeta:id', grandchild.id)
                         grandchild_element.tail = "\n"
                         if grandchild.public_interface is not None:
                             grandchild_element.set('public_interface', grandchild.public_interface)
@@ -189,7 +195,6 @@ class Model(cellMLNodeBase, NodeMixin):
             elif isinstance(child, Connection):
                 # Add the connection as subelements, <connection>  </connection>
                 child_element=ET.SubElement(root, 'connection')
-                child_element.tail = "\n"
                 grandchild_element=ET.SubElement(child_element, 'map_components', attrib={'component_1': child.component_1.name,'component_2': child.component_2.name})
                 grandchild_element.tail = "\n"                
                 # Add the grandchildren as subelements
@@ -197,10 +202,11 @@ class Model(cellMLNodeBase, NodeMixin):
                     # Add the map_variables as subelements
                     if isinstance(grandchild, Map_variables):
                         grandchild_element=ET.SubElement(child_element, 'map_variables', attrib={'variable_1': grandchild.variable_1,'variable_2': grandchild.variable_2})
+                        if grandchild.id is not None:
+                            grandchild_element.set('cmeta:id', grandchild.id)
                         grandchild_element.tail = "\n"
             elif isinstance(child, Encapsulation):
-                child_element=ET.SubElement(root, 'group')
-                child_element.tail = "\n"                
+                child_element=ET.SubElement(root, 'group')              
                 # Add         <relationship_ref relationship="encapsulation"/>
                 grandchild_element=ET.SubElement(child_element, 'relationship_ref', attrib={'relationship': 'encapsulation'})
                 grandchild_element.tail = "\n"
@@ -213,14 +219,17 @@ class Model(cellMLNodeBase, NodeMixin):
                            # Add the component_ref as subelements
                            if isinstance(grandgrandchild, Component_ref):
                                grandgrandchild_element=ET.SubElement(parent_element, 'component_ref', attrib={'component': grandgrandchild.component})
+                               if grandgrandchild.id is not None:
+                                   grandgrandchild_element.set('cmeta:id', grandgrandchild.id)                                                                    
                                grandgrandchild_element.tail = "\n"                               
                                # Add the grandgrandgrandchildren as subelements recursively
-                               add_component_ref(grandgrandchild, grandgrandchild_element)
-   
+                               add_component_ref(grandgrandchild, grandgrandchild_element)   
                 add_component_ref(child, child_element)
+            if child.id is not None:
+                child_element.set('cmeta:id', child.id)
+                child_element.tail = "\n"
 
         # Write the XML to a file with indentation
-
         tree = ET.ElementTree(root)
         ET.indent(tree, space="\t", level=0)
         tree.write(filename, encoding='utf-8', xml_declaration=True, method = 'xml')
@@ -232,6 +241,7 @@ class Encapsulation(cellMLNodeBase, NodeMixin):
         """Initialise the CellML encapsulation."""
         super(cellMLNodeBase, self).__init__()
         self._parent = parent
+        self._id = 'encapsulation'
         if children:
             self._children = children
         
@@ -260,6 +270,19 @@ class Encapsulation(cellMLNodeBase, NodeMixin):
             raise TypeError("Children must be of type CellMLComponent_ref.")
         else:
             self._children = value            
+    
+    @property
+    def id(self):
+        """Return the id of the encapsulation."""
+        return self._id
+    @id.setter
+    def id(self, value):
+        if value is None:
+            self._id = value
+        elif not isinstance(value, str):
+            raise TypeError("Id must be of type str.")
+        else:
+            self._id = value
     # Get all the namespace of the components and component references in the encapsulation.
     @property
     def namespace(self):
@@ -290,6 +313,7 @@ class Component_ref(cellMLNodeBase, NodeMixin):
         """Initialise the CellML component reference."""
         super(cellMLNodeBase, self).__init__()
         self.component = component
+        self._id = None
         self._parent = parent
         self._children = children
 
@@ -306,7 +330,24 @@ class Component_ref(cellMLNodeBase, NodeMixin):
             raise ValueError("Parent must be a CellML encapsulation or component references.")
         else:
             self._parent = value
-    
+    @property
+    def id(self):
+        """Return the id of the component reference."""
+        if self.parent is not None:
+            self._id = self.parent.id + '.' + self.component
+        else:
+            self._id = self.component
+        return self._id
+    @id.setter
+    def id(self, value):
+        """Set the id of the component reference."""
+        if value is None:
+            self._id = value
+        elif not isinstance(value, str):
+            raise ValueError("Id must be a string.")
+        else:
+            self._id = value
+
     @property
     def children(self):
         """Return the component reference of the component reference."""
@@ -359,6 +400,7 @@ class Component(cellMLNodeBase, NodeMixin):
         """Initialise the CellML component."""
         super(cellMLNodeBase, self).__init__()
         self.name = name
+        self._id = name
         self._parent = parent
         self._children = children
     @property
@@ -372,6 +414,17 @@ class Component(cellMLNodeBase, NodeMixin):
             raise TypeError("Parent must be of type CellMLModel.")
         else:
             self._parent = value
+    @property
+    def id(self):
+        return self._id
+    @id.setter
+    def id(self, value):
+        if value is None:
+            self._id = value
+        elif not isinstance(value, str):
+            raise TypeError("Id must be of type str.")
+        else:
+            self._id = value
 
     @property
     def children(self):
@@ -443,6 +496,7 @@ class Connection(cellMLNodeBase, NodeMixin):
             self.component_2 = component_2
             self._parent = parent
             self._children = children
+            self._id = f"{component_1.name}-{component_2.name}"
         else:
             raise ValueError(f"Connection components {component_1.name} and {component_2.name} are the same.")
     @property
@@ -458,6 +512,20 @@ class Connection(cellMLNodeBase, NodeMixin):
             raise TypeError("Parent must be of type CellMLModel.")
         else:
             self._parent = value
+    @property
+    def id(self):
+        """Return the id of the connection."""
+        return self._id
+    @id.setter
+    def id(self, value):
+        """Set the id of the connection."""
+        if value is None:
+            self._id = value
+        elif not isinstance(value, str):
+            raise TypeError("Id must be of type str.")
+        else:
+            self._id = value
+
     @property
     def children(self):
         """Return the children of the connection."""
@@ -523,6 +591,7 @@ class Map_variables(cellMLNodeBase, NodeMixin):
         super(cellMLNodeBase, self).__init__()
         self.variable_1 = variable_1
         self.variable_2 = variable_2
+        self._id = None
         self._parent = parent
         if children:
             self.children = children
@@ -540,6 +609,23 @@ class Map_variables(cellMLNodeBase, NodeMixin):
             self._parent = value
         else:
             raise TypeError("Parent must be of type Connection.")
+    @property
+    def id(self):
+        """Get the id of a map_variable."""
+        if self.parent is not None:
+            self._id = self.parent.id + '.' + f'{self.variable_1}-{self.variable_2}'
+        else:
+            self._id = f'{self.variable_1}-{self.variable_2}'
+        return self._id
+    @id.setter
+    def id(self, value):
+        """Set the id of a map_variable."""
+        if value is None:
+            self._id = value
+        elif not isinstance(value, str):
+            raise TypeError("Id must be of type str.")
+        else:
+            self._id = value 
 
     def __eq__(self, other):
         """Check if two map_variables are equal."""
@@ -568,6 +654,7 @@ class Import(cellMLNodeBase, NodeMixin):
         self.href = href
         self._parent = parent
         self._children = children
+        self.id = href
 
     @property
     def parent(self):
@@ -644,6 +731,7 @@ class Import_component(cellMLNodeBase, NodeMixin):
         self.name = name
         self.component_ref = component_ref
         self.component_def = component_def # component_def is the component definition in the imported model
+        self.id = name
         self._parent = parent
         if children:
             self.children = children
@@ -659,7 +747,7 @@ class Import_component(cellMLNodeBase, NodeMixin):
             self._parent = value
         else:
             raise TypeError("Parent must be of type CellMLImport.")
-
+    
     def __eq__(self, other):
         """Check if two import_components are equal."""
         if isinstance(other, self.__class__):
@@ -686,6 +774,7 @@ class Import_units(cellMLNodeBase, NodeMixin):
         super(cellMLNodeBase, self).__init__()
         self.name = name
         self.units_ref = units_ref
+        self.id = name
         self._parent = parent
         if children:
             self.children = children
@@ -703,7 +792,7 @@ class Import_units(cellMLNodeBase, NodeMixin):
             self._parent = value
         else:
             raise TypeError("Parent must be of type CellMLImport.")
-
+    
     def __eq__(self, other):
         """Check if two import_units are equal."""
         if isinstance(other, self.__class__):
@@ -753,6 +842,7 @@ class Units(cellMLNodeBase, NodeMixin):
         """Initialise the CellML units element."""
         super(cellMLNodeBase, self).__init__()
         self.name = name
+        self.id = name
         self._parent = parent
         self._children = children
     
@@ -878,6 +968,7 @@ class Variable(cellMLNodeBase, NodeMixin):
         """Initialise the CellML variable."""
         super(cellMLNodeBase, self).__init__()
         self.name = name
+        self._id = None
         self.units = units
         self.initial_value = initial_value
         self.public_interface = public_interface
@@ -900,7 +991,21 @@ class Variable(cellMLNodeBase, NodeMixin):
             self._parent = value
         else:
             raise TypeError(f"Parent {value} is not a Component.")
-
+    @property
+    def id(self):
+        """Return the id of the variable."""
+        self._id = self.parent.id+'.'+self.name
+        return self._id
+    @id.setter
+    def id(self, value):
+        """Set the id of the variable."""
+        if value is None:
+            self._id = value
+        elif not isinstance(value, str):
+            raise TypeError("Id must be of type str.")
+        else:
+            self._id = value
+        
     @property
     def public_interface(self):
         """Return the public interface of the variable."""
