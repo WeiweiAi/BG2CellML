@@ -1,18 +1,327 @@
-from libcellml import Analyser, Component, Generator, GeneratorProfile, Model, Units, Validator, Variable, Parser, ImportSource, Printer, Importer
+from libcellml import Analyser, Component, Generator, GeneratorProfile, Model, Units, Validator, Variable, Parser, ImportSource, Printer, Importer, Annotator
 import pandas as pd
-import os
-from utilities import print_model, ask_for_file_or_folder, ask_for_input, load_matrix
+from utilities import print_model, ask_for_file_or_folder, ask_for_input, load_matrix, infix_to_mathml
 import sys
-import libsbml
 import cellml
-MATH_HEADER = '<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">'
-MATH_FOOTER = '</math>'
-MATH_DUMMY = """<apply>
-                <eq/>
-                <ci>a</ci>
-                <ci>b</ci>
-            </apply>"""
-#----------------------------------------------------------------Build a cellML model for BG model----------------------------------------------------------#
+from pathlib import PurePath 
+from rdflib import Graph, Namespace
+from rdflib.namespace import RDF, FOAF,  DCTERMS
+MATH_HEADER = '<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">\n'
+MATH_FOOTER = '</math>\n'
+BUILTIN_UNITS = {'ampere':Units.StandardUnit.AMPERE, 'becquerel':Units.StandardUnit.BECQUEREL, 'candela':Units.StandardUnit.CANDELA, 'coulomb':Units.StandardUnit.COULOMB, 'dimensionless':Units.StandardUnit.DIMENSIONLESS, 
+                 'farad':Units.StandardUnit.FARAD, 'gram':Units.StandardUnit.GRAM, 'gray':Units.StandardUnit.GRAY, 'henry':Units.StandardUnit.HENRY, 'hertz':Units.StandardUnit.HERTZ, 'joule':Units.StandardUnit.JOULE,
+                   'katal':Units.StandardUnit.KATAL, 'kelvin':Units.StandardUnit.KELVIN, 'kilogram':Units.StandardUnit.KILOGRAM, 'liter':Units.StandardUnit.LITRE, 'litre':Units.StandardUnit.LITRE, 
+                   'lumen':Units.StandardUnit.LUMEN, 'lux':Units.StandardUnit.LUX, 'metre':Units.StandardUnit.METRE, 'meter':Units.StandardUnit.METRE, 'mole':Units.StandardUnit.MOLE, 'newton':Units.StandardUnit.NEWTON, 
+                   'ohm':Units.StandardUnit.OHM, 'pascal':Units.StandardUnit.PASCAL, 'radian':Units.StandardUnit.RADIAN, 'second':Units.StandardUnit.SECOND, 'siemens':Units.StandardUnit.SIEMENS, 'sievert':Units.StandardUnit.SIEVERT, 
+                   'steradian':Units.StandardUnit.STERADIAN, 'tesla':Units.StandardUnit.TESLA, 'volt':Units.StandardUnit.VOLT, 'watt':Units.StandardUnit.WATT, 'weber':Units.StandardUnit.WEBER}
+class RDF_Graph():
+    # Namespaces according to OMEX metadata specification (version 1.2)
+    ORCID = Namespace('http://orcid.org/')   
+    BQMODEL = Namespace('http://biomodels.net/model-qualifiers/')
+    BQBIOL = Namespace('http://biomodels.net/biology-qualifiers/')
+    PUBMED = Namespace('http://identifiers.org/pubmed:')
+    NCBI_TAXONOMY = Namespace('http://identifiers.org/taxonomy:')
+    BIOMOD = Namespace('http://identifiers.org/biomodels.db:')
+    CHEBI = Namespace('http://identifiers.org/chebi/CHEBI:')
+    UNIPROT = Namespace('http://identifiers.org/uniprot:')
+    OPB = Namespace('http://identifiers.org/opb:')
+    FMA = Namespace('http://identifiers.org/FMA:')
+    GO = Namespace('http://identifiers.org/GO:')
+    SEMSIM = Namespace('http://bime.uw.edu/semsim/')
+
+    ontology_database = {'NCBI_Taxon':{},'uniprot':{}, 'chebi':{'17634':'D-glucose','29101':'sodium(1+)','29103':'potassium(+1)'}, 'fma':{},
+                         'go':{'0005886':'plasma membrane','0005829':'cytosol','0005615':'extracellular space','0015758':'glucose transport','1990350':'A protein complex facilitating glucose transport'},
+                         'opb':{'OPB_00592':'Chemical amount flow rate','OPB_00425': 'Molar amount of chemical'}}
+    prefix_NAMESPACE = {'rdf':RDF,'foaf':FOAF,'dc':DCTERMS, 'orcid':ORCID, 'bqmodel':BQMODEL,'bqbiol':BQBIOL, 'pubmed':PUBMED,'NCBI_Taxon':NCBI_TAXONOMY,'biomod':BIOMOD,
+                        'chebi':CHEBI,'uniprot':UNIPROT,'opb':OPB,'fma':FMA,'go':GO, 'semsim':SEMSIM}
+    bqmodel__qualifers = ['is']
+    bqbiol_qualifers=['isPartOf','hasPart','isPropertyOf','hasProperty','isVersionOf','hasVersion','occursIn']
+    semsim_qualifers = ['hasMediatorParticipant','hasSinkParticipant','hasSourceParticipant','hasPhysicalEntityReference','isProductOf','isReactantOf']
+    
+    prefix_qualifer = {'bqmodel':bqmodel__qualifers,'bqbiol':bqbiol_qualifers,'semsim':semsim_qualifers}
+    
+    def __init__(self, filename):
+        # input: filename, the fullpath of the CellML file which is to be annotated
+        # output: a RDF graph object with additional attributes: rdf_file, prefix_NAMESPACE_local, local_entity
+        file_withoutSuffix = PurePath(filename).stem
+        self.rdf_file = str(PurePath(filename).parent .joinpath(file_withoutSuffix)) + '.ttl' # the fullpath of the RDF file, which is in the same folder as the CellML file and has the same name
+        LOCAL = Namespace('./'+file_withoutSuffix + '.ttl#') # By default, the local namespace is the same as the RDF file name
+        MODEL_BASE = Namespace('./'+file_withoutSuffix + '.cellml#')
+        self.prefix_NAMESPACE_local = self.prefix_NAMESPACE|{'local':LOCAL,'model_base':MODEL_BASE}
+        self.local_entity = ['Sink','Source','Mediator']
+        self.graph = Graph()
+        # Defined Namespace bindings.
+        self.graph.bind('orcid', self.ORCID)
+        self.graph.bind('rdf', RDF)
+        self.graph.bind('foaf', FOAF)
+        self.graph.bind('dc', DCTERMS)
+        self.graph.bind('bqmodel', self.BQMODEL)
+        self.graph.bind('bqbiol', self.BQBIOL)
+        self.graph.bind('pubmed', self.PUBMED)
+        self.graph.bind('NCBI_Taxon', self.NCBI_TAXONOMY)
+        self.graph.bind('biomod', self.BIOMOD)
+        self.graph.bind('chebi', self.CHEBI)
+        self.graph.bind('uniprot', self.UNIPROT)
+        self.graph.bind('opb', self.OPB)
+        self.graph.bind('fma', self.FMA)
+        self.graph.bind('go', self.GO)
+        self.graph.bind('semsim', self.SEMSIM)        
+        self.graph.bind('local', LOCAL)   
+        self.graph.bind('model_base', MODEL_BASE)
+    # Define a function to allow the user to edit the nodes
+    def edit_node_model(self, model):
+        # input: model, the CellML model object
+        # output: node, the RDF URI node of the model entity (e.g. component, variable)
+        base = 'model_base'
+        message='Please select the entity type'
+        choices = ['model','component','variable']
+        entity_type = ask_for_input(message, 'List', choices)
+        if entity_type == 'model':
+            subnode = model.id()
+        elif entity_type == 'component':
+            message = 'Please select the component'
+            choices = [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
+            comp_name = ask_for_input(message, 'List', choices)
+            subnode = model.component(comp_name).id()
+        elif entity_type == 'variable':
+            message = 'Please select the component'
+            choices = [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
+            comp_name = ask_for_input(message, 'List', choices)
+            message = 'Please select the variable'
+            choices = [model.component(comp_name).variable(var_numb).name() for var_numb in range(model.component(comp_name).variableCount())]
+            var_name = ask_for_input(message, 'List', choices)
+            subnode = model.component(comp_name).variable(var_name).id()
+
+        node = self.prefix_NAMESPACE_local[base][subnode]   
+        return node
+
+    def edit_node_local(self):
+        # output: node, the RDF URI node of the local entity
+        base = 'local'
+        message = 'Please type the variable name'
+        subnode = ask_for_input(message, 'Text')
+        if subnode == '':
+            return None 
+        node = self.prefix_NAMESPACE_local[base][subnode]   
+        return node
+    
+    def edit_node_ontology(self):
+        # output: node, the RDF URI node of the ontology term
+        message = 'Please select the database'
+        choices = list(self.ontology_database.keys())
+        base = ask_for_input(message, 'List', choices)
+        print("The existing terms are: ", self.ontology_database[base].items())
+        message = 'Do you want to type a new term ?'
+        confirm = ask_for_input(message, 'Confirm')
+        if confirm:
+            if base == 'opb':
+               subnode = 'OPB_'+ ask_for_input(message, 'Text')
+            else:
+                subnode = ask_for_input(message, 'Text')
+            if subnode == '' or subnode == 'OPB_':
+                return None
+        else:
+            message = 'Please select the term'
+            choices = [(key, val) for key, val in self.ontology_database[base].items()]
+            subnode = ask_for_input(message, 'List', choices)[0]
+        node = self.prefix_NAMESPACE_local[base][subnode]   
+        return node
+    
+    def edit_edge(self):
+        # output: pred, the RDF URI node of the predicate          
+        message = 'Please select the prefix of the predicate'
+        choices = list(self.prefix_qualifer.keys())
+        base = ask_for_input(message, 'List', choices)
+        message = 'Please select the qualifier'
+        choices = self.prefix_qualifer[base]
+        subnode = ask_for_input(message, 'List', choices)
+        pred = self.prefix_NAMESPACE_local[base][subnode]   
+        return pred
+    
+    def add_identity_triple(self, subject):
+        # input: subject, the RDF URI node of the subject
+        # output: None
+        # add the identity triple to the RDF graph
+        base = 'bqbiol'
+        subnode = 'isVersionOf'
+        pred = self.prefix_NAMESPACE_local[base][subnode]
+        node = self.edit_node_ontology()
+        if node is not None:
+            self.graph.add((subject, pred, node))
+    
+    def add_part_triple(self, subject):
+        # input: subject, the RDF URI node of the subject
+        # output: None
+        # add the part triple to the RDF graph
+        base = 'bqbiol'
+        subnode = 'isPartOf'
+        pred = self.prefix_NAMESPACE_local[base][subnode]
+        node = self.edit_node_ontology()
+        if node is not None:
+            self.graph.add((subject, pred, node)) 
+    
+    def annotateModel_bioProcess(self,model):
+        # input: model, the CellML model object
+        # output: None
+        # update the RDF graph with biological process annotations, i.e., chemical reactions
+        entity_id =0
+        while True:
+            flux_units = Units('mole_per_second')
+            flux_units.addUnit(Units.StandardUnit_MOLE)
+            flux_units.addUnit(Units.StandardUnit_SECOND, -1)
+            # Annotate the flux rate variables, the source and sink variables
+            message = 'Please select the component'
+            choices = [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
+            comp_name = ask_for_input(message, 'List', choices)
+            variables = [model.component(comp_name).variable(var_numb).name() for var_numb in range(model.component(comp_name).variableCount())]
+            flux_vars =[var for var in variables if Units. compatible (model.component(comp_name).variable(var).units(),flux_units)]
+            quantity_vars = [var for var in variables if not Units. compatible (model.component(comp_name).variable(var).units(),Units('mole'))]
+            message = 'Please select the flux rate variable'
+            var_name = ask_for_input(message, 'List', flux_vars)
+            var_id = model.component(comp_name).variable(var_name).id()
+            base = 'model_base'
+            subnode = var_id
+            subj=self.prefix_NAMESPACE_local[base][subnode]
+            base = 'opb'
+            subnode = 'OPB_00592'
+            obj = self.prefix_NAMESPACE_local[base][subnode]
+            base = 'bqbiol'
+            subnode = 'isVersionOf'
+            pred = self.prefix_NAMESPACE_local[base][subnode]
+            self.graph.add((subj, pred, obj))
+            base = 'bqbiol'
+            subnode = 'isPropertyOf'
+            pred = self.prefix_NAMESPACE_local[base][subnode]
+    
+            process_entity = self.prefix_NAMESPACE_local['local']['Process' + str(entity_id)]                 
+            self.graph.add((subj, pred, process_entity))
+            message = 'Would you like to annotate the Process with a biological process term?'
+            confirm = ask_for_input(message, 'Confirm')
+            if confirm:
+                self.add_identity_triple(process_entity)       
+    
+            for local_entity in self.local_entity:
+                message = f'Please select the molar amount variable of the {local_entity} species'
+                var_name = ask_for_input(message, 'List', quantity_vars)
+                var_id = model.component(comp_name).variable(var_name).id()
+                base = 'model_base'
+                subnode = var_id
+                subj=self.prefix_NAMESPACE_local[base][subnode]
+                base = 'bqbiol'
+                subnode = 'isVersionOf'
+                pred = self.prefix_NAMESPACE_local[base][subnode]
+                base = 'opb'
+                subnode = 'OPB_00425'
+                obj = self.prefix_NAMESPACE_local[base][subnode]
+                self.graph.add((subj, pred, obj))
+                # link to the local entity
+                base = 'bqbiol'
+                subnode = 'isPropertyOf'
+                pred = self.prefix_NAMESPACE_local[base][subnode]
+                if local_entity == 'Source':
+                    subnode = local_entity + str(entity_id)
+                    source_entity = self.prefix_NAMESPACE_local['local'][subnode]
+                    self.graph.add((subj, pred, source_entity))
+                    pred = self.prefix_NAMESPACE_local['semsim']['hasSourceParticipant']
+                    self.graph.add((process_entity, pred, source_entity))
+                    print('Please annotate the source species with an anatomical term')
+                    self.add_part_triple(self, source_entity)
+                    message = 'Would you like to annotate the source species with an ontology term?'
+                    confirm = ask_for_input(message, 'Confirm')
+                    if confirm:
+                        self.add_identity_triple(source_entity)
+                elif local_entity == 'Sink':
+                    subnode = local_entity + str(entity_id)
+                    sink_entity = self.prefix_NAMESPACE_local['local'][subnode]
+                    self.graph.add((subj, pred, sink_entity))
+                    pred = self.prefix_NAMESPACE_local['semsim']['hasSinkParticipant']
+                    self.graph.add((process_entity, pred, sink_entity))
+                    print('Please annotate the sink species with an anatomical term')
+                    self.add_part_triple(self, sink_entity)
+                    message = 'Would you like to annotate the sink species with an ontology term?'
+                    confirm = ask_for_input(message, 'Confirm')
+                    if confirm:
+                        self.add_identity_triple(sink_entity)
+                else: # local_entity == 'Mediator':
+                    subnode = local_entity + str(entity_id)
+                    mediator_entity = self.prefix_NAMESPACE_local['local'][subnode]
+                    self.graph.add((subj, pred, mediator_entity))
+                    pred = self.prefix_NAMESPACE_local['semsim']['hasMediatorParticipant']
+                    self.graph.add((process_entity, pred, mediator_entity))
+                    print('Please annotate the mediator species with an anatomical term')
+                    self.add_part_triple(self, mediator_entity)
+                    message = 'Would you like to annotate the mediator species with an ontology term?'
+                    confirm = ask_for_input(message, 'Confirm')
+                    if confirm:
+                        self.add_identity_triple(mediator_entity)  
+            message = 'Would you like to continue?'
+            if not ask_for_input(message, 'Confirm'):
+                break
+            else:
+                entity_id += 1 
+        return
+    
+    def annotateModel_anyEntity(self,model):
+        # input: model, the CellML model object
+        # output: None
+        # update the RDF graph with the entity annotations according to the user input
+        while True:
+            message = 'Please select the type of the Subject of the RDF triple'
+            subject_type = ask_for_input(message, 'List', ['model','local','ontology'])
+            if subject_type == 'model':
+                subj = self.edit_node_model(model)
+            elif subject_type == 'local':
+                subj = self.edit_node_local()
+            else:
+                subj = self.edit_node_ontology()
+            pred = self.edit_edge()
+            message = 'Please select the type of the Object of the RDF triple'
+            object_type = ask_for_input(message, 'List', ['model','local','ontology'])
+            if object_type == 'model':
+                obj = self.edit_node_model(model)
+            elif object_type == 'local':
+                obj = self.edit_node_local()
+            else:
+                obj = self.edit_node_ontology()
+
+            if subj is not None  & obj is not None:
+                if (subj, pred, obj) in self.graph:
+                    message = 'This triple already exists in the graph, would you like to continue?'
+                    if not ask_for_input(message, 'Confirm'):
+                        break
+                    else:
+                        continue 
+                else:
+                    self.graph.add((subj, pred, obj))
+                    message = f'The triple ({subj}, {pred}, {obj}) has been added to the graph, would you like to continue?'
+                    if not ask_for_input(message, 'Confirm'):
+                        break
+                    else:
+                        continue   
+            else:
+                message = 'The subject or object is None so the triple is not added to the graph, would you like to continue?'
+                if not ask_for_input(message, 'Confirm'):
+                    break
+                else:
+                     continue  
+        return
+              
+    def save_graph(self):
+        # Save the RDF triples to a file
+        message = 'Do you want to save the RDF triples to a file?'
+        save_file = ask_for_input(message, 'Confirm')
+        if save_file:
+            with open(self.rdf_file, 'w') as f:
+                f.write(self.graph.serialize(format='ttl'))
+            f.close()
+            print(f'The RDF triples are saved to {self.rdf_file}')
+        else:
+            print('The RDF triples are not saved to a file')
+            return
+        
+    def get_graph(self):
+        return self.graph
+#---------------------------------------------------------------Build a cellML model for BG----------------------------------------------------------#
 """Define BG component class"""
 class BG():
    # Define physical domain and corresponding effort and flow variables, and their units
@@ -27,69 +336,66 @@ class BG():
            'Re_GHK':{'dom':'Ch','description':'GHK Reaction', 'para':['kappa','fmol_per_sec']},
            'R':{'dom':'E','description':'Resistor', 'para':['g','fS']} }
    # Define constant value and their units
-   const = {'F':[96485,'C_per_mol'], 'R':[8.31,'J_per_mol_per_K'], 'T':[293, 'kelvin']}
+   const = {'F':[96485,'C_per_mol'], 'R':[8.31,'J_per_K_per_mol'], 'T':[293, 'kelvin']}
 
 """Add variables and equations based on the component type"""
-def add_BGcomp(model, name, type):   
+def add_BGcomp(model, name, type, voi = 't'):   
     if type not in list(BG.comp):
        sys.exit(f'BG {type} is not defined!')
     component = model.component(model.name())
     component_param = model.component(model.name()+ '_param')
     dom = BG.comp[type]['dom']
     para_name = BG.comp[type]['para'][0] + '_' + name
-    para_unit = BG.comp[type]['para'][1]
+    para_unit = Units(BG.comp[type]['para'][1])
     para=Variable(para_name)
     para.setUnits(para_unit)
     component.addVariable(para)
-    component_param.addVariable(para)
+    component_param.addVariable(para.clone())
     f_name = BG.dom[dom]['f'][0]+ '_' + name
-    f_unit = BG.dom[dom]['f'][1]
+    f_unit = Units(BG.dom[dom]['f'][1])
     f=Variable(f_name)
     f.setUnits(f_unit)
     component.addVariable(f)
     if type in ['Ce','Se','C','Ve']:          
         q_init_name = BG.dom[dom]['q'][0]+ '_' + name + '_init'
-        q_unit = BG.dom[dom]['q'][1]
+        q_unit = Units(BG.dom[dom]['q'][1])
         q_init=Variable(q_init_name)
         q_init.setUnits(q_unit)
-        component_param.addVariable(q_init)
         component.addVariable(q_init)
+        component_param.addVariable(q_init.clone())
         q_name = BG.dom[dom]['q'][0]+ '_' + name
         q=Variable(q_name)
         q.setUnits(q_unit)
         q.setInitialValue(q_init)
         component.addVariable(q)
         e_name = BG.dom[dom]['e'][0]+ '_' + name
-        e_unit = BG.dom[dom]['e'][1]
+        e_unit = Units(BG.dom[dom]['e'][1])
         e=Variable(e_name)
         e.setUnits(e_unit)
         component.addVariable(e)
         if type in ['Ce','Se']:   
-           eq = [f'{e.name()} = R*T*ln({para.name()}*{q.name()})']
+           eq = f'R*T*ln({para.name()}*{q.name()})'
         else: # 'C','Ve'
-           eq = [f'{e.name()} = {f.name()}/{para.name()}'] 
-        new_mathml = libsbml.parseL3Formula(eq)
-        new_string = libsbml.writeMathMLToString(new_mathml)
-        component.appendMath(new_string)
+           eq = f'{f.name()}/{para.name()}'
+        ode_var = f'{e.name()}'          
+        component.appendMath(infix_to_mathml(eq, ode_var))
         if type in ['Ce','C']:
-           eq = [f'ode({q.name()},t) = {f.name()};\n']
-           new_mathml = libsbml.parseL3Formula(eq)
-           new_string = libsbml.writeMathMLToString(new_mathml)
-           component.appendMath(new_string)                    
+           ode_var = f'{q.name()}'
+           eq = f'{f.name()}'
+           component.appendMath(infix_to_mathml(eq, ode_var, voi))                    
     elif type == 'Re':
         ein_name = BG.dom[dom]['e'][0]+ '_' + name+ '_in'
         eout_name = BG.dom[dom]['e'][0]+ '_' + name+ '_out'
-        e_unit = BG.dom[dom]['e'][1]
+        e_unit = Units(BG.dom[dom]['e'][1])
         ein=Variable(ein_name)
         eout=Variable(eout_name)
         ein.setUnits(e_unit)
         eout.setUnits(e_unit)
         component.addVariable(ein)
         component.addVariable(eout)
-        eq = [f'{f.name()} = {para.name()}*(exp({ein.name()}/(R*T))-exp({eout.name()}/(R*T)))']
-        new_mathml = libsbml.parseL3Formula(eq)
-        new_string = libsbml.writeMathMLToString(new_mathml)
-        component.appendMath(new_string)
+        eq = f'{para.name()}*(exp({ein.name()}/(R*T))-exp({eout.name()}/(R*T)))'
+        ode_var = f'{f.name()}'
+        component.appendMath(infix_to_mathml(eq, ode_var))
     else:
         sys.exit(f'BG {type} is not defined!')
 
@@ -102,30 +408,36 @@ def add_BGbond(model, comps, compd, Nf, Nr):
         type = ecomp[1]
         dom = BG.comp[type]['dom']
         f_name = BG.dom[dom]['f'][0]+ '_' + name
-        eq = [f'{f_name} = ']
+        ode_var = f'{f_name}'
+        eq = []
         for j in range(len(Nf[0,:])):
-            if Nf[i,j] != 0:
+            if Nf[i,j] != '0':
                 name = compd[j][0]
                 type = compd[j][1]
                 dom = BG.comp[type]['dom']
                 f_name = BG.dom[dom]['f'][0]+ '_' + name
-                if Nf[i,j] == 1:
+                if Nf[i,j] == '1':
                     eq.append(f'-{f_name}')
                 else:
                     eq.append(f'-{Nf[i,j]}*{f_name}')
         for j in range(len(Nr[0,:])):
-            if Nr[i,j] != 0:
+            if Nr[i,j] != '0':
                 name = compd[j][0]
                 type = compd[j][1]
                 dom = BG.comp[type]['dom']
                 f_name = BG.dom[dom]['f'][0]+ '_' + name
-                if Nr[i,j] == 1:
-                    eq.append(f'+{f_name}')
+                if Nr[i,j] == '1':
+                    if len(eq) == 0:
+                        eq.append(f'{f_name}')
+                    else:
+                        eq.append(f'+{f_name}')
                 else:
-                    eq.append(f'+{Nr[i,j]}*{f_name}')
-        new_mathml = libsbml.parseL3Formula(eq)
-        new_string = libsbml.writeMathMLToString(new_mathml)
-        component.appendMath(new_string)
+                    if len(eq) == 0:
+                        eq.append(f'{Nr[i,j]}*{f_name}')
+                    else:
+                        eq.append(f'+{Nr[i,j]}*{f_name}')
+                        
+        component.appendMath(infix_to_mathml(''.join(eq), ode_var))
     # Add the one nodes, i.e., energy balance equations
     for j,dcomp in enumerate(compd):
         name = dcomp[0]
@@ -133,92 +445,120 @@ def add_BGbond(model, comps, compd, Nf, Nr):
         dom = BG.comp[type]['dom']
         ein_name = BG.dom[dom]['e'][0]+ '_' + name+ '_in'
         eout_name = BG.dom[dom]['e'][0]+ '_' + name+ '_out'
-        eqout = [f'{eout_name} = ']
-        eqin = [f'{ein_name} = ']
+        eqout = []
+        eqin = []
+        ode_var_out = f'{eout_name}'
+        ode_var_in = f'{ein_name}'
         for i in range(len(Nf[:,0])):
-            if Nf[i,j] != 0:
+            if Nf[i,j] != '0':
                 name = comps[i][0]
                 type = comps[i][1]
                 dom = BG.comp[type]['dom']
                 e_name = BG.dom[dom]['e'][0]+ '_' + name
-                if Nf[i,j] == 1:
-                    eqin.append(f'+{e_name}')
+                if Nf[i,j] == '1':
+                    if len(eqin) == 0:
+                        eqin.append(f'{e_name}')
+                    else:
+                        eqin.append(f'+{e_name}')
                 else:
-                    eqin.append(f'+{Nf[i,j]}*{e_name}')
+                    if len(eqin) == 0:
+                        eqin.append(f'{Nf[i,j]}*{e_name}')
+                    else:
+                        eqin.append(f'+{Nf[i,j]}*{e_name}')
         for i in range(len(Nr[:,0])):
-            if Nr[i,j] != 0:
+            if Nr[i,j] != '0':
                 name = comps[i][0]
                 type = comps[i][1]
                 dom = BG.comp[type]['dom']
                 e_name = BG.dom[dom]['e'][0]+ '_' + name
-                if Nr[i,j] == 1:
-                    eqout.append(f'+{e_name}')
+                if Nr[i,j] == '1':
+                    if len(eqout) == 0:
+                        eqout.append(f'{e_name}')
+                    else:
+                        eqout.append(f'+{e_name}')
                 else:
-                    eqout.append(f'+{Nr[i,j]}*{e_name}')
-        new_mathml = libsbml.parseL3Formula(eqin)
-        new_string = libsbml.writeMathMLToString(new_mathml)
-        component.appendMath(new_string)
-        new_mathml = libsbml.parseL3Formula(eqout)
-        new_string = libsbml.writeMathMLToString(new_mathml)
-        component.appendMath(new_string) 
+                    if len(eqout) == 0:
+                        eqout.append(f'{Nr[i,j]}*{e_name}')
+                    else:
+                        eqout.append(f'+{Nr[i,j]}*{e_name}')
+
+        component.appendMath(infix_to_mathml(''.join(eqin), ode_var_in))
+        component.appendMath(infix_to_mathml(''.join(eqout), ode_var_out))
 
 """Read bond graph model from a csv file and create a CellML model from it."""
 def read_csvBG():
     # Get the csv file from the user by opening a file dialog
-    message='Select the forward matrix csv file:'
+    message='Please select the forward matrix csv file:'
     file_name_f = ask_for_file_or_folder(message)
-    message='Select the reverse matrix csv file:'
+    message='Please select the reverse matrix csv file:'
     file_name_r = ask_for_file_or_folder(message) 
     # Read the csv file, which has two rows of headers, the first row is the reaction type and the second row is the reaction name
     CompName,CompType,ReName,ReType,N_f,N_r=load_matrix(file_name_f,file_name_r)
-    message = 'Do you want to change the model name?'
-    answer = ask_for_input(message, 'Confirm')
-    if answer == True:
-        message = 'Enter the model name:'
-        model_name = ask_for_input(message, 'Text')
-    else:
-        # Get the default model name: BG_filename
-        model_name = 'BG_'+ os.path.splitext(os.path.basename(file_name_f))[0]
+    # Get the default model name: BG_filename
+    name_f=PurePath(file_name_f).stem
+    model_name = 'BG_'+ name_f.split('_')[0]
+    message = f'The default model name is {model_name}. If you want to change it, please type the new name. Otherwise, just press Enter.'
+    answer = ask_for_input(message, 'Text')
+    if answer != '':
+        model_name = answer
     # Build the model
     model = Model(model_name)
     component=Component(model_name)
     component_param=Component(model_name+'_param')
     model.addComponent(component)
     model.addComponent(component_param)
+    message = 'Please specify the variable of integration, units, initial value or press Enter to use the default i.e, t,second,0:'
+    answer = ask_for_input(message, 'Text')
+    if answer == '':
+        voi = 't'
+        units = Units('second')
+        init = 0
+    else:
+        voi = answer.split(',')[0]
+        units = Units(answer.split(',')[1])
+        init = float(answer.split(',')[2])
+    voi = Variable(voi)
+    voi.setUnits(units)
+    voi.setInitialValue(init)
+    component.addVariable(voi)
+    component.setMath(MATH_HEADER)              
     for i, comp in enumerate(CompName):
-        add_BGcomp(model, comp, CompType[i])
+        add_BGcomp(model, comp, CompType[i],voi.name())
     for i, re in enumerate(ReName):
-        add_BGcomp(model, re, ReType[i])
+        add_BGcomp(model, re, ReType[i],voi.name())
     comps = list(zip(CompName,CompType))
     compd = list(zip(ReName,ReType))
     add_BGbond(model, comps, compd, N_f, N_r)
+    component.appendMath(MATH_FOOTER)
     # Set the default parameters as 1
     for var_numb in range(model.component(component_param.name()).variableCount()):
         model.component(component_param.name()).variable(var_numb).setInitialValue(1)
     # Add the constant variables
-    message = 'Select the constant variables to add:'
-    choices = [const for const in BG.const]
+    message = 'Please select the constant variables to add:'
+    choices = [f'{const}: {BG.const[const]}' for const in BG.const]
     const_selected = ask_for_input(message, 'Checkbox', choices)
     for const in const_selected:
-        var_const=Variable(const)
-        var_const.setUnits(BG.const[const][1])
+        const_name = const.split(':')[0]
+        var_const=Variable(const_name)
+        unit_name = BG.const[const_name][1]
+        u=Units(unit_name)
+        var_const.setUnits(u)
         param_const = var_const.clone()
-        param_const.setInitialValue(BG.const[const][0])
-        var_const.setInitialValue(param_const)
+        param_const.setInitialValue(BG.const[const_name][0])
         model.component(component.name()).addVariable(var_const)
         model.component(component_param.name()).addVariable(param_const)
     editModel(model)    
 #----------------------------------------------------------------------Build a CellML model from a csv file--------------------------------------------------------------
 """ Read a csv file and create components and variables from it. """
-def read_csv():
+def read_csv():    
     # Get the csv file from the user by opening a file dialog
-    message='Select the csv file to load the model from:'
+    message='Please select the csv file to collect components:'
     file_path = ask_for_file_or_folder(message)
     df = pd.read_csv(file_path, sep=',', header=0, index_col=False,na_values='nan')
     df['component']=df['component'].fillna(method="ffill")
     gdf=df.groupby('component')
-    components = []
     params_comp = Component('parameters')
+    components = []
     # Create CellMLVariable for each variable in the component and add it to the component
         # Rules: 1. if the initial_value is nan, then the initial_value is None;
         #        2. if the param column is 'param', then the variable is a parameter and it will be added to the params list; 
@@ -230,8 +570,10 @@ def read_csv():
     for component_name, groupi in gdf:
         component=Component(component_name)          
         for index, row in groupi.iterrows():
-            name, units = row['variable'], row['units']
-            variable = Variable(name)
+            units_name = row['units']
+            var_name = row['variable']
+            variable = Variable(var_name)
+            units = Units(units_name)
             variable.setUnits(units)
             if pd.isna(row['initial_value']):
                 pass
@@ -240,37 +582,50 @@ def read_csv():
                 param.setInitialValue(row['initial_value'])
                 params_comp.addVariable(param)                                             
             elif row['param'] == 'init':
-                param = Variable(name+'_init')
+                param = Variable(var_name+'_init')
                 variable.setInitialValue(param)
                 param.setUnits(units)
                 param.setInitialValue(row['initial_value'])
                 params_comp.addVariable(param)
             else:
                 variable.setInitialValue(row['initial_value'])
-            component.addVariable(variable)           
-        components += [component]
+            component.addVariable(variable)
+        message = f'Do you want to add equations for {component.name()}:'
+        answer = ask_for_input(message, 'Confirm')
+        if answer:
+            component.setMath(MATH_HEADER)   
+            writeEquations(component)
+            component.appendMath(MATH_FOOTER)                   
+        components.append(component)
+    
     if params_comp.variableCount()>0:        
-        components += [params_comp]    
+        components.append(params_comp)           
     return components
 
+"""" Parse a cellml file."""
+def parseCellML(strict_mode=True):
+    message='Please select the CellML file:'
+    filename = ask_for_file_or_folder(message)   
+    # Parse the CellML file
+    existing_model=cellml.parse_model(filename, strict_mode)
+    return filename, existing_model
+
+
 """ Specify imports and units. """
-def importCellML(model,start):    
+def importCellML(model,start,strict_mode=True):    
     while True:
         message = 'Do you want to import components or units from a CellML file?'
         answer = ask_for_input(message, 'Confirm')
         if answer:
-            message='Select the CellML file to import from:'
-            filename = ask_for_file_or_folder(message)
-            relative_path = os.path.relpath(filename, start) 
-            # Parse the CellML file
-            existing_model=cellml.parse_model(filename, False)
+            filename, existing_model = parseCellML(strict_mode)
+            relative_path=PurePath(filename).relative_to(start).as_posix()
             importSource = ImportSource()
             importSource.setUrl(relative_path)
-            message="Select the component or unit to import:"
+            message="Please select the component, units or equations to import:"
             choices=['units', 'components','equations']
             import_type = ask_for_input(message, 'Checkbox', choices)[0]
             if import_type == 'units':
-                units_undefined=checkUndefinedUnits(model)
+                units_undefined=_checkUndefinedUnits(model)
                 if len(units_undefined)>0:
                     # Get the intersection of the units_undefined and the units defined in the existing model
                     existing_units=set([existing_model.units(unit_numb).name() for unit_numb in range(existing_model.unitsCount())])
@@ -282,16 +637,15 @@ def importCellML(model,start):
                     u.setImportSource(importSource)
                     u.setImportReference(unit)
                     model.addUnits(u)
+                print(f'The units {units_to_import} have been imported.')
             elif import_type == 'components':
-                message="Select the components to import:"
+                message="Please select the components to import:"
                 choices=[existing_model.component(comp_numb).name() for comp_numb in range(existing_model.componentCount())]
                 answers = ask_for_input( message, 'Checkbox', choices)
                 for component in answers:
-                    message="Do you want to rename the component?"
-                    answer = ask_for_input(message, 'Confirm')
-                    if answer:
-                        message="Enter the new name for the component:"
-                        answer = ask_for_input(message, 'Text')
+                    message=f"If you want to rename the component {component}, please type the new name. Otherwise, just press 'Enter':"
+                    answer = ask_for_input(message, 'Text')
+                    if answer!='':
                         c = Component(answer)
                     else:
                         c = Component(component)
@@ -302,10 +656,14 @@ def importCellML(model,start):
                          c.addVariable(dummy_c.variable(0))
                     model.addComponent(c)
             else: # if the user does not select any component or unit, then import equations; assume the component name is the same as the new model
-                for i in range(existing_model.componentCount()):
-                    model.component(existing_model.component(i).name()).setMath(MATH_HEADER)
-                    model.component(existing_model.component(i).name()).appendMath(existing_model.component(i).math())
-                    model.component(existing_model.component(i).name()).appendMath(MATH_FOOTER)           
+                message="Please select the components which contain the equations:"
+                choices=[existing_model.component(comp_numb).name() for comp_numb in range(existing_model.componentCount())]
+                answers = ask_for_input( message, 'Checkbox', choices)
+                for component in answers:
+                    message = f'If not {component}, please select the component which contains the equations in the new model:'
+                    choices=[model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
+                    component_new = ask_for_input(message, 'Checkbox', choices)[0]
+                    model.component(existing_model.component(component_new)).appendMath(existing_model.component(component).math())      
         else:
             break
 
@@ -315,16 +673,37 @@ def encapsulate(model):
         message = 'Do you want to encapsulate components?'
         answer = ask_for_input(message, 'Confirm')
         if answer:
-            message="Select the parent component for encapsulation:"
+            message="Please select the parent component:"
             choices=[model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
             component_parent_selected = ask_for_input(message, 'Checkbox', choices)[0] 
-            message="Select the children components for encapsulation:"
+            message="Please select the children components:"
             choices=[model.component(comp_numb).name() for comp_numb in range(model.componentCount()) if model.component(comp_numb).name() != component_parent_selected]
             answers = ask_for_input(message, 'Checkbox', choices)
             for component_child in answers:
                 model.component(component_parent_selected).addComponent(model.component(component_child))
         else:
             break
+
+""" Find the variables that are not mapped in two components. """
+def _findMappedVariables(comp1,comp2):
+    mapped_variables_comp1 = []
+    mapped_variables_comp2 = []
+    for v in range(comp1.variableCount()):
+        if comp1.variable(v).equivalentVariableCount()>0:
+            for e in range(comp1.variable(v).equivalentVariableCount()):
+                ev = comp1.variable(v).equivalentVariable(e)
+                if ev is None:
+                    print("WHOOPS! Null equivalent variable!")
+                    continue               
+                ev_parent = ev.parent()
+                if ev_parent is None:
+                    print("WHOOPS! Null parent component for equivalent variable!")
+                    continue  
+                if ev_parent.name() == comp2.name():
+                    mapped_variables_comp1.append(comp1.variable(v).name())
+                    mapped_variables_comp2.append(ev.name())
+    return mapped_variables_comp1, mapped_variables_comp2
+                    
 
 """" Provide variable connection suggestion based on variable name and carry on the variable mapping based on user inputs. """
 def suggestConnection(comp1,comp2):
@@ -335,43 +714,72 @@ def suggestConnection(comp1,comp2):
     print('The variables in the second component are:', variables2)
     # Get the intersection of the two variables
     variables = set(variables1).intersection(variables2)
-    message="Select the variables to map:"
-    choices=[var for var in variables]
-    answers = ask_for_input(question, message, 'Checkbox', choices)
-    for var in answers:
-        Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
-    # Get the variables in the two components that are not mapped
-    variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount()) if comp1.variable(var_numb).name() not in answers]
-    variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount()) if comp2.variable(var_numb).name() not in answers]
-    message="Select the unmapped variables in the first component to clone and map:"
-    choices=[var for var in variables1]
-    answers = ask_for_input(question, message, 'Checkbox', choices)
-    for var in answers:
-        comp2.addVariable(comp1.variable(var).clone())
-        Variable.addEquivalence(comp1.variable(var), comp2.variable(var))     
-    message="Select the unmapped variables in the second component to clone and map:"
-    choices=[var for var in variables2]
-    answers = ask_for_input(question, message, 'Checkbox', choices)
-    for var in answers:
-        comp1.addVariable(comp2.variable(var).clone())
-        Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
-    # Get the difference of the two variables
-    variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount())]
-    variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount())]
-    variables1_diff = set(variables1).difference(variables2)
-    variables2_diff = set(variables2).difference(variables1)
-    # Ask the user to map the variables in the two components that are not mapped
-    while True:
-        question = 'map'
-        message="Select the unmapped variable pair or Enter to skip:"
-        choices=[var for var in variables1_diff] + [var for var in variables2_diff]
-        answers = ask_for_input(question, message, 'Checkbox', choices)
+    if len(variables)>0:
+        print('The variables that are shared by the two components are:', variables)
+        message="Please select the variables to map. If you want to map all the variables, just press 'Enter'"
+        choices=[var for var in variables]
+        answers = ask_for_input( message, 'Checkbox', choices)
         if len(answers)>0:
-            var1 = answers[0]
-            var2 = answers[1]
-            Variable.addEquivalence(comp1.variable(var1), comp2.variable(var2))
+            for var in answers:
+                if Units.compatible(comp1.variable(var).units(), comp2.variable(var).units()):
+                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+                else:
+                    print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
+                
         else:
-            break   
+            for var in variables:
+                if Units.compatible(comp1.variable(var).units(), comp2.variable(var).units()):
+                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+                else:
+                    print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
+    # Get the variables in the two components that are not sharing the same name
+    variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount()) if comp1.variable(var_numb).name() not in variables]
+    variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount()) if comp2.variable(var_numb).name() not in variables]
+    if len(variables1)>0:
+        message="Please select the unmapped variables in the first component to clone and map:"
+        choices=[var for var in variables1]
+        answers = ask_for_input( message, 'Checkbox', choices)
+        for var in answers:
+            comp2.addVariable(comp1.variable(var).clone())
+            Variable.addEquivalence(comp1.variable(var), comp2.variable(var))     
+    if len(variables2)>0:    
+        message="Please select the unmapped variables in the second component to clone and map:"
+        choices=[var for var in variables2]
+        answers = ask_for_input( message, 'Checkbox', choices)
+        for var in answers:
+            comp1.addVariable(comp2.variable(var).clone())
+            Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+    # Keep mapping the variables in the two components that are not mapped
+    while True:
+        mapped_variables_comp1, mapped_variables_comp2= _findMappedVariables(comp1,comp2)
+        unmapped_variables_comp1 = [comp1.variable(v).name() for v in range(comp1.variableCount()) if comp1.variable(v).name() not in mapped_variables_comp1]
+        unmapped_variables_comp2 = [comp2.variable(v).name() for v in range(comp2.variableCount()) if comp2.variable(v).name() not in mapped_variables_comp2]
+        if len(unmapped_variables_comp1)>0 and len(unmapped_variables_comp2)>0:
+            message="Please select one variable in comp1 and another in comp2 to map or Enter to skip"
+            choices=[f'comp1:{var}' for var in unmapped_variables_comp1] + [f'comp2:{var}' for var in unmapped_variables_comp2]
+            answers = ask_for_input( message, 'Checkbox', choices)
+            if len(answers)>0:
+                var1 = answers[0].split(':')[1]
+                var2 = answers[1].split(':')[1]
+                if Units.compatible(comp1.variable(var).units(), comp2.variable(var).units()):
+                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+                else:
+                    print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
+            else:
+                break
+        else:
+            break
+    # Get the variables in the two components that are mapped but both have initial values; ask the user to select the initial value to keep
+    mapped_variables_comp1, mapped_variables_comp2= _findMappedVariables(comp1,comp2)
+    for var1,var2 in zip(mapped_variables_comp1, mapped_variables_comp2):
+        if (comp1.variable(var1).initialValue()!='') and (comp2.variable(var2).initialValue()!= '') :
+            message = f'var {var1} in {comp1.name()} with init: {comp1.variable(var1).initialValue()}\n    var {var2} in {comp2.name()} init: {comp2.variable(var2).initialValue()} \n Please select the initial value to keep:'
+            choices=[comp1.name(), comp2.name()]
+            answer = ask_for_input(message, 'Checkbox', choices)
+            if comp1.name() not in answer:
+                comp1.variable(var1).removeInitialValue()
+            if  comp2.name() not in answer:
+                comp2.variable(var2).removeInitialValue()
 
 """ Carry out the connection. """
 def connect(model):
@@ -390,7 +798,7 @@ def connect(model):
         suggestConnection_parent_child(parent_component)
         
     while True:
-        message = 'Select two components to connect or Enter to skip:'
+        message = 'Please select two components to connect or Enter to skip:'
         answer = ask_for_input(message, 'Checkbox', components)       
         if len(answer)>0:
             comp1= answer[0]
@@ -404,31 +812,27 @@ def _checkUndefinedUnits(model):
     for comp_numb in range(model.componentCount()):
         for var_numb in range(model.component(comp_numb).variableCount()):
             if model.component(comp_numb).variable(var_numb).units().name() != '':
-                print(model.component(comp_numb).variable(var_numb).name() + ': ' + model.component(comp_numb).variable(var_numb).units().name())
-                #if not model.component(comp_numb).variable(var_numb).units() in Units.StandardUnit:
-                units_claimed.add(model.component(comp_numb).variable(var_numb).units().name())
-    print('The units claimed in the variables are:', units_claimed)
+                if  not (model.component(comp_numb).variable(var_numb).units().name() in BUILTIN_UNITS.keys()):
+                    units_claimed.add(model.component(comp_numb).variable(var_numb).units().name())
+
     units_defined = set()
     for unit_numb in range(model.unitsCount()):
-        print(model.units(unit_numb).name())
+        # print(model.units(unit_numb).name())
         units_defined.add(model.units(unit_numb).name()) 
-    print('The units defined in the model are:', units_defined)   
     units_undefined = units_claimed - units_defined
-    print('The units claimed in the variables but not defined in the model are:',units_undefined)
     return units_undefined
 
 # Define the units
 def _defineUnits(model,iunits):
     while True:
-        message = 'Type the name of the standardUnit or Enter to skip:'
+        message = 'Please type the name of the standardUnit or press Enter to skip:'
         unitName = ask_for_input(message, 'Text')
         if unitName != '':
-            iunits.addUnit(unitName)
-            message = 'Type the prefix or Enter to skip:'
+            message = 'Please type the prefix or press Enter to skip:'
             prefix = ask_for_input(message, 'Text')
-            message = 'Type the exponent or Enter to skip:'
+            message = 'Please type the exponent or press Enter to skip:'
             exponent = ask_for_input(message, 'Text')
-            message = 'Type the multiplier or Enter to skip:'
+            message = 'Please type the multiplier or press Enter to skip:'
             multiplier = ask_for_input(message, 'Text')
             if exponent != '':
                 exponent = float(exponent)
@@ -440,7 +844,10 @@ def _defineUnits(model,iunits):
                 multiplier = 1.0   
             if prefix == '':
                 prefix = 1   
-            iunits.addUnit(unitName, prefix, exponent, multiplier)
+            if unitName in BUILTIN_UNITS:
+                iunits.addUnit(BUILTIN_UNITS[unitName], prefix, exponent, multiplier)
+            else:
+                iunits.addUnit(unitName,prefix, exponent, multiplier)
         else:
             break              
         model.addUnits(iunits)
@@ -448,6 +855,7 @@ def _defineUnits(model,iunits):
 # Add units to the model
 def addUnitsUI(model):
     units_undefined=_checkUndefinedUnits(model)
+    print('The units claimed in the variables but undefined are:',units_undefined)
     # Ask the user to add the units which are claimed in the variables but not defined in the model
     for units in units_undefined:
         while True:
@@ -460,32 +868,31 @@ def addUnitsUI(model):
                 break
     # Ask the user to add custom units
     while True:
-        message = 'Do you want to add custom units? Type the name of the units or Enter to skip:'
+        message = 'Please type the name of a custom units or pressEnter to skip:'
         answers = ask_for_input(message, 'Text')
         if answers!= '':
             iunits = Units(answers)
             _defineUnits(model,iunits)    
         else:
             break              
-
-# Write a model to hold the equations of the components, input: component names, output: equations model file
-def writeEquations(components):
-    model = Model('equations')
-    for component in components:
-        message = 'Select the folder to save the equation model:'
-        file_path = ask_for_file_or_folder(message,True)
-        for component in components:
-            # Create a component
-            icomp = Component(component.name())
-            icomp.setMath(MATH_HEADER)
-            icomp.appendMath(MATH_DUMMY)
-            icomp.appendMath(MATH_FOOTER)
-            model.addComponent(icomp)
-    writeCellML(file_path, model)
+    # Replace the units with the standard units
+# Write the equations to a component
+def writeEquations(component):
+    while True:
+        message = 'Please type the lefthand of the equation or press Enter to skip:'
+        ode_var = ask_for_input(message, 'Text')
+        if ode_var != '':            
+            message = 'Please type the righthand of the equation:'
+            infix = ask_for_input(message, 'Text')
+            message = 'Please type the the variable of integration or press Enter to skip:'
+            voi = ask_for_input(message, 'Text')
+            component. appendMath(infix_to_mathml(infix, ode_var, voi))
+        else:
+            break
 
 # Write a model to cellml file, input: directory, model, output: cellml file
 def writeCellML(directory, model):
-    message = 'Type the filename or Enter to skip, the default name is model name:'
+    message = f'If you want to change the default filename {model.name()}.cellml, please type the new name. Otherwise, just press Enter.'
     file_name = ask_for_input(message, 'Text')
     if file_name == '':
         file_name=model.name()+'.cellml'
@@ -493,10 +900,12 @@ def writeCellML(directory, model):
         file_name=file_name+'.cellml'        
     printer = Printer()
     serialised_model = printer.printModel(model)
-    write_file = open(directory +file_name, "w")
+    full_path = str(PurePath(directory).joinpath(file_name))
+    write_file = open(full_path, "w")
     write_file.write(serialised_model)
     write_file.close()
-    print('Model saved to:', directory + file_name)
+    print('Model saved to:',full_path)
+    return full_path
 
 """"Write python code for the complete model"""
 def writePythonCode(base_dir, model,strict_mode=True):
@@ -505,13 +914,13 @@ def writePythonCode(base_dir, model,strict_mode=True):
     if answer:
         importer = cellml.resolve_imports(model, base_dir, strict_mode)
         flatModel = importer.flattenModel(model)
-        analyser = cellml.analyse_model(flatModel)                   
+        a = cellml.analyse_model(flatModel)              
         generator = Generator()
-        generator.setModel(analyser.model())
+        generator.setModel(a)
         profile = GeneratorProfile(GeneratorProfile.Profile.PYTHON)
         generator.setProfile(profile)
         implementation_code_python = generator.implementationCode() 
-        message = 'Type the filename or Enter to skip, the default name is model name:'
+        message = f'If you want to change the default filename {model.name()}.py, please type the new name. Otherwise, just press Enter.'
         file_name = ask_for_input(message, 'Text')
         if file_name == '':
             file_name=model.name()+'.py'
@@ -521,38 +930,76 @@ def writePythonCode(base_dir, model,strict_mode=True):
         with open(base_dir+file_name, "w") as f:
             f.write(implementation_code_python)
         print('Python code saved to:', base_dir + file_name)
+
 """"Edit the model based on the user input"""
 def editModel(model):
-    message = 'Select the folder to save the model:'
+    message = 'Please select the folder to save the model:'
     directory = ask_for_file_or_folder(message,True)
     importCellML(model,directory)
     addUnitsUI(model)
     encapsulate(model)
     connect(model)
     model.fixVariableInterfaces()
+    if model.hasUnlinkedUnits():
+        model.linkUnits()
     #    Create a validator and use it to check the model so far.
-    cellml.get_model_component_hierarchy(model)
-    print_model(model)
+    print_model(model,True)
     cellml.validate_model(model)
-    cellml.analyse_model(model)
+    #cellml.analyse_model(model)
     message="Do you want to save the model?"
     answer = ask_for_input(message, 'Confirm', True)
     if answer:
         writeCellML(directory, model)
         writePythonCode(directory, model)
 
+"""" Assign IDs to all entities in the model; """
+def assignAllIds(filename,model):
+    directory=str(PurePath(filename).parent)
+    annotator = Annotator()
+    annotator.setModel(model)
+    change = False
+    # Make sure all entities in the model have an ID and make sure that all IDs in the model are unique
+    if annotator.assignAllIds():
+        print('Some entities have been assigned an ID, you should save the model!')
+        change=True
+    else:
+        print('Everything already had an ID.')
+    duplicates = annotator.duplicateIds()
+    if len(duplicates) > 0:
+        print('There are duplicate IDs. Assigning new IDs to all entities.')
+        annotator.clearAllIds()
+        annotator.assignAllIds()
+        change=True
+    if change:
+        # save the updated model to a new file - note, we need the model filename for making our annotations later
+        message = 'Do you want to choose different folder to save the model?'
+        answer = ask_for_input(message, 'Confirm', True)
+        if answer:
+            message = 'Please select the folder to save the model:'
+            directory = ask_for_file_or_folder(message,True)
+        filename=writeCellML(directory, model)
+    return filename, model  
+
 """ Create a model from a list of components. """
-def createModel():
-    # Get the components from the user csv file first
-    components = read_csv()
-    message="Do you want to write equations model file with only component names and a dummy equation?"
-    answers = ask_for_input(message, 'Confirm')
-    if answers:
-        components_name = [component.name() for component in components]
-        writeEquations(components_name)
+def buildModel():
+    message = 'Please select the folder to save the model:'
+    directory = ask_for_file_or_folder(message,True)
+    message="Please type the model name:"
+    model_name = ask_for_input(message, 'Text')
+    model = Model(model_name)
+    message = 'Start building a model from csv file or an existing model?'
+    choices = ['csv file', 'existing model']
+    choice = ask_for_input(message, 'List', choices)
+    if choice == 'csv file':
+        components=read_csv()
+        modeli = Model(model_name+'_comps')
+        for component in components:
+            modeli.addComponent(component)
+        writeCellML(directory,modeli)      
+    else:
+        filename, existing_model=parseCellML
+        components=[existing_model.component(comp_numb) for comp_numb in range(existing_model.componentCount())]
     while True:
-        message="Type the model name or Enter to skip:"
-        model_name = ask_for_input(message, 'Text')
         if model_name!= '':           
             model = Model(model_name)
             message="Select the components to add to the model:"
@@ -561,12 +1008,14 @@ def createModel():
             indexes = [int(i.split(':')[0]) for i in components_selected]
             for index in indexes:
                 model.addComponent(components[index].clone())
-            editModel(model)                               
+            editModel(model)
+            message="Please type the model name or press Enter to quit building models:"
+            model_name = ask_for_input(message, 'Text')                               
         else:
             break
             
 # main function
 if __name__ == "__main__":
-    createModel()
+    buildModel()
 
 

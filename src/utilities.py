@@ -7,13 +7,15 @@ import inquirer
 import sys
 import csv
 import numpy as np
+import libsbml
+
 """An interactive utility to ask the user to select a file or folder."""
 def ask_for_file_or_folder(message, is_folder=False):
     print(message)
     root = tk.Tk()
     root.withdraw()
     if is_folder:
-        path = filedialog.askdirectory()+"/"
+        path = filedialog.askdirectory()
     else:
         path = filedialog.askopenfilename()
     root.update()
@@ -25,7 +27,7 @@ def ask_for_input(message, type ='Confirm', choices = []):
     if type == 'Confirm':
         questions = [
             inquirer.Confirm(
-                question='Confirm',
+                'Confirm',
                 message=message,
                 default=False,
             ),
@@ -34,7 +36,7 @@ def ask_for_input(message, type ='Confirm', choices = []):
     elif type == 'Text':
         questions = [
             inquirer.Text(
-                question='Text',
+                'Text',
                 message=message,
             ),
         ]
@@ -42,25 +44,41 @@ def ask_for_input(message, type ='Confirm', choices = []):
     elif type == 'Checkbox':
         questions = [
             inquirer.Checkbox(
-                question='Checkbox',
+                'Checkbox',
                 message=message,
                 choices=choices,
             ),
         ]
         return inquirer.prompt(questions)['Checkbox']
-    elif type == 'Choice':
+    elif type == 'List':
         questions = [
             inquirer.List(
-                question='Choice',
+                'List',
                 message=message,
                 choices=choices,
             ),
         ]
-        return inquirer.prompt(questions)['Choice']
+        return inquirer.prompt(questions)['List']
     else:
         sys.exit(f'Input type {type} is not defined!')
+# Define a function to convert a infix expression to a MathML string (temporary solution with limitations 1. no support for units 2. some MathML elements defined in CellML2.0 are not supported)
+def infix_to_mathml(infix, ode_var, voi=''):
+    if voi!='':
+        preforumla = '<apply> \n <eq/> <apply> <diff/> <bvar> <ci>'+ voi + '</ci> </bvar> <ci>' + ode_var + '</ci> </apply> \n'
+    else:
+        preforumla = '<apply> \n <eq/> <ci>'+ ode_var + '</ci>'    
+    postformula = '\n </apply> \n'
+    p = libsbml.parseL3Formula (infix)
+    mathstr = libsbml.writeMathMLToString (p)
+    # remove the <math> tags in the mathML string
+    mathstr = mathstr.replace ('<math xmlns="http://www.w3.org/1998/Math/MathML">', '')
+    mathstr = mathstr.replace ('</math>', '')
+    mathstr = mathstr.replace ('<?xml version="1.0" encoding="UTF-8"?>', '')
+    # add left side of the equation       
+    mathstr = preforumla + mathstr + postformula
+    return mathstr
 # Read stoichiometric matrices
-def load_matrix(fmatrix,rmatrix,mName):
+def load_matrix(fmatrix,rmatrix):
     # * * ReType ReType
     # * * ReName ReName
     # CompType CompName 0 1 
