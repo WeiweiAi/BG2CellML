@@ -4,8 +4,8 @@ from utilities import print_model, ask_for_file_or_folder, ask_for_input, load_m
 import sys
 import cellml
 from pathlib import PurePath 
-from rdflib import Graph, Namespace
-from rdflib.namespace import RDF, FOAF,  DCTERMS
+from rdflib import Graph, Namespace, Literal
+from rdflib.namespace import RDF, FOAF,  DCTERMS, XSD
 MATH_HEADER = '<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">\n'
 MATH_FOOTER = '</math>\n'
 BUILTIN_UNITS = {'ampere':Units.StandardUnit.AMPERE, 'becquerel':Units.StandardUnit.BECQUEREL, 'candela':Units.StandardUnit.CANDELA, 'coulomb':Units.StandardUnit.COULOMB, 'dimensionless':Units.StandardUnit.DIMENSIONLESS, 
@@ -14,313 +14,7 @@ BUILTIN_UNITS = {'ampere':Units.StandardUnit.AMPERE, 'becquerel':Units.StandardU
                    'lumen':Units.StandardUnit.LUMEN, 'lux':Units.StandardUnit.LUX, 'metre':Units.StandardUnit.METRE, 'meter':Units.StandardUnit.METRE, 'mole':Units.StandardUnit.MOLE, 'newton':Units.StandardUnit.NEWTON, 
                    'ohm':Units.StandardUnit.OHM, 'pascal':Units.StandardUnit.PASCAL, 'radian':Units.StandardUnit.RADIAN, 'second':Units.StandardUnit.SECOND, 'siemens':Units.StandardUnit.SIEMENS, 'sievert':Units.StandardUnit.SIEVERT, 
                    'steradian':Units.StandardUnit.STERADIAN, 'tesla':Units.StandardUnit.TESLA, 'volt':Units.StandardUnit.VOLT, 'watt':Units.StandardUnit.WATT, 'weber':Units.StandardUnit.WEBER}
-class RDF_Graph():
-    # Namespaces according to OMEX metadata specification (version 1.2)
-    ORCID = Namespace('http://orcid.org/')   
-    BQMODEL = Namespace('http://biomodels.net/model-qualifiers/')
-    BQBIOL = Namespace('http://biomodels.net/biology-qualifiers/')
-    PUBMED = Namespace('http://identifiers.org/pubmed:')
-    NCBI_TAXONOMY = Namespace('http://identifiers.org/taxonomy:')
-    BIOMOD = Namespace('http://identifiers.org/biomodels.db:')
-    CHEBI = Namespace('http://identifiers.org/chebi/CHEBI:')
-    UNIPROT = Namespace('http://identifiers.org/uniprot:')
-    OPB = Namespace('http://identifiers.org/opb:')
-    FMA = Namespace('http://identifiers.org/FMA:')
-    GO = Namespace('http://identifiers.org/GO:')
-    SEMSIM = Namespace('http://bime.uw.edu/semsim/')
 
-    ontology_database = {'NCBI_Taxon':{},'uniprot':{}, 'chebi':{'17634':'D-glucose','29101':'sodium(1+)','29103':'potassium(+1)'}, 'fma':{},
-                         'go':{'0005886':'plasma membrane','0005829':'cytosol','0005615':'extracellular space','0015758':'glucose transport','1990350':'A protein complex facilitating glucose transport'},
-                         'opb':{'OPB_00592':'Chemical amount flow rate','OPB_00425': 'Molar amount of chemical'}}
-    prefix_NAMESPACE = {'rdf':RDF,'foaf':FOAF,'dc':DCTERMS, 'orcid':ORCID, 'bqmodel':BQMODEL,'bqbiol':BQBIOL, 'pubmed':PUBMED,'NCBI_Taxon':NCBI_TAXONOMY,'biomod':BIOMOD,
-                        'chebi':CHEBI,'uniprot':UNIPROT,'opb':OPB,'fma':FMA,'go':GO, 'semsim':SEMSIM}
-    bqmodel__qualifers = ['is']
-    bqbiol_qualifers=['isPartOf','hasPart','isPropertyOf','hasProperty','isVersionOf','hasVersion','occursIn']
-    semsim_qualifers = ['hasMediatorParticipant','hasSinkParticipant','hasSourceParticipant','hasPhysicalEntityReference','isProductOf','isReactantOf']
-    
-    prefix_qualifer = {'bqmodel':bqmodel__qualifers,'bqbiol':bqbiol_qualifers,'semsim':semsim_qualifers}
-    
-    def __init__(self, filename):
-        # input: filename, the fullpath of the CellML file which is to be annotated
-        # output: a RDF graph object with additional attributes: rdf_file, prefix_NAMESPACE_local, local_entity
-        file_withoutSuffix = PurePath(filename).stem
-        self.rdf_file = str(PurePath(filename).parent .joinpath(file_withoutSuffix)) + '.ttl' # the fullpath of the RDF file, which is in the same folder as the CellML file and has the same name
-        LOCAL = Namespace('./'+file_withoutSuffix + '.ttl#') # By default, the local namespace is the same as the RDF file name
-        MODEL_BASE = Namespace('./'+file_withoutSuffix + '.cellml#')
-        self.prefix_NAMESPACE_local = self.prefix_NAMESPACE|{'local':LOCAL,'model_base':MODEL_BASE}
-        self.local_entity = ['Sink','Source','Mediator']
-        self.graph = Graph()
-        # Defined Namespace bindings.
-        self.graph.bind('orcid', self.ORCID)
-        self.graph.bind('rdf', RDF)
-        self.graph.bind('foaf', FOAF)
-        self.graph.bind('dc', DCTERMS)
-        self.graph.bind('bqmodel', self.BQMODEL)
-        self.graph.bind('bqbiol', self.BQBIOL)
-        self.graph.bind('pubmed', self.PUBMED)
-        self.graph.bind('NCBI_Taxon', self.NCBI_TAXONOMY)
-        self.graph.bind('biomod', self.BIOMOD)
-        self.graph.bind('chebi', self.CHEBI)
-        self.graph.bind('uniprot', self.UNIPROT)
-        self.graph.bind('opb', self.OPB)
-        self.graph.bind('fma', self.FMA)
-        self.graph.bind('go', self.GO)
-        self.graph.bind('semsim', self.SEMSIM)        
-        self.graph.bind('local', LOCAL)   
-        self.graph.bind('model_base', MODEL_BASE)
-    # Define a function to allow the user to edit the nodes
-    def edit_node_model(self, model):
-        # input: model, the CellML model object
-        # output: node, the RDF URI node of the model entity (e.g. component, variable)
-        base = 'model_base'
-        message='Please select the entity type'
-        choices = ['model','component','variable']
-        entity_type = ask_for_input(message, 'List', choices)
-        if entity_type == 'model':
-            subnode = model.id()
-        elif entity_type == 'component':
-            message = 'Please select the component'
-            choices = [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
-            comp_name = ask_for_input(message, 'List', choices)
-            subnode = model.component(comp_name).id()
-        elif entity_type == 'variable':
-            message = 'Please select the component'
-            choices = [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
-            comp_name = ask_for_input(message, 'List', choices)
-            message = 'Please select the variable'
-            choices = [model.component(comp_name).variable(var_numb).name() for var_numb in range(model.component(comp_name).variableCount())]
-            var_name = ask_for_input(message, 'List', choices)
-            subnode = model.component(comp_name).variable(var_name).id()
-
-        node = self.prefix_NAMESPACE_local[base][subnode]   
-        return node
-
-    def edit_node_local(self):
-        # output: node, the RDF URI node of the local entity
-        base = 'local'
-        message = 'Please type the variable name'
-        subnode = ask_for_input(message, 'Text')
-        if subnode == '':
-            return None 
-        node = self.prefix_NAMESPACE_local[base][subnode]   
-        return node
-    
-    def edit_node_ontology(self):
-        # output: node, the RDF URI node of the ontology term
-        message = 'Please select the database'
-        choices = list(self.ontology_database.keys())
-        base = ask_for_input(message, 'List', choices)
-        print("The existing terms are: ", self.ontology_database[base].items())
-        message = 'Do you want to type a new term ?'
-        confirm = ask_for_input(message, 'Confirm')
-        if confirm:
-            if base == 'opb':
-               subnode = 'OPB_'+ ask_for_input(message, 'Text')
-            else:
-                subnode = ask_for_input(message, 'Text')
-            if subnode == '' or subnode == 'OPB_':
-                return None
-        else:
-            message = 'Please select the term'
-            choices = [(key, val) for key, val in self.ontology_database[base].items()]
-            subnode = ask_for_input(message, 'List', choices)[0]
-        node = self.prefix_NAMESPACE_local[base][subnode]   
-        return node
-    
-    def edit_edge(self):
-        # output: pred, the RDF URI node of the predicate          
-        message = 'Please select the prefix of the predicate'
-        choices = list(self.prefix_qualifer.keys())
-        base = ask_for_input(message, 'List', choices)
-        message = 'Please select the qualifier'
-        choices = self.prefix_qualifer[base]
-        subnode = ask_for_input(message, 'List', choices)
-        pred = self.prefix_NAMESPACE_local[base][subnode]   
-        return pred
-    
-    def add_identity_triple(self, subject):
-        # input: subject, the RDF URI node of the subject
-        # output: None
-        # add the identity triple to the RDF graph
-        base = 'bqbiol'
-        subnode = 'isVersionOf'
-        pred = self.prefix_NAMESPACE_local[base][subnode]
-        node = self.edit_node_ontology()
-        if node is not None:
-            self.graph.add((subject, pred, node))
-    
-    def add_part_triple(self, subject):
-        # input: subject, the RDF URI node of the subject
-        # output: None
-        # add the part triple to the RDF graph
-        base = 'bqbiol'
-        subnode = 'isPartOf'
-        pred = self.prefix_NAMESPACE_local[base][subnode]
-        node = self.edit_node_ontology()
-        if node is not None:
-            self.graph.add((subject, pred, node)) 
-    
-    def annotateModel_bioProcess(self,model):
-        # input: model, the CellML model object
-        # output: None
-        # update the RDF graph with biological process annotations, i.e., chemical reactions
-        entity_id =0
-        while True:
-            flux_units = Units('mole_per_second')
-            flux_units.addUnit(Units.StandardUnit_MOLE)
-            flux_units.addUnit(Units.StandardUnit_SECOND, -1)
-            # Annotate the flux rate variables, the source and sink variables
-            message = 'Please select the component'
-            choices = [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
-            comp_name = ask_for_input(message, 'List', choices)
-            variables = [model.component(comp_name).variable(var_numb).name() for var_numb in range(model.component(comp_name).variableCount())]
-            flux_vars =[var for var in variables if Units. compatible (model.component(comp_name).variable(var).units(),flux_units)]
-            quantity_vars = [var for var in variables if not Units. compatible (model.component(comp_name).variable(var).units(),Units('mole'))]
-            message = 'Please select the flux rate variable'
-            var_name = ask_for_input(message, 'List', flux_vars)
-            var_id = model.component(comp_name).variable(var_name).id()
-            base = 'model_base'
-            subnode = var_id
-            subj=self.prefix_NAMESPACE_local[base][subnode]
-            base = 'opb'
-            subnode = 'OPB_00592'
-            obj = self.prefix_NAMESPACE_local[base][subnode]
-            base = 'bqbiol'
-            subnode = 'isVersionOf'
-            pred = self.prefix_NAMESPACE_local[base][subnode]
-            self.graph.add((subj, pred, obj))
-            base = 'bqbiol'
-            subnode = 'isPropertyOf'
-            pred = self.prefix_NAMESPACE_local[base][subnode]
-    
-            process_entity = self.prefix_NAMESPACE_local['local']['Process' + str(entity_id)]                 
-            self.graph.add((subj, pred, process_entity))
-            message = 'Would you like to annotate the Process with a biological process term?'
-            confirm = ask_for_input(message, 'Confirm')
-            if confirm:
-                self.add_identity_triple(process_entity)       
-    
-            for local_entity in self.local_entity:
-                message = f'Please select the molar amount variable of the {local_entity} species'
-                var_name = ask_for_input(message, 'List', quantity_vars)
-                var_id = model.component(comp_name).variable(var_name).id()
-                base = 'model_base'
-                subnode = var_id
-                subj=self.prefix_NAMESPACE_local[base][subnode]
-                base = 'bqbiol'
-                subnode = 'isVersionOf'
-                pred = self.prefix_NAMESPACE_local[base][subnode]
-                base = 'opb'
-                subnode = 'OPB_00425'
-                obj = self.prefix_NAMESPACE_local[base][subnode]
-                self.graph.add((subj, pred, obj))
-                # link to the local entity
-                base = 'bqbiol'
-                subnode = 'isPropertyOf'
-                pred = self.prefix_NAMESPACE_local[base][subnode]
-                if local_entity == 'Source':
-                    subnode = local_entity + str(entity_id)
-                    source_entity = self.prefix_NAMESPACE_local['local'][subnode]
-                    self.graph.add((subj, pred, source_entity))
-                    pred = self.prefix_NAMESPACE_local['semsim']['hasSourceParticipant']
-                    self.graph.add((process_entity, pred, source_entity))
-                    print('Please annotate the source species with an anatomical term')
-                    self.add_part_triple(self, source_entity)
-                    message = 'Would you like to annotate the source species with an ontology term?'
-                    confirm = ask_for_input(message, 'Confirm')
-                    if confirm:
-                        self.add_identity_triple(source_entity)
-                elif local_entity == 'Sink':
-                    subnode = local_entity + str(entity_id)
-                    sink_entity = self.prefix_NAMESPACE_local['local'][subnode]
-                    self.graph.add((subj, pred, sink_entity))
-                    pred = self.prefix_NAMESPACE_local['semsim']['hasSinkParticipant']
-                    self.graph.add((process_entity, pred, sink_entity))
-                    print('Please annotate the sink species with an anatomical term')
-                    self.add_part_triple(self, sink_entity)
-                    message = 'Would you like to annotate the sink species with an ontology term?'
-                    confirm = ask_for_input(message, 'Confirm')
-                    if confirm:
-                        self.add_identity_triple(sink_entity)
-                else: # local_entity == 'Mediator':
-                    subnode = local_entity + str(entity_id)
-                    mediator_entity = self.prefix_NAMESPACE_local['local'][subnode]
-                    self.graph.add((subj, pred, mediator_entity))
-                    pred = self.prefix_NAMESPACE_local['semsim']['hasMediatorParticipant']
-                    self.graph.add((process_entity, pred, mediator_entity))
-                    print('Please annotate the mediator species with an anatomical term')
-                    self.add_part_triple(self, mediator_entity)
-                    message = 'Would you like to annotate the mediator species with an ontology term?'
-                    confirm = ask_for_input(message, 'Confirm')
-                    if confirm:
-                        self.add_identity_triple(mediator_entity)  
-            message = 'Would you like to continue?'
-            if not ask_for_input(message, 'Confirm'):
-                break
-            else:
-                entity_id += 1 
-        return
-    
-    def annotateModel_anyEntity(self,model):
-        # input: model, the CellML model object
-        # output: None
-        # update the RDF graph with the entity annotations according to the user input
-        while True:
-            message = 'Please select the type of the Subject of the RDF triple'
-            subject_type = ask_for_input(message, 'List', ['model','local','ontology'])
-            if subject_type == 'model':
-                subj = self.edit_node_model(model)
-            elif subject_type == 'local':
-                subj = self.edit_node_local()
-            else:
-                subj = self.edit_node_ontology()
-            pred = self.edit_edge()
-            message = 'Please select the type of the Object of the RDF triple'
-            object_type = ask_for_input(message, 'List', ['model','local','ontology'])
-            if object_type == 'model':
-                obj = self.edit_node_model(model)
-            elif object_type == 'local':
-                obj = self.edit_node_local()
-            else:
-                obj = self.edit_node_ontology()
-
-            if subj is not None  & obj is not None:
-                if (subj, pred, obj) in self.graph:
-                    message = 'This triple already exists in the graph, would you like to continue?'
-                    if not ask_for_input(message, 'Confirm'):
-                        break
-                    else:
-                        continue 
-                else:
-                    self.graph.add((subj, pred, obj))
-                    message = f'The triple ({subj}, {pred}, {obj}) has been added to the graph, would you like to continue?'
-                    if not ask_for_input(message, 'Confirm'):
-                        break
-                    else:
-                        continue   
-            else:
-                message = 'The subject or object is None so the triple is not added to the graph, would you like to continue?'
-                if not ask_for_input(message, 'Confirm'):
-                    break
-                else:
-                     continue  
-        return
-              
-    def save_graph(self):
-        # Save the RDF triples to a file
-        message = 'Do you want to save the RDF triples to a file?'
-        save_file = ask_for_input(message, 'Confirm')
-        if save_file:
-            with open(self.rdf_file, 'w') as f:
-                f.write(self.graph.serialize(format='ttl'))
-            f.close()
-            print(f'The RDF triples are saved to {self.rdf_file}')
-        else:
-            print('The RDF triples are not saved to a file')
-            return
-        
-    def get_graph(self):
-        return self.graph
 #---------------------------------------------------------------Build a cellML model for BG----------------------------------------------------------#
 """Define BG component class"""
 class BG():
@@ -979,6 +673,47 @@ def assignAllIds(filename,model):
             directory = ask_for_file_or_folder(message,True)
         filename=writeCellML(directory, model)
     return filename, model  
+
+def getEntityID(model, comp_name=None, var_name=None):
+        # input: model, the CellML model object
+        #        comp_name, the CellML component name
+        #        var_name, the CellML variable name
+        # output: the ID of the entity.
+        # if the component name is not provided, the ID of the model is returned; 
+        # if the variable name is not provided, the ID of the component is returned; 
+        # if both the component name and the variable name are provided, the ID of the variable is returned
+        if comp_name is None:
+            return model.id()
+        elif var_name is None:
+            return model.component(comp_name).id()
+        else:
+            return model.component(comp_name).variable(var_name).id()
+        
+def getEntityList(model, comp_name=None):
+    # input: model, the CellML model object
+    #        comp_name, the CellML component name
+    # output: a list of the entity names.
+    # if the component name is not provided, the list of the component names is returned;
+    # if the component name is provided, the list of the variable names is returned
+    if comp_name is None:
+        return [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
+    else:
+        return [model.component(comp_name).variable(var_numb).name() for var_numb in range(model.component(comp_name).variableCount())]
+    
+def getEntityName_UI(model, comp_name=None):
+    # input: model, the CellML model object
+    #        comp_name, the CellML component name
+    # output: the name of the entity.
+    # if the component name is not provided, ask user to select the name from the component list and return the name of the component; 
+    # if the component name is provided, ask user to select the name from the variable list and return the name of the variable
+    if comp_name is None:
+        message = 'Please select the component'
+        choices = getEntityList(model)
+        return ask_for_input(message, 'List', choices)
+    else:
+        message = 'Please select the variable'
+        choices = getEntityList(model, comp_name)
+        return ask_for_input(message, 'List', choices)
 
 """ Create a model from a list of components. """
 def buildModel():
