@@ -3,7 +3,8 @@ from utilities import  ask_for_file_or_folder, ask_for_input, load_matrix, infix
 import sys
 from pathlib import PurePath
 from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER 
-
+from sympy import *
+import numpy as np
 #---------------------------------------------------------------Build a cellML model for BG----------------------------------------------------------#
 """Define BG component class"""
 class BG():
@@ -258,10 +259,120 @@ def read_csvBG():
         param_const.setInitialValue(BG.const[const_name][0])
         model.component(component.name()).addVariable(var_const)
         model.component(component_param.name()).addVariable(param_const)
-    editModel(model)    
-            
+    editModel(model) 
+
+""" From the stoichiometric matrix to derive the steady state equations"""
+def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
+    R,T,V_m, F, E=symbols('R,T,V_m, F, E')
+    # define lambda functions to apply to the entries of matrix
+    f_exp = lambda x: exp(x)
+    f_log = lambda x: log(x)
+    # convert the string stoichiometric matrix to float matrix   
+    Nf = nsimplify(Matrix(np.array(N_f,dtype=float)))
+    Nr = nsimplify(Matrix(np.array(N_r,dtype=float)))
+    # Get the quantities q, thermal parameters K, of the species
+    q = Matrix([Symbol(f'q_{comp}') for comp in CompName])
+    K_cd=diag(*[Symbol(f'K_{comp}') for i,comp in enumerate(CompName) if CompType[i]=='Ce'])
+    K_cs=diag(*[Symbol(f'K_{comp}') for i,comp in enumerate(CompName) if CompType[i]=='Se'])
+    # Get the reaction rate constants kappa
+    kappa = diag(*[Symbol(f'kappa_{re}') for re in ReName])
+    # Split the matrices into 3 parts: the first part is the chemostatic, the second part is the chemodynamic, the third part is the electrical charge if any  
+    chemostatic_index = [i for i, x in enumerate(CompType) if x == 'Se']
+    chemodynamic_index = [i for i, x in enumerate(CompType) if x == 'Ce']
+    electrogenic_index = [i for i, x in enumerate(CompType) if x == 'Ve']
+    N_cs_f = Matrix(Nf[chemostatic_index,:])
+    N_cs_r = Matrix(Nr[chemostatic_index,:])
+    N_cd_f = Matrix(Nf[chemodynamic_index,:])
+    N_cd_r = Matrix(Nr[chemodynamic_index,:])
+    q_cs = q[chemostatic_index,:]
+    q_cs_list = [q[i] for i in chemostatic_index]
+    N_cd = N_cd_r-N_cd_f 
+    # Get the chemical potentials and electrical potential (converted to chemical potential)   
+    mu_cs = R*T*((K_cs*q_cs).applyfunc(f_log))
+    if len(electrogenic_index)>0:
+        N_e_f = Matrix(Nf[electrogenic_index,:])
+        N_e_r = Matrix(Nr[electrogenic_index,:])
+        mu_e = Matrix([F*V_m for i in range(len(electrogenic_index))])
+        mu_source = mu_cs.col_join(mu_e)
+        N_source_f = N_cs_f.col_join(N_e_f)
+        N_source_r = N_cs_r.col_join(N_e_r)
+    else:
+        mu_source = mu_cs
+        N_source_f = N_cs_f
+        N_source_r = N_cs_r
+    # Construct the matrices B_f and B_r which represent the potentials impact on the reaction rates
+    B_f=diag(*((N_source_f.T *(mu_source/(R*T))).applyfunc(f_exp)))
+    B_r=diag(*((N_source_r.T *(mu_source/(R*T))).applyfunc(f_exp)))
+    # Construct the matrix M and vector b for the linear equations
+    # b is a vector containing N number of 0s and the last entry is E; N is the number of reactions minus 1
+    b = Matrix([0 for i in range(Nf.shape[1]-1)]+[E])
+    M_ss=N_cd*(kappa*(B_f*N_cd_f.T-B_r*N_cd_r.T)*K_cd)
+    M_G = Matrix([[1 for i in range(len(chemodynamic_index))]])
+    M_ss_red = M_ss[0:len(chemodynamic_index)-1,:]
+    M = nsimplify(M_ss_red.col_join(M_G))
+    # Solve the linear equations
+    q_cd_ss =  nsimplify(M.LUsolve(b))
+    v = nsimplify((kappa*(B_f*N_cd_f.T-B_r*N_cd_r.T)*K_cd)*q_cd_ss)
+    v_ss = factor(v[0])
+    print('v_ss=\n',v_ss)
+    # Get the numerator and denominator of the steady state equation
+    vss_num, vss_den = fraction(v_ss)
+    # Collect the terms of the numerator and denominator to simplify the expression
+    P={}
+    q_cs_num =[]
+    q_cs_den =[]
+    for i in range(len(q_cs_list)-1):
+        q_cs_num.append(E*q_cs_list[i])
+        for j in range(i+1,len(q_cs_list)):
+            q_cs_den.append(q_cs_list[i]*q_cs_list[j])
+            q_cs_num.append(E*q_cs_list[i]*q_cs_list[j])
+
+    q_cs_num.append(E*q_cs_list[-1])
+    q_cs_den= q_cs_list+q_cs_den
+    dict_vss_num= collect(expand(vss_num),q_cs_num, evaluate=False)
+    dict_vss_num_keys = list(dict_vss_num.keys())
+    sub_dict = {}
+    for i,key in enumerate(dict_vss_num_keys):
+        if dict_vss_num[key].could_extract_minus_sign():
+            sub_dict.update({-dict_vss_num[key]:Symbol(f'P_{i}')})
+            P.update({Symbol(f'P_{i}'):-dict_vss_num[key]})
+        else:
+            sub_dict.update({dict_vss_num[key]:Symbol(f'P_{i}')})
+            P.update({Symbol(f'P_{i}'):dict_vss_num[key]})
+
+    c_vss_num = collect(expand(vss_num),q_cs_num)
+    c_vss_num_simp= factor( (c_vss_num).subs(sub_dict))
+    print('c_vss_num_sim=\n',c_vss_num_simp)
+
+    dict_vss_den= collect(expand(vss_den),q_cs_den, evaluate=False)
+    dict_vss_den_keys = list(dict_vss_den.keys())
+    sub_dict = {}
+    for j,key in enumerate(dict_vss_den_keys):
+        if dict_vss_den[key].could_extract_minus_sign():
+            sub_dict.update({-dict_vss_den[key]:Symbol(f'P_{i+j+1}')})
+            P.update({Symbol(f'P_{i+j+1}'):-dict_vss_den[key]})
+        else:
+            sub_dict.update({dict_vss_den[key]:Symbol(f'P_{i+j+1}')})
+            P.update({Symbol(f'P_{i+j+1}'):dict_vss_den[key]})
+
+    c_vss_den= collect(expand(vss_den),q_cs_den)
+    c_vss_den_simp= (c_vss_den).subs(sub_dict)
+    print('c_vss_den_sim=\n',c_vss_den_simp)
+    print('v_ss_simplified=\n',c_vss_num_simp/c_vss_den_simp)
+    for key in P.keys():
+        print(key,'=',P[key])
+
+          
 # main function
 if __name__ == "__main__":
-    read_csvBG()
+    # Get the csv file from the user by opening a file dialog
+    message='Please select the forward matrix csv file:'
+    file_name_f = ask_for_file_or_folder(message)
+    message='Please select the reverse matrix csv file:'
+    file_name_r = ask_for_file_or_folder(message) 
+    # Read the csv file, which has two rows of headers, the first row is the reaction type and the second row is the reaction name
+    CompName,CompType,ReName,ReType,N_f,N_r=load_matrix(file_name_f,file_name_r)
+    flux_ss(CompName,CompType,ReName,ReType,N_f,N_r)
+
 
 
