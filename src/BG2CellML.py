@@ -5,6 +5,8 @@ from pathlib import PurePath
 from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER 
 from sympy import *
 import numpy as np
+from itertools import combinations
+import networkx as nx
 #---------------------------------------------------------------Build a cellML model for BG----------------------------------------------------------#
 """Define BG component class"""
 class BG():
@@ -263,6 +265,7 @@ def read_csvBG():
 
 """ From the stoichiometric matrix to derive the steady state equations"""
 def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
+    # Note: cannot handle large matrix due to performance issue
     R,T,V_m, F, E=symbols('R,T,V_m, F, E')
     # define lambda functions to apply to the entries of matrix
     f_exp = lambda x: exp(x)
@@ -285,7 +288,6 @@ def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
     N_cd_f = Matrix(Nf[chemodynamic_index,:])
     N_cd_r = Matrix(Nr[chemodynamic_index,:])
     q_cs = q[chemostatic_index,:]
-    q_cs_list = [q[i] for i in chemostatic_index]
     N_cd = N_cd_r-N_cd_f 
     # Get the chemical potentials and electrical potential (converted to chemical potential)   
     mu_cs = R*T*((K_cs*q_cs).applyfunc(f_log))
@@ -312,24 +314,36 @@ def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
     M = nsimplify(M_ss_red.col_join(M_G))
     # Solve the linear equations
     q_cd_ss =  nsimplify(M.LUsolve(b))
-    v = nsimplify((kappa*(B_f*N_cd_f.T-B_r*N_cd_r.T)*K_cd)*q_cd_ss)
+    M_v = nsimplify(kappa*(B_f*N_cd_f.T-B_r*N_cd_r.T)*K_cd)
+    v = nsimplify(M_v*q_cd_ss)
     v_ss = factor(v[0])
     print('v_ss=\n',v_ss)
     # Get the numerator and denominator of the steady state equation
     vss_num, vss_den = fraction(v_ss)
+    # Get the subexpression of vss_num containing q and E
+    vss_num_terms = Add.make_args(expand(vss_num))
+    vss_num_subterms =[]
+    for i in range(len(vss_num_terms)):
+        subliterals=[j for j in vss_num_terms[i].atoms() if (str(j).startswith('q') or j==E)]
+        if vss_num_terms[i].has(exp(F*V_m/(R*T))): subliterals.append(exp(F*V_m/(R*T)))
+        if len(subliterals)>1:
+            vss_num_subterms.append(Mul(*subliterals))
+        elif len(subliterals)==1:
+            vss_num_subterms.append(subliterals[0])
+    # Get the subexpression of vss_den containing q
+    vss_den_terms = Add.make_args(expand(vss_den))
+    vss_den_subterms =[]
+    for i in range(len(vss_den_terms)):
+        subliterals=[j for j in vss_den_terms[i].atoms() if str(j).startswith('q')]
+        if vss_den_terms[i].has(exp(F*V_m/(R*T))): subliterals.append(exp(F*V_m/(R*T)))
+        if len(subliterals)>1:
+            vss_den_subterms.append(Mul(*subliterals))
+        elif len(subliterals)==1:
+            vss_den_subterms.append(subliterals[0])
+
     # Collect the terms of the numerator and denominator to simplify the expression
     P={}
-    q_cs_num =[]
-    q_cs_den =[]
-    for i in range(len(q_cs_list)-1):
-        q_cs_num.append(E*q_cs_list[i])
-        for j in range(i+1,len(q_cs_list)):
-            q_cs_den.append(q_cs_list[i]*q_cs_list[j])
-            q_cs_num.append(E*q_cs_list[i]*q_cs_list[j])
-
-    q_cs_num.append(E*q_cs_list[-1])
-    q_cs_den= q_cs_list+q_cs_den
-    dict_vss_num= collect(expand(vss_num),q_cs_num, evaluate=False)
+    dict_vss_num= collect(expand(vss_num),vss_num_subterms, evaluate=False)
     dict_vss_num_keys = list(dict_vss_num.keys())
     sub_dict = {}
     for i,key in enumerate(dict_vss_num_keys):
@@ -340,11 +354,11 @@ def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
             sub_dict.update({dict_vss_num[key]:Symbol(f'P_{i}')})
             P.update({Symbol(f'P_{i}'):dict_vss_num[key]})
 
-    c_vss_num = collect(expand(vss_num),q_cs_num)
+    c_vss_num = collect(expand(vss_num),vss_num_subterms)
     c_vss_num_simp= factor( (c_vss_num).subs(sub_dict))
     print('c_vss_num_sim=\n',c_vss_num_simp)
 
-    dict_vss_den= collect(expand(vss_den),q_cs_den, evaluate=False)
+    dict_vss_den= collect(expand(vss_den),vss_den_subterms, evaluate=False)
     dict_vss_den_keys = list(dict_vss_den.keys())
     sub_dict = {}
     for j,key in enumerate(dict_vss_den_keys):
@@ -355,13 +369,104 @@ def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
             sub_dict.update({dict_vss_den[key]:Symbol(f'P_{i+j+1}')})
             P.update({Symbol(f'P_{i+j+1}'):dict_vss_den[key]})
 
-    c_vss_den= collect(expand(vss_den),q_cs_den)
+    c_vss_den= collect(expand(vss_den),vss_den_subterms)
     c_vss_den_simp= (c_vss_den).subs(sub_dict)
     print('c_vss_den_sim=\n',c_vss_den_simp)
+    astr=sstr(c_vss_den_simp)
+    print(astr)
     print('v_ss_simplified=\n',c_vss_num_simp/c_vss_den_simp)
     for key in P.keys():
         print(key,'=',P[key])
 
+def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
+    # Note: cannot handle large matrix due to performance issue
+    R,T,V_m, F, E=symbols('R,T,V_m, F, E')
+    # define lambda functions to apply to the entries of matrix
+    f_exp = lambda x: exp(x)
+    f_log = lambda x: log(x)
+    # convert the string stoichiometric matrix to float matrix   
+    Nf = nsimplify(Matrix(np.array(N_f,dtype=float)))
+    Nr = nsimplify(Matrix(np.array(N_r,dtype=float)))
+    # Get the quantities q, thermal parameters K, of the species
+    q = Matrix([Symbol(f'q_{comp}') for comp in CompName])
+    K_cd=diag(*[Symbol(f'K_{comp}') for i,comp in enumerate(CompName) if CompType[i]=='Ce'])
+    K_cs=diag(*[Symbol(f'K_{comp}') for i,comp in enumerate(CompName) if CompType[i]=='Se'])
+    q_cd = [f'q_{comp}' for i,comp in enumerate(CompName) if CompType[i]=='Ce']
+    # Get the reaction rate constants kappa
+    kappa = [Symbol(f'kappa_{re}') for re in ReName]
+    # Get the forward/reverse reaction rate expressions
+    k_f = []
+    k_r = []
+    # Construct a directed graph of the reaction network
+    G = nx.DiGraph()
+    for i,comp in enumerate(CompName):
+        if CompType[i]=='Ce':
+            G.add_node(comp)  
+    for j,re in enumerate(ReName):
+        k_f_terms =[]
+        k_r_terms =[]
+        for i,comp in enumerate(CompName):
+            mu_f = 0
+            mu_r = 0
+            if Nf[i,j]!=0 and CompType[i]=='Ce':
+                mu_f = R*T*f_log(Symbol(f'K_{comp}')*Symbol(f'q_{comp}'))
+                q_f = Symbol(f'q_{comp}')
+            elif Nf[i,j]!=0 and CompType[i]=='Se':
+                mu_f = R*T*f_log(Symbol(f'K_{comp}')*Symbol(f'q_{comp}'))
+            elif Nf[i,j]!=0 and CompType[i]=='Ve':
+                mu_f = F*V_m
+            else:
+                mu_f = 0
+            if mu_f != 0:
+               k_f_terms.append(Nf[i,j]*mu_f)
+            if Nr[i,j]!=0 and CompType[i]=='Ce':
+                mu_r = R*T*f_log(Symbol(f'K_{comp}')*Symbol(f'q_{comp}'))
+                q_r = Symbol(f'q_{comp}')
+            elif Nr[i,j]!=0 and CompType[i]=='Se':
+                mu_r = R*T*f_log(Symbol(f'K_{comp}')*Symbol(f'q_{comp}'))
+            elif Nr[i,j]!=0 and CompType[i]=='Ve':
+                mu_r = F*V_m
+            else:
+                mu_r = 0
+            if mu_r != 0:
+               k_r_terms.append(Nr[i,j]*mu_r)
+        k_f_mat = Matrix(k_f_terms)
+        k_r_mat = Matrix(k_r_terms)
+        kf_exp = nsimplify(kappa[j]*exp(sum((k_f_mat)/(R*T))))
+        dict_kf= collect(kf_exp,q_f, evaluate=False)
+        kr_exp = nsimplify(kappa[j]*exp(sum((k_r_mat)/(R*T))))
+        dict_kr= collect(kr_exp,q_r, evaluate=False)
+        G.add_edge(q_f.name,q_r.name,reaction=re, k_f=dict_kf[list(dict_kf.keys())[0]], k_r=dict_kr[list(dict_kr.keys())[0]])
+    
+    edge_list = list(G.edges(data=True))
+    
+    # create a two dimensional sympy matrix to store the product of the rate constants on the edges
+    # the first dimension is the number of q_cd, the second dimension is the number of edges
+    k_f_mat = Matrix([[0 for i in range(len(edge_list))] for j in range(len(q_cd))])
+    for  j, edge in enumerate (edge_list):
+        G_copy = G.copy()
+        G_copy.remove_edge(edge[0],edge[1])
+        for i, q in enumerate (q_cd):
+            item = []
+            # Get the edge list that connects the node q in the reverse direction; retrieve k_f on the edge
+            edge_list_q_rev = list(nx.edge_dfs(G_copy,q,orientation='reverse'))
+            for edge in edge_list_q_rev:
+                item.append(G.get_edge_data(edge[0],edge[1])['k_r'])                
+            # Get the edge list that connects the node q in the forward direction
+            edge_list_q_fwd = list(nx.edge_dfs(G_copy,q,orientation='original'))
+            for edge in edge_list_q_fwd:
+                item.append(G.get_edge_data(edge[0],edge[1])['k_f'])
+            # Get the product of all the k_f/k_r on the path
+            k_f_mat[i,j] = prod(item)
+    # Add the columns of the k_f_mat to get the steady state expression of q
+    q_ss = Matrix([0 for i in range(len(q_cd))])
+    for i in range(len(q_cd)):
+        q_ss[i] = sum(k_f_mat[i,:])
+
+    print('The steady state expression of q is:')
+    print(q_ss)
+            
+ 
           
 # main function
 if __name__ == "__main__":
@@ -372,7 +477,8 @@ if __name__ == "__main__":
     file_name_r = ask_for_file_or_folder(message) 
     # Read the csv file, which has two rows of headers, the first row is the reaction type and the second row is the reaction name
     CompName,CompType,ReName,ReType,N_f,N_r=load_matrix(file_name_f,file_name_r)
-    flux_ss(CompName,CompType,ReName,ReType,N_f,N_r)
+    #flux_ss(CompName,CompType,ReName,ReType,N_f,N_r)
+    flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r)
 
 
 
