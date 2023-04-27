@@ -443,28 +443,92 @@ def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
     # create a two dimensional sympy matrix to store the product of the rate constants on the edges
     # the first dimension is the number of q_cd, the second dimension is the number of edges
     k_f_mat = Matrix([[0 for i in range(len(edge_list))] for j in range(len(q_cd))])
-    for  j, edge in enumerate (edge_list):
+    for  j, edgej in enumerate (edge_list):
         G_copy = G.copy()
-        G_copy.remove_edge(edge[0],edge[1])
+        G_copy.remove_edge(edgej[0],edgej[1])
         for i, q in enumerate (q_cd):
             item = []
             # Get the edge list that connects the node q in the reverse direction; retrieve k_f on the edge
-            edge_list_q_rev = list(nx.edge_dfs(G_copy,q,orientation='reverse'))
+            edge_list_q = list(nx.edge_dfs(G_copy,q,orientation='ignore'))
+            edge_list_q_rev=[edge for edge in edge_list_q if edge[2]=='reverse']
+
             for edge in edge_list_q_rev:
-                item.append(G.get_edge_data(edge[0],edge[1])['k_r'])                
+                item.append(G_copy.get_edge_data(edge[0],edge[1])['k_f'])                          
             # Get the edge list that connects the node q in the forward direction
-            edge_list_q_fwd = list(nx.edge_dfs(G_copy,q,orientation='original'))
+            edge_list_q_fwd = [edge for edge in edge_list_q if edge[2]=='forward']
             for edge in edge_list_q_fwd:
-                item.append(G.get_edge_data(edge[0],edge[1])['k_f'])
+                item.append(G_copy.get_edge_data(edge[0],edge[1])['k_r'])
             # Get the product of all the k_f/k_r on the path
             k_f_mat[i,j] = prod(item)
     # Add the columns of the k_f_mat to get the steady state expression of q
     q_ss = Matrix([0 for i in range(len(q_cd))])
     for i in range(len(q_cd)):
         q_ss[i] = sum(k_f_mat[i,:])
+    
+    kf_all,kr_all = [],[]
+    for  j, edgej in enumerate (edge_list):
+        kf_all.append(G.get_edge_data(edgej[0],edgej[1])['k_f'])
+        kr_all.append(G.get_edge_data(edgej[0],edgej[1])['k_r'])
 
-    print('The steady state expression of q is:')
-    print(q_ss)
+    vss_num = E*(prod(kf_all)-prod(kr_all))
+    vss_den= sum(q_ss[:])
+    # Get the subexpression of vss_num containing q and E
+    vss_num_terms = Add.make_args(expand(vss_num))
+    vss_num_subterms =[]
+    for i in range(len(vss_num_terms)):
+        subliterals=[j for j in vss_num_terms[i].atoms() if (str(j).startswith('q') or j==E)]
+        if vss_num_terms[i].has(exp(F*V_m/(R*T))): subliterals.append(exp(F*V_m/(R*T)))
+        if len(subliterals)>1:
+            vss_num_subterms.append(Mul(*subliterals))
+        elif len(subliterals)==1:
+            vss_num_subterms.append(subliterals[0])
+    # Get the subexpression of vss_den containing q
+    vss_den_terms = Add.make_args(expand(vss_den))
+    vss_den_subterms =[]
+    for i in range(len(vss_den_terms)):
+        subliterals=[j for j in vss_den_terms[i].atoms() if str(j).startswith('q')]
+        if vss_den_terms[i].has(exp(F*V_m/(R*T))): subliterals.append(exp(F*V_m/(R*T)))
+        if len(subliterals)>1:
+            vss_den_subterms.append(Mul(*subliterals))
+        elif len(subliterals)==1:
+            vss_den_subterms.append(subliterals[0])
+
+    # Collect the terms of the numerator and denominator to simplify the expression
+    P={}
+    dict_vss_num= collect(expand(vss_num),vss_num_subterms, evaluate=False)
+    dict_vss_num_keys = list(dict_vss_num.keys())
+    sub_dict = {}
+    for i,key in enumerate(dict_vss_num_keys):
+        if dict_vss_num[key].could_extract_minus_sign():
+            sub_dict.update({-dict_vss_num[key]:Symbol(f'P_{i}')})
+            P.update({Symbol(f'P_{i}'):-dict_vss_num[key]})
+        else:
+            sub_dict.update({dict_vss_num[key]:Symbol(f'P_{i}')})
+            P.update({Symbol(f'P_{i}'):dict_vss_num[key]})
+
+    c_vss_num = collect(expand(vss_num),vss_num_subterms)
+    c_vss_num_simp= factor( (c_vss_num).subs(sub_dict))
+    print('c_vss_num_sim=\n',c_vss_num_simp)
+
+    dict_vss_den= collect(vss_den,vss_den_subterms, evaluate=False)
+    dict_vss_den_keys = list(dict_vss_den.keys())
+    sub_dict = {}
+    for j,key in enumerate(dict_vss_den_keys):
+        if dict_vss_den[key].could_extract_minus_sign():
+            sub_dict.update({-dict_vss_den[key]:Symbol(f'P_{i+j+1}')})
+            P.update({Symbol(f'P_{i+j+1}'):-dict_vss_den[key]})
+        else:
+            sub_dict.update({dict_vss_den[key]:Symbol(f'P_{i+j+1}')})
+            P.update({Symbol(f'P_{i+j+1}'):dict_vss_den[key]})
+
+    c_vss_den= collect(vss_den,vss_den_subterms)
+    c_vss_den_simp= (c_vss_den).subs(sub_dict)
+    print('c_vss_den_sim=\n',c_vss_den_simp)
+    astr=sstr(c_vss_den_simp)
+    print(astr)
+    print('v_ss_simplified=\n',c_vss_num_simp/c_vss_den_simp)
+    for key in P.keys():
+        print(key,'=',P[key])
             
  
           
