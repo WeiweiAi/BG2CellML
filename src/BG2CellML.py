@@ -1,8 +1,8 @@
-from libcellml import Component, Model, Units,  Variable
+from libcellml import Component, Model, Units,  Variable, ImportSource
 from utilities import  ask_for_file_or_folder, ask_for_input, load_matrix, infix_to_mathml
 import sys
 from pathlib import PurePath
-from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER 
+from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML,writeCellML,writeCellML_UI, importCellML,importCellML_UI
 from sympy import *
 import numpy as np
 from itertools import combinations
@@ -206,64 +206,185 @@ def read_csvBG():
     # Get the csv file from the user by opening a file dialog
     message='Please select the forward matrix csv file:'
     file_name_f = ask_for_file_or_folder(message)
-    message='Please select the reverse matrix csv file:'
-    file_name_r = ask_for_file_or_folder(message) 
+    directory = PurePath(file_name_f).parent
+    # by default, the reverse matrix csv file is the same as the forward matrix csv file expect that the file name ends with '_r'
+    file_name_r = file_name_f[:-6]+'_r.csv' 
     # Read the csv file, which has two rows of headers, the first row is the reaction type and the second row is the reaction name
     CompName,CompType,ReName,ReType,N_f,N_r=load_matrix(file_name_f,file_name_r)
-    # Get the default model name: BG_filename
-    name_f=PurePath(file_name_f).stem
-    model_name = 'BG_'+ name_f.split('_')[0]
-    message = f'The default model name is {model_name}. If you want to change it, please type the new name. Otherwise, just press Enter.'
-    answer = ask_for_input(message, 'Text')
-    if answer != '':
-        model_name = answer
-    # Build the model
-    model = Model(model_name)
-    component=Component(model_name)
-    component_param=Component(model_name+'_param')
-    model.addComponent(component)
-    model.addComponent(component_param)
-    message = 'Please specify the variable of integration, units, initial value or press Enter to use the default i.e, t,second,0:'
-    answer = ask_for_input(message, 'Text')
-    if answer == '':
-        voi = 't'
-        units = Units('second')
-        init = 0
-    else:
-        voi = answer.split(',')[0]
-        units = Units(answer.split(',')[1])
-        init = float(answer.split(',')[2])
+    # Get the default model names: BG_filename, BG_filename_param, BG_filename_test = BG_filename + BG_filename_param, 
+    # Steady state model names: ss_filename (ss expression), BG_ss_filename_param (link BG parameters to simplified parameters),  
+    # ss_filename_param (simplified parameters), 
+    # BG_ss_filename_test = (ss_filename + BG_ss_filename_param + BG_filename_param) , ss_filename_test = (ss_filename + ss_filename_param)
+    name_f=PurePath(file_name_f).stem.split('_')[0]
+    model_BG = Model('BG_'+ name_f)
+    model_BG_param = Model('BG_'+ name_f + '_param')
+    model_BG_test = Model('BG_'+ name_f + '_test')
+    model_ss = Model('ss_'+ name_f)
+    model_ss_param = Model('ss_'+ name_f + '_param')
+    model_ss_test = Model('ss_'+ name_f + '_test')
+    model_BG_ss_test = Model('BG_ss_'+ name_f + '_test')
+    model_BG_ss_param = Model ('BG_ss_'+ name_f + '_param')
+    # Default voi, units, and init
+    voi = 't'
+    units = Units('second')
     voi = Variable(voi)
     voi.setUnits(units)
-    voi.setInitialValue(init)
+    # Build model_BG
+    component=Component(model_BG.name())
+    component_param=Component(model_BG_param.name())
+    model_BG.addComponent(component)
+    model_BG.addComponent(component_param)
     component.addVariable(voi)
     component.setMath(MATH_HEADER)              
     for i, comp in enumerate(CompName):
-        add_BGcomp(model, comp, CompType[i],voi.name())
+        add_BGcomp(model_BG, comp, CompType[i],voi.name())
     for i, re in enumerate(ReName):
-        add_BGcomp(model, re, ReType[i],voi.name())
+        add_BGcomp(model_BG, re, ReType[i],voi.name())
     comps = list(zip(CompName,CompType))
     compd = list(zip(ReName,ReType))
-    add_BGbond(model, comps, compd, N_f, N_r)
+    add_BGbond(model_BG, comps, compd, N_f, N_r)
     component.appendMath(MATH_FOOTER)
+    # Remove component_param from model_BG
+    component_param_clone = model_BG.component(model_BG_param.name()).clone()
+    model_BG.removeComponent(model_BG_param.name())
+    # Build model_BG_param
+    model_BG_param.addComponent(component_param_clone)
+   
     # Set the default parameters as 1
-    for var_numb in range(model.component(component_param.name()).variableCount()):
-        model.component(component_param.name()).variable(var_numb).setInitialValue(1)
-    # Add the constant variables
-    message = 'Please select the constant variables to add:'
-    choices = [f'{const}: {BG.const[const]}' for const in BG.const]
-    const_selected = ask_for_input(message, 'Checkbox', choices)
-    for const in const_selected:
-        const_name = const.split(':')[0]
+    for var_numb in range(component_param_clone.variableCount()):
+        model_BG_param.component(component_param_clone.name()).variable(var_numb).setInitialValue(1)
+
+    # Add the constant variables    
+    for const in BG.const:
+        const_name = const
         var_const=Variable(const_name)
         unit_name = BG.const[const_name][1]
         u=Units(unit_name)
         var_const.setUnits(u)
         param_const = var_const.clone()
         param_const.setInitialValue(BG.const[const_name][0])
-        model.component(component.name()).addVariable(var_const)
-        model.component(component_param.name()).addVariable(param_const)
-    editModel(model) 
+        model_BG.component(component.name()).addVariable(var_const)
+        model_BG_param.component(component_param_clone.name()).addVariable(param_const)
+
+    vss_num,vss_den =  flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r)
+    v_ss_simplified, P, Q = simplify_flux_ss(vss_num,vss_den)
+    # Build model_ss
+    unitsSet = set()
+    component_ss=Component(model_ss.name())
+    vss_equation =[(str(v_ss_simplified),'v_ss','')]
+    P_equations=[]
+    v_ss = Variable('v_ss')
+    v_ss.setUnits(BG.v_Ch_1)
+
+    for param in P:
+        var_param=Variable(param.name)
+        unit_name = P[param][1]
+        u=Units(unit_name)
+        unitsSet.add(unit_name)
+        var_param.setUnits(u)
+        component_ss.addVariable(var_param)
+        ode_var= param.name
+        infix = str(P[param][0])
+        P_equations.append((infix,ode_var,''))
+    
+    component_BG_ss = component_ss.clone() # P is the simplified parameters
+
+    for q in Q:
+        var_q=Variable(q.name)
+        unit_name = Q[q][1]
+        u=Units(unit_name)
+        unitsSet.add(unit_name)
+        var_q.setUnits(u)
+        component_ss.addVariable(var_q)  
+
+    
+    component_ss_param=component_ss.clone() # P, Q are the simplified parameters
+    component_ss.addVariable(v_ss) # v_ss is the simplified flux
+    
+    # Add the units to the units model
+    print('Adding units to the units model file...')
+    filename, existing_model = parseCellML()
+    relative_path=PurePath(filename).relative_to(directory).as_posix()
+    importSource = ImportSource()
+    importSource.setUrl(relative_path) 
+    imported_models=[existing_model]
+    importSources=[importSource]
+    import_types=['units']
+    units_defined = set()
+    for unit_numb in range(existing_model.unitsCount()):
+        units_defined.add(existing_model.units(unit_numb).name()) 
+    units_undefined = unitsSet - units_defined
+
+    for iunitsName in units_undefined:
+        inunits=_defineUnits(iunitsName)
+        existing_model.addUnits(inunits)        
+    writeCellML(filename, existing_model)
+
+    for var_num in range(component_ss_param.variableCount()):
+        component_ss_param.variable(var_num).setInitialValue(1)
+
+    model_ss_param.addComponent(component_ss_param)
+
+    addEquations(component_ss, vss_equation)
+    model_ss.addComponent(component_ss) # v_ss is the simplified flux, P is the simplified parameters
+
+    for var_num in range(component_param_clone.variableCount()):
+        component_BG_ss.addVariable(component_param_clone.variable(var_num).clone())
+
+    component_BG_ss.removeVariable(v_ss)
+    addEquations(component_BG_ss, P_equations)
+
+    
+    model_BG_ss_param.addComponent(component_BG_ss)
+   
+    print('model_BG, only import the units')
+    importCellML(model_BG,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_BG)
+    fullpath=writeCellML_UI(directory, model_BG)
+    writeCellML(fullpath, model_BG)
+    
+    print('model_BG_param, import the units')
+    importCellML(model_BG_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_BG_param)
+    fullpath=writeCellML_UI(directory, model_BG_param)
+    writeCellML(fullpath, model_BG_param)
+    
+    print('model_BG_ss, import the units')
+    importCellML(model_ss,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_ss)
+    fullpath=writeCellML_UI(directory, model_ss)
+    writeCellML(fullpath, model_ss)
+   
+    print('model_ss_param, import the units')
+    importCellML(model_ss_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_ss_param)
+    fullpath=writeCellML_UI(directory, model_ss_param)
+    writeCellML(fullpath, model_ss_param)
+    
+    print('model_BG_ss_param, import the units')
+    importCellML(model_BG_ss_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_BG_ss_param)
+    fullpath=writeCellML_UI(directory, model_BG_ss_param)
+    writeCellML(fullpath, model_BG_ss_param)
+   
+    print('model_BG_test, import the model_BG and model model_BG_param')
+    importCellML(model_BG_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_BG_test)
+    fullpath=writeCellML_UI(directory, model_BG_test)
+    writeCellML(fullpath, model_BG_test)
+    
+    print('model_ss_test, import the model_ss and model model_ss_param')
+    importCellML(model_ss_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_ss_test)
+    fullpath=writeCellML_UI(directory, model_ss_test)
+    writeCellML(fullpath, model_ss_test)
+   
+    print('model_BG_ss_test, import the model_BG_ss, model model_BG_ss_param and model_BG_param')
+    importCellML(model_BG_ss_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
+    editModel(directory,model_BG_ss_test)
+    fullpath=writeCellML_UI(directory, model_BG_ss_test)
+    writeCellML(fullpath, model_BG_ss_test)
+    
 
 """ From the stoichiometric matrix to derive the steady state equations"""
 def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
@@ -326,13 +447,16 @@ def simplify_flux_ss(vss_num,vss_den):
     # Get the subexpression of vss_num containing q, E and exp(F*V_m/(R*T))
     vss_num_terms = Add.make_args(expand(vss_num))
     vss_num_subterms =[]
+    Q={}
     for i in range(len(vss_num_terms)):
-        subliterals=[j for j in vss_num_terms[i].atoms() if (str(j).startswith('q') or j==E)]
-        if vss_num_terms[i].has(exp(F*V_m/(R*T))): subliterals.append(exp(F*V_m/(R*T)))
-        if len(subliterals)>1:
-            vss_num_subterms.append(Mul(*subliterals))
-        elif len(subliterals)==1:
-            vss_num_subterms.append(subliterals[0])
+        qsubliterals=[j for j in vss_num_terms[i].atoms() if (str(j).startswith('q') or j==E)]
+        for qi in qsubliterals:
+            Q.update({qi:(qi,'fmol')})
+        if vss_num_terms[i].has(exp(F*V_m/(R*T))): qsubliterals.append(exp(F*V_m/(R*T)))
+        if len(qsubliterals)>1:
+            vss_num_subterms.append(Mul(*qsubliterals))
+        elif len(qsubliterals)==1:
+            vss_num_subterms.append(qsubliterals[0])
     # Get the subexpression of vss_den containing q and exp(F*V_m/(R*T))
     vss_den_terms = Add.make_args(expand(vss_den))
     vss_den_subterms =[]
@@ -343,7 +467,50 @@ def simplify_flux_ss(vss_num,vss_den):
             vss_den_subterms.append(Mul(*subliterals))
         elif len(subliterals)==1:
             vss_den_subterms.append(subliterals[0])
+    
+    def join_unit (expri):
+        symbols_expri = expri.atoms(Symbol)
+        unit_list =[]
+        first_unit=[]
+        for s in symbols_expri:
+           power_s = Poly(expri,s).monoms()
+           if power_s[0][0] == 1:
+               first_unit.append(f'{s.name}')
+           else:
+               unit_list.append(f'{s.name}{power_s[0][0]}')
+        unit_list = first_unit + unit_list
+        unit_expr = '_'.join(unit_list)
 
+        return unit_expr
+    # Get the units of the parameters P
+    def get_Units(terms):
+        first_term = Add.make_args(terms)[0]
+        Units_list=[]
+        Ks_units=[1/Symbol('fmol') for j in first_term.atoms() if str(j).startswith('K')]
+        kappas_units=[Symbol('fmol')/Symbol('sec') for j in first_term.atoms() if str(j).startswith('kappa')]
+        E_units = [Symbol('fmol') for j in first_term.atoms() if j==E]
+        if len(Ks_units)>0:
+            Units_list=Units_list+Ks_units
+        if len(kappas_units)>0:
+            Units_list=Units_list+kappas_units
+        if len(E_units)>0:
+            Units_list=Units_list+E_units
+
+        iUnits =  Mul(*Units_list) 
+        # if iUnits is number: return dimensionless
+        if iUnits.is_number: return 'dimensionless'
+        else: 
+            Units_num, Units_den=fraction(iUnits)
+        if Units_num .is_number: # join the items in Units_den with '_'
+            cellml_units_den = join_unit (Units_den) 
+            cellml_units = f'per_{cellml_units_den}'
+        else:
+            cellml_units_num = join_unit (Units_num)
+            cellml_units_den = join_unit (Units_den)
+            cellml_units = f'{cellml_units_num}_per_{cellml_units_den}'
+
+        return cellml_units    
+    
     # Collect the terms of the numerator and denominator to simplify the expression
     P={}
     dict_vss_num= collect(expand(vss_num),vss_num_subterms, evaluate=False)
@@ -352,10 +519,10 @@ def simplify_flux_ss(vss_num,vss_den):
     for i,key in enumerate(dict_vss_num_keys):
         if dict_vss_num[key].could_extract_minus_sign():
             sub_dict.update({-dict_vss_num[key]:Symbol(f'P_{i}')})
-            P.update({Symbol(f'P_{i}'):-dict_vss_num[key]})
+            P.update({Symbol(f'P_{i}'):(-dict_vss_num[key],get_Units(dict_vss_num[key]))})
         else:
             sub_dict.update({dict_vss_num[key]:Symbol(f'P_{i}')})
-            P.update({Symbol(f'P_{i}'):dict_vss_num[key]})
+            P.update({Symbol(f'P_{i}'):(dict_vss_num[key],get_Units(dict_vss_num[key]))})
 
     c_vss_num = collect(expand(vss_num),vss_num_subterms)
     c_vss_num_simp= factor( (c_vss_num).subs(sub_dict))
@@ -367,10 +534,10 @@ def simplify_flux_ss(vss_num,vss_den):
     for j,key in enumerate(dict_vss_den_keys):
         if dict_vss_den[key].could_extract_minus_sign():
             sub_dict.update({-dict_vss_den[key]:Symbol(f'P_{i+j+1}')})
-            P.update({Symbol(f'P_{i+j+1}'):-dict_vss_den[key]})
+            P.update({Symbol(f'P_{i+j+1}'):(-dict_vss_den[key],get_Units(dict_vss_den[key]))})
         else:
             sub_dict.update({dict_vss_den[key]:Symbol(f'P_{i+j+1}')})
-            P.update({Symbol(f'P_{i+j+1}'):dict_vss_den[key]})
+            P.update({Symbol(f'P_{i+j+1}'):(dict_vss_den[key],get_Units(dict_vss_den[key]))})
 
     c_vss_den= collect(expand(vss_den),vss_den_subterms)
     c_vss_den_simp= (c_vss_den).subs(sub_dict)
@@ -379,9 +546,8 @@ def simplify_flux_ss(vss_num,vss_den):
     print('v_ss_simplified=\n',v_ss_simplified)
     for key in P.keys():
         print(key,'=',P[key])
-    return v_ss_simplified, P
+    return v_ss_simplified, P, Q
     
-
 def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
     # Based on the approach proposed in 
     # Hill, Terrell. Free energy transduction in biology: the steady-state kinetic and thermodynamic formalism. Elsevier, 2012.
@@ -471,19 +637,8 @@ def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
 # main function
 if __name__ == "__main__":
     # Get the csv file from the user by opening a file dialog
-    message='Please select the forward matrix csv file:'
-    file_name_f = ask_for_file_or_folder(message)
-    message='Please select the reverse matrix csv file:'
-    file_name_r = ask_for_file_or_folder(message) 
-    # Read the csv file, which has two rows of headers, the first row is the reaction type and the second row is the reaction name
-    CompName,CompType,ReName,ReType,N_f,N_r=load_matrix(file_name_f,file_name_r)
-    vss_num,vss_den = flux_ss(CompName,CompType,ReName,ReType,N_f,N_r)
-    vss_num2,vss_den2 = flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r)
-    # check the equivalence of the two expressions
-    print(vss_num==vss_num2)
-    print('vss_num:\n',vss_num)
-    print('vss_num2:\n',vss_num2)
-    print(vss_den==vss_den2)
+    read_csvBG()
+
 
 
 

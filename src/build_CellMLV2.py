@@ -1,6 +1,6 @@
 from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable, ImportSource, Printer, Annotator
 import pandas as pd
-from utilities import print_model, ask_for_file_or_folder, ask_for_input, load_matrix, infix_to_mathml
+from utilities import print_model, ask_for_file_or_folder, ask_for_input, infix_to_mathml
 import sys
 import cellml
 from pathlib import PurePath 
@@ -14,18 +14,66 @@ BUILTIN_UNITS = {'ampere':Units.StandardUnit.AMPERE, 'becquerel':Units.StandardU
                    'ohm':Units.StandardUnit.OHM, 'pascal':Units.StandardUnit.PASCAL, 'radian':Units.StandardUnit.RADIAN, 'second':Units.StandardUnit.SECOND, 'siemens':Units.StandardUnit.SIEMENS, 'sievert':Units.StandardUnit.SIEVERT, 
                    'steradian':Units.StandardUnit.STERADIAN, 'tesla':Units.StandardUnit.TESLA, 'volt':Units.StandardUnit.VOLT, 'watt':Units.StandardUnit.WATT, 'weber':Units.StandardUnit.WEBER}
 
+def getEntityList(model, comp_name=None):
+    # input: model, the CellML model object
+    #        comp_name, the CellML component name
+    # output: a list of the entity names.
+    # if the component name is not provided, the list of the component names is returned;
+    # if the component name is provided, the list of the variable names is returned
+    if comp_name is None:
+        return [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
+    else:
+        return [model.component(comp_name).variable(var_numb).name() for var_numb in range(model.component(comp_name).variableCount())]
+    
+def getEntityName_UI(model, comp_name=None):
+    # input: model, the CellML model object
+    #        comp_name, the CellML component name
+    # output: the name of the entity.
+    # if the component name is not provided, ask user to select the name from the component list and return the name of the component; 
+    # if the component name is provided, ask user to select the name from the variable list and return the name of the variable
+    if comp_name is None:
+        message = 'Please select the component'
+        choices = getEntityList(model)
+        return ask_for_input(message, 'List', choices)
+    else:
+        message = 'Please select the variable'
+        choices = getEntityList(model, comp_name)
+        return ask_for_input(message, 'List', choices)
+
+def getEntityID(model, comp_name=None, var_name=None):
+    # input: model, the CellML model object
+    #        comp_name, the CellML component name
+    #        var_name, the CellML variable name
+    # output: the ID of the entity.
+    # if the component name is not provided, the ID of the model is returned; 
+    # if the variable name is not provided, the ID of the component is returned; 
+    # if both the component name and the variable name are provided, the ID of the variable is returned
+    if comp_name is None:
+        return model.id()
+    elif var_name is None:
+        return model.component(comp_name).id()
+    else:
+        return model.component(comp_name).variable(var_name).id()
+
 #----------------------------------------------------------------------Build a CellML model from a csv file--------------------------------------------------------------
 """ Read a csv file and create components and variables from it. """
-def read_csv():    
+def read_csv_UI():
     # Get the csv file from the user by opening a file dialog
     message='Please select the csv file to collect components:'
     file_path = ask_for_file_or_folder(message)
+    return file_path
+
+def read_csv(file_path):    
+    # input: file_path: the path of the csv file
+    # output: None, write the components and variables to a CellML model, saved as a .cellml file
+
+    # Read the csv file and create components and variables from it
     df = pd.read_csv(file_path, sep=',', header=0, index_col=False,na_values='nan')
     df['component']=df['component'].fillna(method="ffill")
     gdf=df.groupby('component')
-    params_comp = Component('parameters')
+    params_comp = Component('param')
     components = []
-    # Create CellMLVariable for each variable in the component and add it to the component
+    # Create CellML Variable for each variable in the component and add it to the component
         # Rules: 1. if the initial_value is nan, then the initial_value is None;
         #        2. if the param column is 'param', then the variable is a parameter and it will be added to the params list; 
         #           The initial_value of the variable will be None; 
@@ -56,17 +104,22 @@ def read_csv():
             else:
                 variable.setInitialValue(row['initial_value'])
             component.addVariable(variable)
-        message = f'Do you want to add equations for {component.name()}:'
-        answer = ask_for_input(message, 'Confirm')
-        if answer:
-            component.setMath(MATH_HEADER)   
-            writeEquations(component)
-            component.appendMath(MATH_FOOTER)                   
+                 
         components.append(component)
     
     if params_comp.variableCount()>0:        
-        components.append(params_comp)           
+        components.append(params_comp)
+    
+    # Write the components to a CellML file
+    model_name = PurePath(file_path).stem
+    full_path = PurePath(file_path).parent.joinpath(model_name+'.cellml')
+    modeli = Model(model_name+'_comps')
+    for component in components:
+        modeli.addComponent(component)
+    writeCellML(full_path,modeli)
+
     return components
+   
 
 """" Parse a cellml file."""
 def parseCellML(strict_mode=True):
@@ -76,82 +129,111 @@ def parseCellML(strict_mode=True):
     existing_model=cellml.parse_model(filename, strict_mode)
     return filename, existing_model
 
-
-""" Specify imports and units. """
-def importCellML(model,start,strict_mode=True):    
-    while True:
-        message = 'Do you want to import components or units from a CellML file?'
-        answer = ask_for_input(message, 'Confirm')
-        if answer:
-            filename, existing_model = parseCellML(strict_mode)
-            relative_path=PurePath(filename).relative_to(start).as_posix()
-            importSource = ImportSource()
-            importSource.setUrl(relative_path)
-            message="Please select the component, units or equations to import:"
-            choices=['units', 'components','equations']
-            import_type = ask_for_input(message, 'Checkbox', choices)[0]
-            if import_type == 'units':
-                units_undefined=_checkUndefinedUnits(model)
-                if len(units_undefined)>0:
-                    # Get the intersection of the units_undefined and the units defined in the existing model
-                    existing_units=set([existing_model.units(unit_numb).name() for unit_numb in range(existing_model.unitsCount())])
-                    units_to_import = units_undefined.intersection(existing_units)
+def importCellML_UI(model_path,strict_mode=True):
+    # input: model_path: the path of the CellML model that imports other CellML models
+    #        strict_mode: whether to use strict mode when parsing the CellML model
+    # output: imported_model: the existing model that is imported
+    #         importSource: the ImportSource object
+    #         import_type: the type of the import (units or components)
+    #         imported_components_dict: a dictionary of the imported components, 
+    #                                   with the key being the the new component name and the value being the original component name  
+    import_action = ask_for_input('Do you want to import?', 'Confirm', True)
+    imported_models,importSources,import_types, imported_components_dicts = [], [], [], []
+    while import_action:
+        filename, imported_model = parseCellML(strict_mode)
+        relative_path=PurePath(filename).relative_to(model_path).as_posix()
+        importSource = ImportSource()
+        importSource.setUrl(relative_path)
+        importSource.setModel(imported_model)
+        message="Please select the component or units to import:"
+        choices=['units', 'component']
+        import_type = ask_for_input(message, 'List', choices)
+        imported_components_dict = {}
+        if import_type == 'component':
+            message="Please select the components to import:"
+            imported_components = ask_for_input( message, 'Checkbox', getEntityList(imported_model))
+            for component in imported_components:
+                message=f"If you want to rename the component {component}, please type the new name. Otherwise, just press 'Enter':"
+                answer = ask_for_input(message, 'Text')
+                if answer!='':
+                    imported_components_dict.update({answer: component})
                 else:
-                    units_to_import = set()
-                for unit in units_to_import:
-                    u = Units(unit)
-                    u.setImportSource(importSource)
-                    u.setImportReference(unit)
-                    model.addUnits(u)
-                print(f'The units {units_to_import} have been imported.')
-            elif import_type == 'components':
-                message="Please select the components to import:"
-                choices=[existing_model.component(comp_numb).name() for comp_numb in range(existing_model.componentCount())]
-                answers = ask_for_input( message, 'Checkbox', choices)
-                for component in answers:
-                    message=f"If you want to rename the component {component}, please type the new name. Otherwise, just press 'Enter':"
-                    answer = ask_for_input(message, 'Text')
-                    if answer!='':
-                        c = Component(answer)
-                    else:
-                        c = Component(component)
-                    c.setImportSource(importSource)
-                    c.setImportReference(component)
-                    dummy_c = c.importSource().model().component(c.importReference()).clone()
-                    while(dummy_c.variableCount()):
-                         c.addVariable(dummy_c.variable(0))
-                    model.addComponent(c)
-            else: # if the user does not select any component or unit, then import equations; assume the component name is the same as the new model
-                message="Please select the components which contain the equations:"
-                choices=[existing_model.component(comp_numb).name() for comp_numb in range(existing_model.componentCount())]
-                answers = ask_for_input( message, 'Checkbox', choices)
-                for component in answers:
-                    message = f'If not {component}, please select the component which contains the equations in the new model:'
-                    choices=[model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
-                    component_new = ask_for_input(message, 'Checkbox', choices)[0]
-                    model.component(existing_model.component(component_new)).appendMath(existing_model.component(component).math())      
+                    imported_components_dict.update({component:component})
+        imported_models.append(imported_model)
+        importSources.append(importSource)
+        import_types.append(import_type)
+        imported_components_dicts.append(imported_components_dict)
+        import_action = ask_for_input('Do you want to continue?', 'Confirm', False)
+
+    return  imported_models,importSources,import_types, imported_components_dicts
+
+""" Import units or components from an existing CellML model. """
+def importCellML(model,imported_model,importSource,import_type, imported_components_dict={}):
+    # input: model: the model that imports other CellML models
+    #        imported_model: the existing model that is imported
+    #        importSource: the ImportSource object
+    #        import_type: the type of the import (units or components)
+    #        imported_components_dict: a dictionary of the imported components 
+    # output: None
+    #        The imported units or components will be added to the model          
+    if import_type == 'units':
+        units_undefined=_checkUndefinedUnits(model)
+        if len(units_undefined)>0:
+            # Get the intersection of the units_undefined and the units defined in the existing model
+            existing_units=set([imported_model.units(unit_numb).name() for unit_numb in range(imported_model.unitsCount())])
+            units_to_import = units_undefined.intersection(existing_units)
         else:
-            break
+            units_to_import = set()
+        for unit in units_to_import:
+            u = Units(unit)
+            u.setImportSource(importSource)
+            u.setImportReference(unit)
+            model.addUnits(u)
+        print(f'The units {units_to_import} have been imported.')
+    else:
+        for component in imported_components_dict:
+            c = Component(component)
+            c.setImportSource(importSource)
+            c.setImportReference(imported_components_dict[component])
+            dummy_c = c.importSource().model().component(c.importReference()).clone()
+            while(dummy_c.variableCount()):
+                 c.addVariable(dummy_c.variable(0))
+            model.addComponent(c) 
+
+def encapsulate_UI(model):
+    # input: model: the model object that includes the components to be encapsulated
+    # output: component_parent_selected: the name of the parent component
+    #         component_children_selected: a list of the names of the children components
+    confirm =ask_for_input('Do you want to encapsulate components', 'Confirm', False)
+    if confirm: 
+        message="Please select the parent component:"
+        component_list = getEntityList(model)
+        component_parent_selected = ask_for_input(message, 'List', component_list)
+        message="Please select the children components:"
+        choices=[comp_name for comp_name in component_list if comp_name != component_parent_selected]
+        component_children_selected = ask_for_input(message, 'Checkbox', choices)
+    else:
+        component_parent_selected = []
+        component_children_selected = []
+    return component_parent_selected, component_children_selected
 
 """ Carry out the encapsulation. """
-def encapsulate(model):
-    while True:
-        message = 'Do you want to encapsulate components?'
-        answer = ask_for_input(message, 'Confirm')
-        if answer:
-            message="Please select the parent component:"
-            choices=[model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
-            component_parent_selected = ask_for_input(message, 'Checkbox', choices)[0] 
-            message="Please select the children components:"
-            choices=[model.component(comp_numb).name() for comp_numb in range(model.componentCount()) if model.component(comp_numb).name() != component_parent_selected]
-            answers = ask_for_input(message, 'Checkbox', choices)
-            for component_child in answers:
-                model.component(component_parent_selected).addComponent(model.component(component_child))
-        else:
-            break
+def encapsulate(model, component_parent_selected, component_children_selected):
+    # input: model: the model object that includes the components to be encapsulated
+    #        component_parent_selected: the name of the parent component
+    #        component_children_selected: a list of the names of the children components
+    # output: None
+    #        The encapsulation will be added to the model
+    for component_child in component_children_selected:
+        model.component(component_parent_selected).addComponent(model.component(component_child))
 
-""" Find the variables that are not mapped in two components. """
+
+""" Find the variables that are mapped in two components. """
 def _findMappedVariables(comp1,comp2):
+    # input: comp1: the first component
+    #        comp2: the second component
+    # output: mapped_variables_comp1: a list of the names of the variables in comp1 that are mapped to variables in comp2
+    #         mapped_variables_comp2: a list of the names of the variables in comp2 that are mapped to variables in comp1
     mapped_variables_comp1 = []
     mapped_variables_comp2 = []
     for v in range(comp1.variableCount()):
@@ -172,29 +254,29 @@ def _findMappedVariables(comp1,comp2):
                     
 
 """" Provide variable connection suggestion based on variable name and carry on the variable mapping based on user inputs. """
-def suggestConnection(comp1,comp2):
+def suggestConnection(model,comp1,comp2):
     # Get the variables in the two components
     variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount())]
     variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount())]
     print('The variables in the first component are:', variables1)
     print('The variables in the second component are:', variables2)
-    # Get the intersection of the two variables
+    # Get the intersection of the variable names in the two components
     variables = set(variables1).intersection(variables2)
     if len(variables)>0:
-        print('The variables that are shared by the two components are:', variables)
+        print('The variable names that are shared by the two components are:', variables)
         message="Please select the variables to map. If you want to map all the variables, just press 'Enter'"
         choices=[var for var in variables]
         answers = ask_for_input( message, 'Checkbox', choices)
         if len(answers)>0:
             for var in answers:
-                if Units.compatible(comp1.variable(var).units(), comp2.variable(var).units()):
+                if Units.compatible(model.component(comp1).variable(var).units(), model.component(comp2).variable(var).units()):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
                     print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
                 
         else:
             for var in variables:
-                if Units.compatible(comp1.variable(var).units(), comp2.variable(var).units()):
+                if Units.compatible(model.component(comp1).variable(var).units(), model.component(comp2).variable(var).units()):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
                     print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
@@ -227,10 +309,10 @@ def suggestConnection(comp1,comp2):
             if len(answers)>0:
                 var1 = answers[0].split(':')[1]
                 var2 = answers[1].split(':')[1]
-                if Units.compatible(comp1.variable(var).units(), comp2.variable(var).units()):
+                if Units.compatible(model.component(comp1).variable(var).units(), model.component(comp2).variable(var).units()):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
-                    print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
+                    print(f'{var} has units {comp1.variable(var).units().name()} in comp1 but {comp2.variable(var).units().name()} in comp2, which are not compatible.')
             else:
                 break
         else:
@@ -248,15 +330,17 @@ def suggestConnection(comp1,comp2):
                 comp2.variable(var2).removeInitialValue()
 
 """ Carry out the connection. """
-def connect(model):
+def connect(base_dir,model):
+    importer = cellml.resolve_imports(model, base_dir, True)
+    flatModel = importer.flattenModel(model) # this may not be necessary after the units compatibility check function is fixed
     # List the components in the model
-    components = [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
-    # Find the components that have encapsulated components, and connect the parent and child components
+    components = getEntityList(model)
+    # Find the components that have encapsulated components, and connect the parent and children components
     def suggestConnection_parent_child(parent_component):
         if parent_component.componentCount()>0:
             for child_numb in range(parent_component.componentCount):                
                 child_component = parent_component.component(child_numb)
-                suggestConnection(parent_component, child_component)
+                suggestConnection(flatModel,parent_component, child_component)
                 suggestConnection_parent_child(child_component)
 
     for comp_numb in range(model.componentCount()):
@@ -269,11 +353,13 @@ def connect(model):
         if len(answer)>0:
             comp1= answer[0]
             comp2= answer[1]
-            suggestConnection(model.component(comp1), model.component(comp2))
+            suggestConnection(flatModel, model.component(comp1), model.component(comp2))
         else:
             break
 """Check the undefined non base units"""
 def _checkUndefinedUnits(model):
+    # inputs:  a model object
+    # outputs: a set of undefined units
     units_claimed = set()
     for comp_numb in range(model.componentCount()):
         for var_numb in range(model.component(comp_numb).variableCount()):
@@ -288,18 +374,26 @@ def _checkUndefinedUnits(model):
     units_undefined = units_claimed - units_defined
     return units_undefined
 
+def defineUnits_UI(iunitsName):
+    print(f'Please define the units {iunitsName}:')
+    message = 'Please type the name of the standardUnit or press Enter to skip:'
+    unitName = ask_for_input(message, 'Text')
+    message = 'Please type the prefix or press Enter to skip:'
+    prefix = ask_for_input(message, 'Text')
+    message = 'Please type the exponent or press Enter to skip:'
+    exponent = ask_for_input(message, 'Text')
+    message = 'Please type the multiplier or press Enter to skip:'
+    multiplier = ask_for_input(message, 'Text')
+    return unitName, prefix, exponent, multiplier
+
 # Define the units
-def _defineUnits(model,iunits):
+def _defineUnits(iunitsName):
+    iunits = Units(iunitsName)
     while True:
-        message = 'Please type the name of the standardUnit or press Enter to skip:'
-        unitName = ask_for_input(message, 'Text')
-        if unitName != '':
-            message = 'Please type the prefix or press Enter to skip:'
-            prefix = ask_for_input(message, 'Text')
-            message = 'Please type the exponent or press Enter to skip:'
-            exponent = ask_for_input(message, 'Text')
-            message = 'Please type the multiplier or press Enter to skip:'
-            multiplier = ask_for_input(message, 'Text')
+        unitName, prefix, exponent, multiplier = defineUnits_UI(iunitsName)
+        if unitName == '':
+            break
+        else:    
             if exponent != '':
                 exponent = float(exponent)
             else:
@@ -313,13 +407,11 @@ def _defineUnits(model,iunits):
             if unitName in BUILTIN_UNITS:
                 iunits.addUnit(BUILTIN_UNITS[unitName], prefix, exponent, multiplier)
             else:
-                iunits.addUnit(unitName,prefix, exponent, multiplier)
-        else:
-            break              
-        model.addUnits(iunits)
+                iunits.addUnit(unitName,prefix, exponent, multiplier)                
+    return iunits
 
 # Add units to the model
-def addUnitsUI(model):
+def addUnits_UI(model):
     units_undefined=_checkUndefinedUnits(model)
     print('The units claimed in the variables but undefined are:',units_undefined)
     # Ask the user to add the units which are claimed in the variables but not defined in the model
@@ -328,8 +420,8 @@ def addUnitsUI(model):
             message = 'Do you want to add units:' + units + '?'
             answer = ask_for_input(message, 'Confirm', True)           
             if answer:
-                iunits = Units(units)
-                _defineUnits(model,iunits)                              
+                iunits=_defineUnits(units)
+                model.addUnits(iunits)
             else:
                 break
     # Ask the user to add custom units
@@ -337,13 +429,13 @@ def addUnitsUI(model):
         message = 'Please type the name of a custom units or pressEnter to skip:'
         answers = ask_for_input(message, 'Text')
         if answers!= '':
-            iunits = Units(answers)
-            _defineUnits(model,iunits)    
+            iunits=_defineUnits(answers)
+            model.addUnits(iunits)    
         else:
             break              
     # Replace the units with the standard units
 # Write the equations to a component
-def writeEquations(component):
+def writeEquations_UI(component):
     while True:
         message = 'Please type the lefthand of the equation or press Enter to skip:'
         ode_var = ask_for_input(message, 'Text')
@@ -356,156 +448,123 @@ def writeEquations(component):
         else:
             break
 
-# Write a model to cellml file, input: directory, model, output: cellml file
-def writeCellML(directory, model):
+# Add equations to the model
+def addEquations(component, equations):
+
+    component.setMath(MATH_HEADER)            
+    for equation in equations:
+        infix = equation[0]
+        ode_var = equation[1]
+        voi = equation[2]
+        component. appendMath(infix_to_mathml(infix, ode_var, voi))
+    component. appendMath(MATH_FOOTER)
+
+
+def writeCellML_UI(directory, model):
     message = f'If you want to change the default filename {model.name()}.cellml, please type the new name. Otherwise, just press Enter.'
     file_name = ask_for_input(message, 'Text')
     if file_name == '':
         file_name=model.name()+'.cellml'
     else:
-        file_name=file_name+'.cellml'        
-    printer = Printer()
-    serialised_model = printer.printModel(model)
+        file_name=file_name+'.cellml'
     full_path = str(PurePath(directory).joinpath(file_name))
+    return full_path
+
+# Write a model to cellml file, input: directory, model, output: cellml file
+def writeCellML(full_path, model): 
+    full_path= assignAllIds(full_path,model)    
+    printer = Printer()
+    serialised_model = printer.printModel(model)    
     write_file = open(full_path, "w")
     write_file.write(serialised_model)
     write_file.close()
-    print('Model saved to:',full_path)
-    return full_path
+    print('CellML model saved to:',full_path)
 
+def writePythonCode_UI(directory, model):
+    message = f'If you want to change the default filename {model.name()}.py, please type the new name. Otherwise, just press Enter.'
+    file_name = ask_for_input(message, 'Text')
+    if file_name == '':
+        file_name=model.name()+'.py'
+    else:
+        file_name=file_name+'.py'
+    full_path = str(PurePath(directory).joinpath(file_name))  
+    return full_path
+      
 """"Write python code for the complete model"""
-def writePythonCode(base_dir, model,strict_mode=True):
-    message = 'Do you want to generate the python code?'
-    answer = ask_for_input(message, 'Confirm', False)           
-    if answer:
-        importer = cellml.resolve_imports(model, base_dir, strict_mode)
-        flatModel = importer.flattenModel(model)
-        a = cellml.analyse_model(flatModel)              
-        generator = Generator()
-        generator.setModel(a)
-        profile = GeneratorProfile(GeneratorProfile.Profile.PYTHON)
-        generator.setProfile(profile)
-        implementation_code_python = generator.implementationCode() 
-        message = f'If you want to change the default filename {model.name()}.py, please type the new name. Otherwise, just press Enter.'
-        file_name = ask_for_input(message, 'Text')
-        if file_name == '':
-            file_name=model.name()+'.py'
-        else:
-            file_name=file_name+'.py'                   
-        # Save the python file in the same directory as the CellML file
-        with open(base_dir+file_name, "w") as f:
-            f.write(implementation_code_python)
-        print('Python code saved to:', base_dir + file_name)
+def writePythonCode(full_path, model,strict_mode=True):
+    base_dir = PurePath(full_path).parent
+    importer = cellml.resolve_imports(model, base_dir, strict_mode)
+    flatModel = importer.flattenModel(model)
+    a = cellml.analyse_model(flatModel)              
+    generator = Generator()
+    generator.setModel(a)
+    profile = GeneratorProfile(GeneratorProfile.Profile.PYTHON)
+    generator.setProfile(profile)
+    implementation_code_python = generator.implementationCode()                   
+    # Save the python file in the same directory as the CellML file
+    with open(full_path, "w") as f:
+        f.write(implementation_code_python)
+    print('Python code saved to:', full_path)
 
 """"Edit the model based on the user input"""
-def editModel(model):
-    message = 'Please select the folder to save the model:'
-    directory = ask_for_file_or_folder(message,True)
-    importCellML(model,directory)
-    addUnitsUI(model)
-    encapsulate(model)
-    connect(model)
+def editModel(directory,model):
+    imported_models,importSources,import_types, imported_components_dicts = importCellML_UI(directory)
+    for i in range(len(imported_models)):
+        importCellML(model,imported_models[i],importSources[i],import_types[i], imported_components_dicts[i])
+
+    addUnits_UI(model)
+    component_parent_selected, component_children_selected=encapsulate_UI(model)
+    encapsulate(model, component_parent_selected, component_children_selected)
+    connect(directory,model)
     model.fixVariableInterfaces()
     if model.hasUnlinkedUnits():
         model.linkUnits()
     #    Create a validator and use it to check the model so far.
     print_model(model,True)
     cellml.validate_model(model)
-    #cellml.analyse_model(model)
-    message="Do you want to save the model?"
-    answer = ask_for_input(message, 'Confirm', True)
-    if answer:
-        writeCellML(directory, model)
-        writePythonCode(directory, model)
+    
 
 """" Assign IDs to all entities in the model; """
-def assignAllIds(filename,model):
-    directory=str(PurePath(filename).parent)
-    annotator = Annotator()
-    annotator.setModel(model)
-    change = False
-    # Make sure all entities in the model have an ID and make sure that all IDs in the model are unique
-    if annotator.assignAllIds():
-        print('Some entities have been assigned an ID, you should save the model!')
-        change=True
-    else:
-        print('Everything already had an ID.')
-    duplicates = annotator.duplicateIds()
-    if len(duplicates) > 0:
-        print('There are duplicate IDs. Assigning new IDs to all entities.')
+def assignAllIds(fullpath,model):
+    meassage = f'Do you want to assign all the ids to the {model.name()}?'
+    answer = ask_for_input(meassage, 'Confirm', True)
+    if answer:
+        directory=str(PurePath(fullpath).parent)
+        annotator = Annotator()
+        annotator.setModel(model)
         annotator.clearAllIds()
         annotator.assignAllIds()
-        change=True
-    if change:
-        # save the updated model to a new file - note, we need the model filename for making our annotations later
-        message = 'Do you want to choose different folder to save the model?'
-        answer = ask_for_input(message, 'Confirm', True)
-        if answer:
-            message = 'Please select the folder to save the model:'
-            directory = ask_for_file_or_folder(message,True)
-        filename=writeCellML(directory, model)
-    return filename, model  
-
-def getEntityID(model, comp_name=None, var_name=None):
-        # input: model, the CellML model object
-        #        comp_name, the CellML component name
-        #        var_name, the CellML variable name
-        # output: the ID of the entity.
-        # if the component name is not provided, the ID of the model is returned; 
-        # if the variable name is not provided, the ID of the component is returned; 
-        # if both the component name and the variable name are provided, the ID of the variable is returned
-        if comp_name is None:
-            return model.id()
-        elif var_name is None:
-            return model.component(comp_name).id()
-        else:
-            return model.component(comp_name).variable(var_name).id()
-        
-def getEntityList(model, comp_name=None):
-    # input: model, the CellML model object
-    #        comp_name, the CellML component name
-    # output: a list of the entity names.
-    # if the component name is not provided, the list of the component names is returned;
-    # if the component name is provided, the list of the variable names is returned
-    if comp_name is None:
-        return [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
-    else:
-        return [model.component(comp_name).variable(var_numb).name() for var_numb in range(model.component(comp_name).variableCount())]
-    
-def getEntityName_UI(model, comp_name=None):
-    # input: model, the CellML model object
-    #        comp_name, the CellML component name
-    # output: the name of the entity.
-    # if the component name is not provided, ask user to select the name from the component list and return the name of the component; 
-    # if the component name is provided, ask user to select the name from the variable list and return the name of the variable
-    if comp_name is None:
-        message = 'Please select the component'
-        choices = getEntityList(model)
-        return ask_for_input(message, 'List', choices)
-    else:
-        message = 'Please select the variable'
-        choices = getEntityList(model, comp_name)
-        return ask_for_input(message, 'List', choices)
+        duplicates = annotator.duplicateIds()
+        """"
+        if len(duplicates) > 0: # aways true
+            print('There are duplicate IDs. Assigning new IDs to all entities.')
+            annotator.clearAllIds()
+            annotator.assignAllIds()
+            # Save the updated model to a new file - the filename is the original one + '_newIDs'
+            filename = str(PurePath(fullpath).stem)+'_newIDs.cellml'
+            fullpath = str(PurePath(directory).joinpath(filename))
+            writeCellML(fullpath, model)
+        """
+    return fullpath    
 
 """ Create a model from a list of components. """
 def buildModel():
-    message = 'Please select the folder to save the model:'
-    directory = ask_for_file_or_folder(message,True)
-    message="Please type the model name:"
-    model_name = ask_for_input(message, 'Text')
-    model = Model(model_name)
     message = 'Start building a model from csv file or an existing model?'
     choices = ['csv file', 'existing model']
     choice = ask_for_input(message, 'List', choices)
+
     if choice == 'csv file':
-        components=read_csv()
-        modeli = Model(model_name+'_comps')
-        for component in components:
-            modeli.addComponent(component)
-        writeCellML(directory,modeli)      
+        file_path=read_csv_UI()
+        components=read_csv(file_path)    
     else:
         filename, existing_model=parseCellML
-        components=[existing_model.component(comp_numb) for comp_numb in range(existing_model.componentCount())]
+        components= getEntityList(existing_model)
+    
+    message="Please type the model name:"
+    model_name = ask_for_input(message, 'Text')
+    message = 'Please select the folder to save the model:'
+    directory = ask_for_file_or_folder(message,True)
+
     while True:
         if model_name!= '':           
             model = Model(model_name)
@@ -515,7 +574,17 @@ def buildModel():
             indexes = [int(i.split(':')[0]) for i in components_selected]
             for index in indexes:
                 model.addComponent(components[index].clone())
+            
             editModel(model)
+
+            message="Do you want to save the model?"
+            answer = ask_for_input(message, 'Confirm', True)
+            if answer:
+                full_path=writeCellML_UI(directory, model)
+                writeCellML(full_path, model)
+                full_path=writePythonCode_UI(directory, model)
+                writePythonCode(full_path, model)
+            
             message="Please type the model name or press Enter to quit building models:"
             model_name = ask_for_input(message, 'Text')                               
         else:
