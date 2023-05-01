@@ -2,11 +2,11 @@ from libcellml import Component, Model, Units,  Variable, ImportSource
 from utilities import  ask_for_file_or_folder, ask_for_input, load_matrix, infix_to_mathml
 import sys
 from pathlib import PurePath
-from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML,writeCellML,writeCellML_UI, importCellML,importCellML_UI
+from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML_UI,writeCellML,writeCellML_UI, importCellML,importComponent,suggestConnection, getEntityList
 from sympy import *
 import numpy as np
-from itertools import combinations
 import networkx as nx
+import cellml
 
 R,T,V_m, F, E=symbols('R,T,V_m, F, E')
 #---------------------------------------------------------------Build a cellML model for BG----------------------------------------------------------#
@@ -206,7 +206,7 @@ def read_csvBG():
     # Get the csv file from the user by opening a file dialog
     message='Please select the forward matrix csv file:'
     file_name_f = ask_for_file_or_folder(message)
-    directory = PurePath(file_name_f).parent
+    directory = PurePath(file_name_f).parent.as_posix()
     # by default, the reverse matrix csv file is the same as the forward matrix csv file expect that the file name ends with '_r'
     file_name_r = file_name_f[:-6]+'_r.csv' 
     # Read the csv file, which has two rows of headers, the first row is the reaction type and the second row is the reaction name
@@ -288,6 +288,7 @@ def read_csvBG():
         P_equations.append((infix,ode_var,''))
     
     component_BG_ss = component_ss.clone() # P is the simplified parameters
+    component_BG_ss.setName(model_BG_ss_param.name())
 
     for q in Q:
         var_q=Variable(q.name)
@@ -299,11 +300,12 @@ def read_csvBG():
 
     
     component_ss_param=component_ss.clone() # P, Q are the simplified parameters
+    component_ss_param.setName(model_ss_param.name())
     component_ss.addVariable(v_ss) # v_ss is the simplified flux
     
     # Add the units to the units model
     print('Adding units to the units model file...')
-    filename, existing_model = parseCellML()
+    filename, existing_model = parseCellML_UI()
     relative_path=PurePath(filename).relative_to(directory).as_posix()
     importSource = ImportSource()
     importSource.setUrl(relative_path) 
@@ -336,52 +338,112 @@ def read_csvBG():
 
     
     model_BG_ss_param.addComponent(component_BG_ss)
-   
+    
     print('model_BG, only import the units')
     importCellML(model_BG,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_BG)
-    fullpath=writeCellML_UI(directory, model_BG)
+    model_BG.fixVariableInterfaces()
+    if model_BG.hasUnlinkedUnits():
+        model_BG.linkUnits()
+    cellml.validate_model(model_BG)
+    fullpath = PurePath(directory, model_BG.name()+'.cellml').as_posix()
     writeCellML(fullpath, model_BG)
     
     print('model_BG_param, import the units')
     importCellML(model_BG_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_BG_param)
-    fullpath=writeCellML_UI(directory, model_BG_param)
+    model_BG_param.fixVariableInterfaces()
+    if model_BG_param.hasUnlinkedUnits():
+        model_BG_param.linkUnits()
+    cellml.validate_model(model_BG_param)
+    fullpath = PurePath(directory, model_BG_param.name()+'.cellml').as_posix()    
     writeCellML(fullpath, model_BG_param)
     
     print('model_BG_ss, import the units')
     importCellML(model_ss,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_ss)
-    fullpath=writeCellML_UI(directory, model_ss)
+    model_ss.fixVariableInterfaces()
+    if model_ss.hasUnlinkedUnits():
+        model_ss.linkUnits()
+    cellml.validate_model(model_ss)
+    fullpath = PurePath(directory, model_ss.name()+'.cellml').as_posix()
     writeCellML(fullpath, model_ss)
    
     print('model_ss_param, import the units')
     importCellML(model_ss_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_ss_param)
-    fullpath=writeCellML_UI(directory, model_ss_param)
+    model_ss_param.fixVariableInterfaces()
+    if model_ss_param.hasUnlinkedUnits():
+        model_ss_param.linkUnits()
+    cellml.validate_model(model_ss_param)
+    fullpath = PurePath(directory, model_ss_param.name()+'.cellml').as_posix()   
     writeCellML(fullpath, model_ss_param)
     
     print('model_BG_ss_param, import the units')
     importCellML(model_BG_ss_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_BG_ss_param)
-    fullpath=writeCellML_UI(directory, model_BG_ss_param)
+    model_BG_ss_param.fixVariableInterfaces()
+    if model_BG_ss_param.hasUnlinkedUnits():
+        model_BG_ss_param.linkUnits()
+    cellml.validate_model(model_BG_ss_param)
+    fullpath = PurePath(directory, model_BG_ss_param.name()+'.cellml').as_posix()
     writeCellML(fullpath, model_BG_ss_param)
-   
+    
     print('model_BG_test, import the model_BG and model model_BG_param')
     importCellML(model_BG_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_BG_test)
+    filename = PurePath(directory, model_BG.name()+'.cellml').as_posix()
+    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
+    importCellML(model_BG_test,imported_model,importSource,import_type, imported_components_dict)
+    filename = PurePath(directory, model_BG_param.name()+'.cellml').as_posix()
+    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
+    importCellML(model_BG_test,imported_model,importSource,import_type, imported_components_dict)
+    importer = cellml.resolve_imports(model_BG_test, directory, True)
+    flatModel = importer.flattenModel(model_BG_test)
+    comps = getEntityList(model_BG_test)
+    suggestConnection(flatModel, model_BG_test.component(comps[0]), model_BG_test.component(comps[1]))
+    model_BG_test.fixVariableInterfaces()
+    if model_BG_test.hasUnlinkedUnits():
+        model_BG_test.linkUnits()
+    #    Create a validator and use it to check the model so far.
+    cellml.validate_model(model_BG_test)
     fullpath=writeCellML_UI(directory, model_BG_test)
     writeCellML(fullpath, model_BG_test)
     
     print('model_ss_test, import the model_ss and model model_ss_param')
     importCellML(model_ss_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_ss_test)
+    filename = PurePath(directory, model_ss.name()+'.cellml').as_posix()
+    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
+    importCellML(model_ss_test,imported_model,importSource,import_type, imported_components_dict)
+    filename = PurePath(directory, model_ss_param.name()+'.cellml').as_posix()
+    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
+    importCellML(model_ss_test,imported_model,importSource,import_type, imported_components_dict)
+    importer = cellml.resolve_imports(model_ss_test, directory, True)
+    flatModel = importer.flattenModel(model_ss_test)
+    comps = getEntityList(model_ss_test)
+    suggestConnection(flatModel, model_ss_test.component(comps[0]), model_ss_test.component(comps[1]))
+    model_ss_test.fixVariableInterfaces()
+    if model_ss_test.hasUnlinkedUnits():
+        model_ss_test.linkUnits()
+    #    Create a validator and use it to check the model so far.
+    cellml.validate_model(model_ss_test)
     fullpath=writeCellML_UI(directory, model_ss_test)
     writeCellML(fullpath, model_ss_test)
    
-    print('model_BG_ss_test, import the model_BG_ss, model model_BG_ss_param and model_BG_param')
+    print('model_BG_ss_test, import the model_ss, model model_BG_ss_param and model_BG_param')
     importCellML(model_BG_ss_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    editModel(directory,model_BG_ss_test)
+    filename = PurePath(directory, model_ss.name()+'.cellml').as_posix()
+    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
+    importCellML(model_BG_ss_test,imported_model,importSource,import_type, imported_components_dict)
+    filename = PurePath(directory, model_BG_ss_param.name()+'.cellml').as_posix()
+    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
+    importCellML(model_BG_ss_test,imported_model,importSource,import_type, imported_components_dict)
+    filename = PurePath(directory, model_BG_param.name()+'.cellml').as_posix()
+    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
+    importCellML(model_BG_ss_test,imported_model,importSource,import_type, imported_components_dict)
+    importer = cellml.resolve_imports(model_BG_ss_test, directory, True)
+    flatModel = importer.flattenModel(model_BG_ss_test)
+    suggestConnection(flatModel, model_BG_ss_test.component(model_BG_param.name()), model_BG_ss_test.component(model_BG_ss_param.name()))
+    suggestConnection(flatModel, model_BG_ss_test.component(model_BG_ss_param.name()), model_BG_ss_test.component(model_ss.name()))
+    model_BG_ss_test.fixVariableInterfaces()
+    if model_BG_ss_test.hasUnlinkedUnits():
+        model_BG_ss_test.linkUnits()
+    #    Create a validator and use it to check the model so far.
+    cellml.validate_model(model_BG_ss_test)
     fullpath=writeCellML_UI(directory, model_BG_ss_test)
     writeCellML(fullpath, model_BG_ss_test)
     

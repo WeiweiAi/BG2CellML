@@ -118,16 +118,23 @@ def read_csv(file_path):
         modeli.addComponent(component)
     writeCellML(full_path,modeli)
 
-    return components
-   
+    return components   
 
 """" Parse a cellml file."""
-def parseCellML(strict_mode=True):
+def parseCellML_UI(strict_mode=True):
     message='Please select the CellML file:'
     filename = ask_for_file_or_folder(message)   
     # Parse the CellML file
     existing_model=cellml.parse_model(filename, strict_mode)
     return filename, existing_model
+
+def importComponent(model_path,filename, strict_mode=True):
+    imported_model=cellml.parse_model(filename, strict_mode)
+    relative_path=PurePath(filename).relative_to(model_path).as_posix()
+    importSource = ImportSource()
+    importSource.setUrl(relative_path)
+    importSource.setModel(imported_model)
+    return  imported_model,importSource,'component', {i:i for i in getEntityList(imported_model)}
 
 def importCellML_UI(model_path,strict_mode=True):
     # input: model_path: the path of the CellML model that imports other CellML models
@@ -140,7 +147,7 @@ def importCellML_UI(model_path,strict_mode=True):
     import_action = ask_for_input('Do you want to import?', 'Confirm', True)
     imported_models,importSources,import_types, imported_components_dicts = [], [], [], []
     while import_action:
-        filename, imported_model = parseCellML(strict_mode)
+        filename, imported_model = parseCellML_UI(strict_mode)
         relative_path=PurePath(filename).relative_to(model_path).as_posix()
         importSource = ImportSource()
         importSource.setUrl(relative_path)
@@ -269,17 +276,19 @@ def suggestConnection(model,comp1,comp2):
         answers = ask_for_input( message, 'Checkbox', choices)
         if len(answers)>0:
             for var in answers:
-                if Units.compatible(model.component(comp1).variable(var).units(), model.component(comp2).variable(var).units()):
+                if Units.compatible(model.component(comp1.name()).variable(var).units(), model.component(comp2.name()).variable(var).units()):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
-                    print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
+                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+                    print(f'{var} has units {comp1.variable(var).units().name()} in comp1 but {comp2.variable(var).units().name()} in comp2, which are not compatible.')
                 
         else:
             for var in variables:
-                if Units.compatible(model.component(comp1).variable(var).units(), model.component(comp2).variable(var).units()):
+                if Units.compatible(model.component(comp1.name()).variable(var).units(), model.component(comp2.name()).variable(var).units()):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
-                    print(f'{var} has units {comp1.variable(var).units()} in comp1 but {comp2.variable(var).units()} in comp2, which are not compatible.')
+                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+                    print(f'{var} has units {comp1.variable(var).units().name()} in comp1 but {comp2.variable(var).units().name()} in comp2, which are not compatible.')
     # Get the variables in the two components that are not sharing the same name
     variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount()) if comp1.variable(var_numb).name() not in variables]
     variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount()) if comp2.variable(var_numb).name() not in variables]
@@ -309,9 +318,10 @@ def suggestConnection(model,comp1,comp2):
             if len(answers)>0:
                 var1 = answers[0].split(':')[1]
                 var2 = answers[1].split(':')[1]
-                if Units.compatible(model.component(comp1).variable(var).units(), model.component(comp2).variable(var).units()):
+                if Units.compatible(model.component(comp1.name()).variable(var).units(), model.component(comp2.name()).variable(var).units()):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
+                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                     print(f'{var} has units {comp1.variable(var).units().name()} in comp1 but {comp2.variable(var).units().name()} in comp2, which are not compatible.')
             else:
                 break
@@ -319,16 +329,18 @@ def suggestConnection(model,comp1,comp2):
             break
     # Get the variables in the two components that are mapped but both have initial values; ask the user to select the initial value to keep
     mapped_variables_comp1, mapped_variables_comp2= _findMappedVariables(comp1,comp2)
-    for var1,var2 in zip(mapped_variables_comp1, mapped_variables_comp2):
-        if (comp1.variable(var1).initialValue()!='') and (comp2.variable(var2).initialValue()!= '') :
-            message = f'var {var1} in {comp1.name()} with init: {comp1.variable(var1).initialValue()}\n    var {var2} in {comp2.name()} init: {comp2.variable(var2).initialValue()} \n Please select the initial value to keep:'
-            choices=[comp1.name(), comp2.name()]
-            answer = ask_for_input(message, 'Checkbox', choices)
-            if comp1.name() not in answer:
-                comp1.variable(var1).removeInitialValue()
-            if  comp2.name() not in answer:
+    doubleInit = [(var1,var2) for var1,var2 in zip(mapped_variables_comp1, mapped_variables_comp2) if (comp1.variable(var1).initialValue()!='') and (comp2.variable(var2).initialValue()!= '')]
+    if len(doubleInit)>0:
+        message="The following variables have initial values in both components. Please select the initial value to keep:"
+        choices=['comp1', 'comp2']	
+        answer = ask_for_input( message, 'List', choices)
+        if answer == 'comp1':
+            for var1,var2 in doubleInit:
                 comp2.variable(var2).removeInitialValue()
-
+        else:
+            for var1,var2 in doubleInit:
+                comp1.variable(var1).removeInitialValue()
+   
 """ Carry out the connection. """
 def connect(base_dir,model):
     importer = cellml.resolve_imports(model, base_dir, True)
@@ -492,7 +504,7 @@ def writePythonCode_UI(directory, model):
       
 """"Write python code for the complete model"""
 def writePythonCode(full_path, model,strict_mode=True):
-    base_dir = PurePath(full_path).parent
+    base_dir = PurePath(full_path).parent.as_posix()
     importer = cellml.resolve_imports(model, base_dir, strict_mode)
     flatModel = importer.flattenModel(model)
     a = cellml.analyse_model(flatModel)              
@@ -557,7 +569,7 @@ def buildModel():
         file_path=read_csv_UI()
         components=read_csv(file_path)    
     else:
-        filename, existing_model=parseCellML
+        filename, existing_model=parseCellML_UI()
         components= getEntityList(existing_model)
     
     message="Please type the model name:"
