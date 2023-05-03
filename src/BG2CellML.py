@@ -2,7 +2,7 @@ from libcellml import Component, Model, Units,  Variable, ImportSource
 from utilities import  ask_for_file_or_folder, ask_for_input, load_matrix, infix_to_mathml
 import sys
 from pathlib import PurePath
-from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML_UI,writeCellML,writeCellML_UI, importCellML,importComponent,suggestConnection, getEntityList
+from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML_UI,writeCellML,writeCellML_UI, import_setup, importComponents_default, getEntityList
 from sympy import *
 import numpy as np
 import networkx as nx
@@ -65,18 +65,21 @@ def add_BGcomp(model, name, type, voi = 't'):
     para_unit = Units(BG.comp[type]['para'][1])
     para=Variable(para_name)
     para.setUnits(para_unit)
+    para.setInterfaceType(Variable.InterfaceType_PUBLIC)
     component.addVariable(para)
     component_param.addVariable(para.clone())
     f_name = BG.dom[dom]['f'][0]+ '_' + name
     f_unit = Units(BG.dom[dom]['f'][1])
     f=Variable(f_name)
     f.setUnits(f_unit)
+    f.setInterfaceType(Variable.InterfaceType_PRIVATE)
     component.addVariable(f)
     if type in ['Ce','Se','C','Ve']:          
         q_init_name = BG.dom[dom]['q'][0]+ '_' + name + '_init'
         q_unit = Units(BG.dom[dom]['q'][1])
         q_init=Variable(q_init_name)
         q_init.setUnits(q_unit)
+        q_init.setInterfaceType(Variable.InterfaceType_PUBLIC)
         component.addVariable(q_init)
         component_param.addVariable(q_init.clone())
         q_name = BG.dom[dom]['q'][0]+ '_' + name
@@ -98,7 +101,9 @@ def add_BGcomp(model, name, type, voi = 't'):
         if type in ['Ce','C']:
            ode_var = f'{q.name()}'
            eq = f'{f.name()}'
-           component.appendMath(infix_to_mathml(eq, ode_var, voi))                    
+           component.appendMath(infix_to_mathml(eq, ode_var, voi)) 
+        if type == 'Se': 
+            f.setInterfaceType(Variable.InterfaceType_PUBLIC) # modify the interface type of f                  
     elif type == 'Re':
         ein_name = BG.dom[dom]['e'][0]+ '_' + name+ '_in'
         eout_name = BG.dom[dom]['e'][0]+ '_' + name+ '_out'
@@ -206,7 +211,7 @@ def read_csvBG():
     # Get the csv file from the user by opening a file dialog
     message='Please select the forward matrix csv file:'
     file_name_f = ask_for_file_or_folder(message)
-    directory = PurePath(file_name_f).parent.as_posix()
+    model_path = PurePath(file_name_f).parent.as_posix()
     # by default, the reverse matrix csv file is the same as the forward matrix csv file expect that the file name ends with '_r'
     file_name_r = file_name_f[:-6]+'_r.csv' 
     # Read the csv file, which has two rows of headers, the first row is the reaction type and the second row is the reaction name
@@ -219,16 +224,14 @@ def read_csvBG():
     model_BG = Model('BG_'+ name_f)
     model_BG_param = Model('BG_'+ name_f + '_param')
     model_BG_test = Model('BG_'+ name_f + '_test')
-    model_ss = Model('ss_'+ name_f)
-    model_ss_param = Model('ss_'+ name_f + '_param')
-    model_ss_test = Model('ss_'+ name_f + '_test')
-    model_BG_ss_test = Model('BG_ss_'+ name_f + '_test')
-    model_BG_ss_param = Model ('BG_ss_'+ name_f + '_param')
+    component_BG_test = Component('BG_'+ name_f + '_test')
+    model_BG_test.addComponent(component_BG_test)
     # Default voi, units, and init
     voi = 't'
     units = Units('second')
     voi = Variable(voi)
     voi.setUnits(units)
+    voi.setInterfaceType(Variable.InterfaceType_PRIVATE)
     # Build model_BG
     component=Component(model_BG.name())
     component_param=Component(model_BG_param.name())
@@ -244,15 +247,22 @@ def read_csvBG():
     compd = list(zip(ReName,ReType))
     add_BGbond(model_BG, comps, compd, N_f, N_r)
     component.appendMath(MATH_FOOTER)
+
+    vars=getEntityList(model_BG)
+    for var in vars:
+        if component.Variable(var).getInterfaceType() == Variable.InterfaceType_PUBLIC:
+            component_BG_test.addVariable(component.Variable(var).clone())
+
+    # clone the parameter component from model_BG which will be added to model_BG_param
+    component_BG_param = model_BG.component(model_BG_param.name()).clone()
     # Remove component_param from model_BG
-    component_param_clone = model_BG.component(model_BG_param.name()).clone()
     model_BG.removeComponent(model_BG_param.name())
     # Build model_BG_param
-    model_BG_param.addComponent(component_param_clone)
+    model_BG_param.addComponent(component_BG_param)
    
     # Set the default parameters as 1
-    for var_numb in range(component_param_clone.variableCount()):
-        model_BG_param.component(component_param_clone.name()).variable(var_numb).setInitialValue(1)
+    for var_numb in range(component_BG_param.variableCount()):
+        model_BG_param.component(component_BG_param.name()).variable(var_numb).setInitialValue(1)
 
     # Add the constant variables    
     for const in BG.const:
@@ -264,189 +274,8 @@ def read_csvBG():
         param_const = var_const.clone()
         param_const.setInitialValue(BG.const[const_name][0])
         model_BG.component(component.name()).addVariable(var_const)
-        model_BG_param.component(component_param_clone.name()).addVariable(param_const)
-
-    vss_num,vss_den =  flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r)
-    v_ss_simplified, P, Q = simplify_flux_ss(vss_num,vss_den)
-    # Build model_ss
-    unitsSet = set()
-    component_ss=Component(model_ss.name())
-    vss_equation =[(str(v_ss_simplified),'v_ss','')]
-    P_equations=[]
-    v_ss = Variable('v_ss')
-    v_ss.setUnits(BG.v_Ch_1)
-
-    for param in P:
-        var_param=Variable(param.name)
-        unit_name = P[param][1]
-        u=Units(unit_name)
-        unitsSet.add(unit_name)
-        var_param.setUnits(u)
-        component_ss.addVariable(var_param)
-        ode_var= param.name
-        infix = str(P[param][0])
-        P_equations.append((infix,ode_var,''))
-    
-    component_BG_ss = component_ss.clone() # P is the simplified parameters
-    component_BG_ss.setName(model_BG_ss_param.name())
-
-    for q in Q:
-        var_q=Variable(q.name)
-        unit_name = Q[q][1]
-        u=Units(unit_name)
-        unitsSet.add(unit_name)
-        var_q.setUnits(u)
-        component_ss.addVariable(var_q)  
-
-    
-    component_ss_param=component_ss.clone() # P, Q are the simplified parameters
-    component_ss_param.setName(model_ss_param.name())
-    component_ss.addVariable(v_ss) # v_ss is the simplified flux
-    
-    # Add the units to the units model
-    print('Adding units to the units model file...')
-    filename, existing_model = parseCellML_UI()
-    relative_path=PurePath(filename).relative_to(directory).as_posix()
-    importSource = ImportSource()
-    importSource.setUrl(relative_path) 
-    imported_models=[existing_model]
-    importSources=[importSource]
-    import_types=['units']
-    units_defined = set()
-    for unit_numb in range(existing_model.unitsCount()):
-        units_defined.add(existing_model.units(unit_numb).name()) 
-    units_undefined = unitsSet - units_defined
-
-    for iunitsName in units_undefined:
-        inunits=_defineUnits(iunitsName)
-        existing_model.addUnits(inunits)        
-    writeCellML(filename, existing_model)
-
-    for var_num in range(component_ss_param.variableCount()):
-        component_ss_param.variable(var_num).setInitialValue(1)
-
-    model_ss_param.addComponent(component_ss_param)
-
-    addEquations(component_ss, vss_equation)
-    model_ss.addComponent(component_ss) # v_ss is the simplified flux, P is the simplified parameters
-
-    for var_num in range(component_param_clone.variableCount()):
-        component_BG_ss.addVariable(component_param_clone.variable(var_num).clone())
-
-    component_BG_ss.removeVariable(v_ss)
-    addEquations(component_BG_ss, P_equations)
-
-    
-    model_BG_ss_param.addComponent(component_BG_ss)
-    
-    print('model_BG, only import the units')
-    importCellML(model_BG,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    model_BG.fixVariableInterfaces()
-    if model_BG.hasUnlinkedUnits():
-        model_BG.linkUnits()
-    cellml.validate_model(model_BG)
-    fullpath = PurePath(directory, model_BG.name()+'.cellml').as_posix()
-    writeCellML(fullpath, model_BG)
-    
-    print('model_BG_param, import the units')
-    importCellML(model_BG_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    model_BG_param.fixVariableInterfaces()
-    if model_BG_param.hasUnlinkedUnits():
-        model_BG_param.linkUnits()
-    cellml.validate_model(model_BG_param)
-    fullpath = PurePath(directory, model_BG_param.name()+'.cellml').as_posix()    
-    writeCellML(fullpath, model_BG_param)
-    
-    print('model_BG_ss, import the units')
-    importCellML(model_ss,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    model_ss.fixVariableInterfaces()
-    if model_ss.hasUnlinkedUnits():
-        model_ss.linkUnits()
-    cellml.validate_model(model_ss)
-    fullpath = PurePath(directory, model_ss.name()+'.cellml').as_posix()
-    writeCellML(fullpath, model_ss)
-   
-    print('model_ss_param, import the units')
-    importCellML(model_ss_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    model_ss_param.fixVariableInterfaces()
-    if model_ss_param.hasUnlinkedUnits():
-        model_ss_param.linkUnits()
-    cellml.validate_model(model_ss_param)
-    fullpath = PurePath(directory, model_ss_param.name()+'.cellml').as_posix()   
-    writeCellML(fullpath, model_ss_param)
-    
-    print('model_BG_ss_param, import the units')
-    importCellML(model_BG_ss_param,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    model_BG_ss_param.fixVariableInterfaces()
-    if model_BG_ss_param.hasUnlinkedUnits():
-        model_BG_ss_param.linkUnits()
-    cellml.validate_model(model_BG_ss_param)
-    fullpath = PurePath(directory, model_BG_ss_param.name()+'.cellml').as_posix()
-    writeCellML(fullpath, model_BG_ss_param)
-    
-    print('model_BG_test, import the model_BG and model model_BG_param')
-    importCellML(model_BG_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    filename = PurePath(directory, model_BG.name()+'.cellml').as_posix()
-    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
-    importCellML(model_BG_test,imported_model,importSource,import_type, imported_components_dict)
-    filename = PurePath(directory, model_BG_param.name()+'.cellml').as_posix()
-    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
-    importCellML(model_BG_test,imported_model,importSource,import_type, imported_components_dict)
-    importer = cellml.resolve_imports(model_BG_test, directory, True)
-    flatModel = importer.flattenModel(model_BG_test)
-    comps = getEntityList(model_BG_test)
-    suggestConnection(flatModel, model_BG_test.component(comps[0]), model_BG_test.component(comps[1]))
-    model_BG_test.fixVariableInterfaces()
-    if model_BG_test.hasUnlinkedUnits():
-        model_BG_test.linkUnits()
-    #    Create a validator and use it to check the model so far.
-    cellml.validate_model(model_BG_test)
-    fullpath=writeCellML_UI(directory, model_BG_test)
-    writeCellML(fullpath, model_BG_test)
-    
-    print('model_ss_test, import the model_ss and model model_ss_param')
-    importCellML(model_ss_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    filename = PurePath(directory, model_ss.name()+'.cellml').as_posix()
-    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
-    importCellML(model_ss_test,imported_model,importSource,import_type, imported_components_dict)
-    filename = PurePath(directory, model_ss_param.name()+'.cellml').as_posix()
-    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
-    importCellML(model_ss_test,imported_model,importSource,import_type, imported_components_dict)
-    importer = cellml.resolve_imports(model_ss_test, directory, True)
-    flatModel = importer.flattenModel(model_ss_test)
-    comps = getEntityList(model_ss_test)
-    suggestConnection(flatModel, model_ss_test.component(comps[0]), model_ss_test.component(comps[1]))
-    model_ss_test.fixVariableInterfaces()
-    if model_ss_test.hasUnlinkedUnits():
-        model_ss_test.linkUnits()
-    #    Create a validator and use it to check the model so far.
-    cellml.validate_model(model_ss_test)
-    fullpath=writeCellML_UI(directory, model_ss_test)
-    writeCellML(fullpath, model_ss_test)
-   
-    print('model_BG_ss_test, import the model_ss, model model_BG_ss_param and model_BG_param')
-    importCellML(model_BG_ss_test,imported_models[0],importSources[0],import_types[0], imported_components_dict={})
-    filename = PurePath(directory, model_ss.name()+'.cellml').as_posix()
-    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
-    importCellML(model_BG_ss_test,imported_model,importSource,import_type, imported_components_dict)
-    filename = PurePath(directory, model_BG_ss_param.name()+'.cellml').as_posix()
-    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
-    importCellML(model_BG_ss_test,imported_model,importSource,import_type, imported_components_dict)
-    filename = PurePath(directory, model_BG_param.name()+'.cellml').as_posix()
-    imported_model,importSource,import_type, imported_components_dict = importComponent(directory,filename, strict_mode=True)
-    importCellML(model_BG_ss_test,imported_model,importSource,import_type, imported_components_dict)
-    importer = cellml.resolve_imports(model_BG_ss_test, directory, True)
-    flatModel = importer.flattenModel(model_BG_ss_test)
-    suggestConnection(flatModel, model_BG_ss_test.component(model_BG_param.name()), model_BG_ss_test.component(model_BG_ss_param.name()))
-    suggestConnection(flatModel, model_BG_ss_test.component(model_BG_ss_param.name()), model_BG_ss_test.component(model_ss.name()))
-    model_BG_ss_test.fixVariableInterfaces()
-    if model_BG_ss_test.hasUnlinkedUnits():
-        model_BG_ss_test.linkUnits()
-    #    Create a validator and use it to check the model so far.
-    cellml.validate_model(model_BG_ss_test)
-    fullpath=writeCellML_UI(directory, model_BG_ss_test)
-    writeCellML(fullpath, model_BG_ss_test)
-    
+        model_BG_param.component(component_BG_param.name()).addVariable(param_const)
+    return model_BG, model_BG_param, model_BG_test, CompName,CompType,ReName,ReType,N_f,N_r, name_f,component_BG_param, model_path   
 
 """ From the stoichiometric matrix to derive the steady state equations"""
 def flux_ss(CompName,CompType,ReName,ReType,N_f,N_r):
@@ -695,11 +524,153 @@ def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
     vss_num = factor(E*(prod(kf_all)-prod(kr_all)))
     vss_den= sum(q_ss_E[:])
     return vss_num,vss_den
-                    
+
+def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_param):
+    model_ss = Model('ss_'+ name_f)
+    model_ss_param = Model('ss_'+ name_f + '_param')
+    model_BG_ss_param = Model ('BG_ss_'+ name_f + '_param')
+    model_ss_test = Model('ss_'+ name_f + '_test')
+    component_ss_test = Component('ss_'+ name_f + '_test')
+    model_ss_test.addComponent(component_ss_test)
+    model_BG_ss_test = Model('BG_ss_'+ name_f + '_test')
+    component_BG_ss_test = Component('BG_ss_'+ name_f + '_test')
+    model_BG_ss_test.addComponent(component_BG_ss_test)
+    # get the steady state expressions
+    vss_num,vss_den =  flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r)
+    v_ss_simplified, P, Q = simplify_flux_ss(vss_num,vss_den)
+    # Build model_ss
+    unitsSet = set()
+    component_ss=Component(model_ss.name())
+    vss_equation =[(str(v_ss_simplified),'v_ss','')]
+    P_equations=[]
+    v_ss = Variable('v_ss')
+    v_ss.setUnits(BG.v_Ch_1)
+    v_ss.setInterfaceType(Variable.InterfaceType_PUBLIC)
+    component_ss_test.addVariable(v_ss.clone())
+    component_BG_ss_test.addVariable(v_ss.clone())
+    for param in P:
+        var_param=Variable(param.name)
+        unit_name = P[param][1]
+        u=Units(unit_name)
+        unitsSet.add(unit_name)
+        var_param.setUnits(u)
+        var_param.setInterfaceType(Variable.InterfaceType_PUBLIC)
+        component_ss.addVariable(var_param)
+        ode_var= param.name
+        infix = str(P[param][0])
+        P_equations.append((infix,ode_var,''))
+    
+    component_BG_ss_param = component_ss.clone() # P is the simplified parameters
+    component_BG_ss_param.setName(model_BG_ss_param.name())
+    qnames=[]
+    for q in Q:
+        var_q=Variable(q.name)
+        unit_name = Q[q][1]
+        u=Units(unit_name)
+        unitsSet.add(unit_name)
+        var_q.setUnits(u)
+        var_q.setInterfaceType(Variable.InterfaceType_PUBLIC)
+        if q.name == 'E':
+            var_E = var_q.clone()
+        else:
+            qnames.append(q.name.split('_')[1])
+        component_ss.addVariable(var_q)  
+
+    
+    component_ss_param=component_ss.clone() # P, Q, E are the simplified parameters, no v_ss or equations
+    component_ss_param.setName(model_ss_param.name())
+    for var_num in range(component_ss_param.variableCount()):
+        component_ss_param.variable(var_num).setInitialValue(1)
+    model_ss_param.addComponent(component_ss_param)
+
+    component_ss.addVariable(v_ss) # v_ss is the simplified flux
+    addEquations(component_ss, vss_equation)
+    model_ss.addComponent(component_ss) 
+    
+    E_qs=[]
+    component_BG_ss_param.addVariable(var_E) # E
+    for var_num in range(component_BG_param.variableCount()):
+        component_BG_ss_param.addVariable(component_BG_param.variable(var_num).clone().removeInitialValue())
+        if component_BG_param.variable(var_num).name().contains('q_') and (component_BG_param.variable(var_num).name().split('_')[1] not in qnames):
+            E_qs.append(Symbol(component_BG_param.variable(var_num).name()))
+    
+    E_equation =[(str(sum(E_qs)),'E','')]  # E = sum of all q_int in the enzyme cycle      
+
+    addEquations(component_BG_ss_param, P_equations + E_equation)  
+    model_BG_ss_param.addComponent(component_BG_ss_param)
+    
+    return model_ss, model_ss_param, model_BG_ss_param, model_ss_test, model_BG_ss_test, unitsSet  
+
+# Add units to the existing units file if not already there
+def updateUnitsFile(unitsSet, full_path, units_model):
+    units_defined = set()
+    for unit_numb in range(units_model.unitsCount()):
+        units_defined.add(units_model.units(unit_numb).name()) 
+    units_undefined = unitsSet - units_defined
+    for iunitsName in units_undefined:
+        inunits=_defineUnits(iunitsName)
+        units_model.addUnits(inunits) 
+    writeCellML(full_path, units_model)
+# Incomplete model with units import    
+def writeModelwithUnits(model_path, model,importSource_units):
+    editModel(model_path,model,importSource_units)
+    file_name = model.name() + '.cellml'
+    full_path = str(PurePath(model_path).joinpath(file_name))
+    writeCellML(full_path, model)
+
+# Complete model    
+def writeModel(model_path, model, importSource_units, importSources_comp, import_components_dicts):
+    editModel(model_path,model,importSource_units, importSources_comp, import_components_dicts)
+    file_name = model.name() + '.cellml'
+    full_path = str(PurePath(model_path).joinpath(file_name))
+    writeCellML(full_path, model)
+
+def build_models ():
+    model_BG, model_BG_param, model_BG_test, CompName,CompType,ReName,ReType,N_f,N_r, name_f,component_BG_param, model_path=read_csvBG()
+    model_ss, model_ss_param, model_BG_ss_param, model_ss_test, model_BG_ss_test, unitsSet = build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_param)
+    full_path, units_model = parseCellML_UI()
+    updateUnitsFile(unitsSet, full_path, units_model)
+    importSource_units = import_setup(model_path,full_path)    
+    simple_models = [model_BG,model_BG_param, model_ss, model_ss_param, model_BG_ss_param]
+    for model in simple_models:
+        writeModelwithUnits(model_path, model,importSource_units)
+ 
+    
+    print('model_BG_test, import the model_BG and model_BG_param')
+    importFiles = ['BG_'+ name_f + '.cellml', 'BG_'+ name_f + '_param.cellml']
+    importSources_comps=[]
+    import_components_dicts=[]
+    for importFile in importFiles:
+        importSources_comp, import_components_dict=importComponents_default(model_path, importFile)
+        importSources_comps.append(importSources_comp)
+        import_components_dicts.append(import_components_dict)
+    writeModel(model_path, model_BG_test, importSource_units, importSources_comps, import_components_dicts)   
+
+    print('model_ss_test, import the model_ss and model_ss_param')
+    importFiles = ['ss_'+ name_f + '.cellml', 'ss_'+ name_f + '_param.cellml']
+    importSources_comps=[]
+    import_components_dicts=[]
+    for importFile in importFiles:
+        importSources_comp, import_components_dict=importComponents_default(model_path, importFile)
+        importSources_comps.append(importSources_comp)
+        import_components_dicts.append(import_components_dict)
+    
+    writeModel(model_path, model_ss_test, importSource_units, importSources_comps, import_components_dicts)
+    
+    print('model_BG_ss_test, import the model_BG_ss, model_BG_ss_param and model_ss')
+    importFiles = ['BG_ss_'+ name_f + '.cellml', 'BG_ss_'+ name_f + '_param.cellml', 'ss_'+ name_f + '.cellml']
+    importSources_comps=[]
+    import_components_dicts=[]
+    for importFile in importFiles:
+        importSources_comp, import_components_dict=importComponents_default(model_path, importFile)
+        importSources_comps.append(importSources_comp)
+        import_components_dicts.append(import_components_dict)
+    writeModel(model_path, model_BG_ss_test, importSource_units, importSources_comps, import_components_dicts)    
+                        
 # main function
 if __name__ == "__main__":
     # Get the csv file from the user by opening a file dialog
-    read_csvBG()
+    build_models ()
 
 
 

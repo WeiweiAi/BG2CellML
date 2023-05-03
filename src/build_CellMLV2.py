@@ -1,4 +1,4 @@
-from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable, ImportSource, Printer, Annotator
+from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable, ImportSource, Printer, Annotator, InterfaceType
 import pandas as pd
 from utilities import print_model, ask_for_file_or_folder, ask_for_input, infix_to_mathml
 import sys
@@ -64,7 +64,7 @@ def read_csv_UI():
     return file_path
 
 def read_csv(file_path):    
-    # input: file_path: the path of the csv file
+    # input: file_path: the path of the csv file (including the file name and extension)
     # output: None, write the components and variables to a CellML model, saved as a .cellml file
 
     # Read the csv file and create components and variables from it
@@ -89,6 +89,7 @@ def read_csv(file_path):
             variable = Variable(var_name)
             units = Units(units_name)
             variable.setUnits(units)
+            variable.setInterfaceType(Variable.InterfaceType_PUBLIC)
             if pd.isna(row['initial_value']):
                 pass
             elif row["param"]=='param':
@@ -123,89 +124,146 @@ def read_csv(file_path):
 """" Parse a cellml file."""
 def parseCellML_UI(strict_mode=True):
     message='Please select the CellML file:'
-    filename = ask_for_file_or_folder(message)   
+    full_path = ask_for_file_or_folder(message)   
     # Parse the CellML file
-    existing_model=cellml.parse_model(filename, strict_mode)
-    return filename, existing_model
+    existing_model=cellml.parse_model(full_path, strict_mode)
+    return full_path, existing_model
 
-def importComponent(model_path,filename, strict_mode=True):
-    imported_model=cellml.parse_model(filename, strict_mode)
-    relative_path=PurePath(filename).relative_to(model_path).as_posix()
+""""To set up for importing a CellML model."""
+def import_setup(model_path,full_path, strict_mode=True):
+    # input: model_path: the directory of the CellML model that imports other CellML models
+    #        full_path: the path of the CellML model that is imported (including the file name and extension)
+    #        strict_mode: whether to use strict mode when parsing the CellML model
+    # output: import_model: the existing model that is imported
+    #         importSource: the ImportSource object which contains the url of the imported model
+    import_model=cellml.parse_model(full_path, strict_mode)
+    relative_path=PurePath(full_path).relative_to(model_path).as_posix()
     importSource = ImportSource()
     importSource.setUrl(relative_path)
-    importSource.setModel(imported_model)
-    return  imported_model,importSource,'component', {i:i for i in getEntityList(imported_model)}
+    importSource.setModel(import_model)
+    return importSource
 
-def importCellML_UI(model_path,strict_mode=True):
+"""" The user interface for importing specific components from a CellML model."""
+def importComponent_UI(import_model):
+    # input: import_model: the existing model that is imported
+    # output: import_component_dict: a dictionary of the import components,
+    #                                 key: the name of the import component
+    #                                 value: component_ref of the import component
+    import_component_dict ={}
+    message="Please select the components to import:"
+    imported_components = ask_for_input( message, 'Checkbox', getEntityList(import_model))
+    for component in imported_components:
+        message=f"If you want to rename the component {component}, please type the new name. Otherwise, just press 'Enter':"
+        answer = ask_for_input(message, 'Text')
+        if answer!='':
+            import_component_dict.update({answer: component})
+        else:
+            import_component_dict.update({component:component})
+    return import_component_dict
+
+def importComponents_default(model_path, importFile):
+    # input: model_path: the path of the CellML model that imports other CellML models
+    #        importFile: the path of the CellML model that is imported (including the file name and extension)
+    # output: importSources: a list of the ImportSource objects, only one ImportSource object in this case
+    #         import_components_dicts: a list of dictionary of the imported components, 
+    #                                   key: the name of the import component
+    #                                   value: component_ref of the import component 
+    #                                   only one dictionary in this case, and the key and value are the same
+    importSources,import_components_dicts = [], []
+    importSource = import_setup(model_path,importFile, True)
+    importSources.append(importSource)
+    imported_components = getEntityList(importSource.model())
+    import_components_dict = {}
+    for component in imported_components:
+        import_components_dict.update({component:component})
+    import_components_dicts.append(import_components_dict)
+    return  importSources, import_components_dicts
+
+"""" Collect import components from multiple cellml files with user inputs."""
+def importComponents_UI(model_path,strict_mode=True):
     # input: model_path: the path of the CellML model that imports other CellML models
     #        strict_mode: whether to use strict mode when parsing the CellML model
-    # output: imported_model: the existing model that is imported
-    #         importSource: the ImportSource object
-    #         import_type: the type of the import (units or components)
-    #         imported_components_dict: a dictionary of the imported components, 
-    #                                   with the key being the the new component name and the value being the original component name  
-    import_action = ask_for_input('Do you want to import?', 'Confirm', True)
-    imported_models,importSources,import_types, imported_components_dicts = [], [], [], []
+    # output: importSources: a list of the ImportSource objects
+    #         import_components_dicts: a list of dictionary of the imported components, 
+    #                                   key: the name of the import component
+    #                                  value: component_ref of the import component 
+    import_action = ask_for_input('Do you want to import components?', 'Confirm', True)
+    importSources,import_components_dicts = [], []
     while import_action:
-        filename, imported_model = parseCellML_UI(strict_mode)
-        relative_path=PurePath(filename).relative_to(model_path).as_posix()
-        importSource = ImportSource()
-        importSource.setUrl(relative_path)
-        importSource.setModel(imported_model)
-        message="Please select the component or units to import:"
-        choices=['units', 'component']
-        import_type = ask_for_input(message, 'List', choices)
-        imported_components_dict = {}
-        if import_type == 'component':
-            message="Please select the components to import:"
-            imported_components = ask_for_input( message, 'Checkbox', getEntityList(imported_model))
-            for component in imported_components:
-                message=f"If you want to rename the component {component}, please type the new name. Otherwise, just press 'Enter':"
-                answer = ask_for_input(message, 'Text')
-                if answer!='':
-                    imported_components_dict.update({answer: component})
-                else:
-                    imported_components_dict.update({component:component})
-        imported_models.append(imported_model)
+        message='Please select the CellML file to import components:'
+        full_path = ask_for_file_or_folder(message)
+        importSource = import_setup(model_path,full_path, strict_mode)
+        import_components_dict = importComponent_UI(importSource.model())
         importSources.append(importSource)
-        import_types.append(import_type)
-        imported_components_dicts.append(imported_components_dict)
-        import_action = ask_for_input('Do you want to continue?', 'Confirm', False)
+        import_components_dicts.append(import_components_dict)
+        import_action = ask_for_input('Do you want to continue to import components?', 'Confirm', False)
 
-    return  imported_models,importSources,import_types, imported_components_dicts
+    return  importSources, import_components_dicts
 
-""" Import units or components from an existing CellML model. """
-def importCellML(model,imported_model,importSource,import_type, imported_components_dict={}):
+""" Carry out the import of components . """
+def importComponents(model,importSource,import_components_dict):
     # input: model: the model that imports other CellML models
-    #        imported_model: the existing model that is imported
     #        importSource: the ImportSource object
-    #        import_type: the type of the import (units or components)
     #        imported_components_dict: a dictionary of the imported components 
     # output: None
-    #        The imported units or components will be added to the model          
-    if import_type == 'units':
-        units_undefined=_checkUndefinedUnits(model)
-        if len(units_undefined)>0:
-            # Get the intersection of the units_undefined and the units defined in the existing model
-            existing_units=set([imported_model.units(unit_numb).name() for unit_numb in range(imported_model.unitsCount())])
-            units_to_import = units_undefined.intersection(existing_units)
-        else:
-            units_to_import = set()
-        for unit in units_to_import:
-            u = Units(unit)
-            u.setImportSource(importSource)
-            u.setImportReference(unit)
-            model.addUnits(u)
-        print(f'The units {units_to_import} have been imported.')
+    #        The import components will be added to the model          
+    
+    for component in import_components_dict:
+        c = Component(component)
+        c.setImportSource(importSource)
+        c.setImportReference(import_components_dict[component])
+        dummy_c = c.importSource().model().component(c.importReference()).clone()
+        while(dummy_c.variableCount()):
+             c.addVariable(dummy_c.variable(0))
+        model.addComponent(c) 
+
+def importUnits_UI(model_path,strict_mode=True):
+    if ask_for_input('Do you want to import Units?', 'Confirm', True):
+        message='Please select the CellML file to import Units:'
+        full_path = ask_for_file_or_folder(message)
+        importSource = import_setup(model_path,full_path, strict_mode)
+        return importSource
     else:
-        for component in imported_components_dict:
-            c = Component(component)
-            c.setImportSource(importSource)
-            c.setImportReference(imported_components_dict[component])
-            dummy_c = c.importSource().model().component(c.importReference()).clone()
-            while(dummy_c.variableCount()):
-                 c.addVariable(dummy_c.variable(0))
-            model.addComponent(c) 
+        return None
+
+""" Import units or components from an existing CellML model. """
+def importUnits(model,importSource):
+    # input: model: the model that imports units from other CellML models
+    #        importSource: the ImportSource object
+    # output: None
+    #        The import units will be added to the model; 
+    #        The units to import are determined by the intersection of units_undefined in the model and the units defined in the import source
+    units_undefined=_checkUndefinedUnits(model)
+    if len(units_undefined)>0:
+        # Get the intersection of the units_undefined and the units defined in the import source
+        existing_units=set([importSource.model().units(unit_numb).name() for unit_numb in range(importSource.model().unitsCount())]) # Get the units names defined in the import source
+        units_to_import = units_undefined.intersection(existing_units)
+    else:
+        units_to_import = set()
+    for unit in units_to_import:
+        u = importSource.model().units(unit) # Get the units object from the import source based on the name
+        u.setImportSource(importSource)
+        u.setImportReference(unit)
+        model.addUnits(u)
+    print(f'The units {units_to_import} have been imported.')
+
+"""Check the undefined non base units"""
+def _checkUndefinedUnits(model):
+    # inputs:  a model object
+    # outputs: a set of undefined units names
+    units_claimed = set()
+    for comp_numb in range(model.componentCount()): # Does it count the import components?
+        for var_numb in range(model.component(comp_numb).variableCount()):
+            if model.component(comp_numb).variable(var_numb).units().name() != '':
+                if  not (model.component(comp_numb).variable(var_numb).units().name() in BUILTIN_UNITS.keys()):
+                    units_claimed.add(model.component(comp_numb).variable(var_numb).units().name())
+
+    units_defined = set()
+    for unit_numb in range(model.unitsCount()):
+        # print(model.units(unit_numb).name())
+        units_defined.add(model.units(unit_numb).name()) 
+    units_undefined = units_claimed - units_defined
+    return units_undefined
 
 def encapsulate_UI(model):
     # input: model: the model object that includes the components to be encapsulated
@@ -220,7 +278,7 @@ def encapsulate_UI(model):
         choices=[comp_name for comp_name in component_list if comp_name != component_parent_selected]
         component_children_selected = ask_for_input(message, 'Checkbox', choices)
     else:
-        component_parent_selected = []
+        component_parent_selected = ''
         component_children_selected = []
     return component_parent_selected, component_children_selected
 
@@ -258,21 +316,73 @@ def _findMappedVariables(comp1,comp2):
                     mapped_variables_comp1.append(comp1.variable(v).name())
                     mapped_variables_comp2.append(ev.name())
     return mapped_variables_comp1, mapped_variables_comp2
-                    
 
-"""" Provide variable connection suggestion based on variable name and carry on the variable mapping based on user inputs. """
-def suggestConnection(model,comp1,comp2):
-    # Get the variables in the two components
+""" Find the variables that share the same name in two components. """
+def sharedVars(comp1, comp2):
+    # input: comp1: the first component
+    #        comp2: the second component
+    # output: shared_variables: a set of the names of the variables that share the same name in comp1 and comp2
     variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount())]
     variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount())]
-    print('The variables in the first component are:', variables1)
-    print('The variables in the second component are:', variables2)
-    # Get the intersection of the variable names in the two components
-    variables = set(variables1).intersection(variables2)
-    if len(variables)>0:
-        print('The variable names that are shared by the two components are:', variables)
+    shared_variables = set(variables1).intersection(variables2)
+    return shared_variables
+
+"""" Clone variables from comp1 to comp2 if you want to expose some variables in comp1 via comp2 but comp2 does not have the variables. Visa versa. """
+def cloneVariables_UI(comp1,comp2):
+    # input: comp1: the first component
+    #        comp2: the second component
+    # output: None
+    #        The variables will be cloned from comp1 to comp2
+    shared_variables = sharedVars(comp1, comp2)
+    # Get the variables in the two components that are not sharing the same name
+    variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount()) if comp1.variable(var_numb).name() not in shared_variables]
+    variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount()) if comp2.variable(var_numb).name() not in shared_variables]
+    if len(variables1)>0:
+        message=f"Please select the unmapped variables in {comp1.name()} to clone and map or Enter to skip:"
+        choices=[var for var in variables1]
+        answers = ask_for_input( message, 'Checkbox', choices)
+        for var in answers:
+            comp2.addVariable(comp1.variable(var).clone())
+            Variable.addEquivalence(comp1.variable(var), comp2.variable(var))     
+    if len(variables2)>0:    
+        message=f"Please select the unmapped variables in {comp2.name()} to clone and map or Enter to skip:"
+        choices=[var for var in variables2]
+        answers = ask_for_input( message, 'Checkbox', choices)
+        for var in answers:
+            comp1.addVariable(comp2.variable(var).clone())
+            Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+
+def compPair4CloneVars_UI(model):
+    # input: model: the model object that includes the components 
+    # output: None
+    #        The variables will be cloned from one component to another
+    #         
+    component_list = getEntityList(model)
+    comp1_list = []
+    comp2_list = []
+    if len(component_list) > 2:
+        while True:
+            confirm =ask_for_input('Do you want to clone variables from one component to another', 'Confirm', False)
+            if confirm:
+                message="Please select the first component:"
+                comp1 = ask_for_input(message, 'List', component_list)
+                comp1_list.append(comp1)
+                message="Please select the second component:"
+                comp2 = ask_for_input(message, 'List', [comp for comp in component_list if comp!= comp1])
+                comp2_list.append(comp2) 
+                cloneVariables_UI(comp1,comp2)      
+            else:
+                break
+
+"""" Provide variable connection suggestion based on shared variable name and carry on the variable mapping according to user inputs. """
+def mapVariablesbyName_UI (model, comp1, comp2):
+    shared_variables = sharedVars(comp1, comp2)
+    mapped_variables_comp1, mapped_variables_comp2= _findMappedVariables(comp1,comp2)
+    shared_variables_unmapped = shared_variables.difference(set(mapped_variables_comp1))
+    if len(shared_variables_unmapped)>0:
+        print('The variable names that are shared by the two components but unmapped are:', shared_variables_unmapped)
         message="Please select the variables to map. If you want to map all the variables, just press 'Enter'"
-        choices=[var for var in variables]
+        choices=[var for var in shared_variables_unmapped]
         answers = ask_for_input( message, 'Checkbox', choices)
         if len(answers)>0:
             for var in answers:
@@ -280,112 +390,91 @@ def suggestConnection(model,comp1,comp2):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
-                    print(f'{var} has units {comp1.variable(var).units().name()} in comp1 but {comp2.variable(var).units().name()} in comp2, which are not compatible.')
+                    print(f'{var} has units {comp1.variable(var).units().name()} in {comp1.name()} but {comp2.variable(var).units().name()} in {comp2.name()}, which are not compatible.')
                 
         else:
-            for var in variables:
+            for var in shared_variables_unmapped:
                 if Units.compatible(model.component(comp1.name()).variable(var).units(), model.component(comp2.name()).variable(var).units()):
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
                 else:
                     Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
-                    print(f'{var} has units {comp1.variable(var).units().name()} in comp1 but {comp2.variable(var).units().name()} in comp2, which are not compatible.')
-    # Get the variables in the two components that are not sharing the same name
-    variables1 = [comp1.variable(var_numb).name() for var_numb in range(comp1.variableCount()) if comp1.variable(var_numb).name() not in variables]
-    variables2 = [comp2.variable(var_numb).name() for var_numb in range(comp2.variableCount()) if comp2.variable(var_numb).name() not in variables]
-    if len(variables1)>0:
-        message="Please select the unmapped variables in the first component to clone and map:"
-        choices=[var for var in variables1]
-        answers = ask_for_input( message, 'Checkbox', choices)
-        for var in answers:
-            comp2.addVariable(comp1.variable(var).clone())
-            Variable.addEquivalence(comp1.variable(var), comp2.variable(var))     
-    if len(variables2)>0:    
-        message="Please select the unmapped variables in the second component to clone and map:"
-        choices=[var for var in variables2]
-        answers = ask_for_input( message, 'Checkbox', choices)
-        for var in answers:
-            comp1.addVariable(comp2.variable(var).clone())
-            Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
-    # Keep mapping the variables in the two components that are not mapped
+                    print(f'{var} has units {comp1.variable(var).units().name()} in {comp1.name()} but {comp2.variable(var).units().name()} in {comp2.name()}, which are not compatible.') 
+
+"""" Provide variable connection suggestion for unmapped variables (may have different name) and carry on the variable mapping according to user inputs."""
+def mapVariables_UI (model, comp1, comp2):
+
+    mapped_variables_comp1, mapped_variables_comp2= _findMappedVariables(comp1,comp2)
+    unmapped_variables_comp1 = [comp1.variable(v).name() for v in range(comp1.variableCount()) if comp1.variable(v).name() not in mapped_variables_comp1]
+    unmapped_variables_comp2 = [comp2.variable(v).name() for v in range(comp2.variableCount()) if comp2.variable(v).name() not in mapped_variables_comp2]
+    print(f'The unmapped variables in {comp1.name()} are:', unmapped_variables_comp1)
+    print(f'The unmapped variables in {comp2.name()} are:', unmapped_variables_comp2)
+
     while True:
-        mapped_variables_comp1, mapped_variables_comp2= _findMappedVariables(comp1,comp2)
-        unmapped_variables_comp1 = [comp1.variable(v).name() for v in range(comp1.variableCount()) if comp1.variable(v).name() not in mapped_variables_comp1]
-        unmapped_variables_comp2 = [comp2.variable(v).name() for v in range(comp2.variableCount()) if comp2.variable(v).name() not in mapped_variables_comp2]
-        if len(unmapped_variables_comp1)>0 and len(unmapped_variables_comp2)>0:
-            message="Please select one variable in comp1 and another in comp2 to map or Enter to skip"
-            choices=[f'comp1:{var}' for var in unmapped_variables_comp1] + [f'comp2:{var}' for var in unmapped_variables_comp2]
+        if len(unmapped_variables_comp1)>0 and len(unmapped_variables_comp2)>0 and ask_for_input('Do you want to map the unmapped variables?', 'Confirm', False):
+            message=f"Please select one variable in {comp1.name()} and another in {comp2.name()} to map"
+            choices=[f'{comp1.name()}:{var}' for var in unmapped_variables_comp1] + [f'{comp2.name()}:{var}' for var in unmapped_variables_comp2]
             answers = ask_for_input( message, 'Checkbox', choices)
             if len(answers)>0:
                 var1 = answers[0].split(':')[1]
                 var2 = answers[1].split(':')[1]
-                if Units.compatible(model.component(comp1.name()).variable(var).units(), model.component(comp2.name()).variable(var).units()):
-                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
+                if Units.compatible(model.component(comp1.name()).variable(var1).units(), model.component(comp2.name()).variable(var2).units()):
+                    Variable.addEquivalence(comp1.variable(var1), comp2.variable(var2))
                 else:
-                    Variable.addEquivalence(comp1.variable(var), comp2.variable(var))
-                    print(f'{var} has units {comp1.variable(var).units().name()} in comp1 but {comp2.variable(var).units().name()} in comp2, which are not compatible.')
+                    Variable.addEquivalence(comp1.variable(var1), comp2.variable(var2))
+                    print(f'{var1} has units {comp1.variable(var1).units().name()} in {comp1.name()} but {comp2.variable(var2).units().name()} in {comp2.name()}, which are not compatible.')
             else:
                 break
         else:
             break
-    # Get the variables in the two components that are mapped but both have initial values; ask the user to select the initial value to keep
+""""Get the variables in the two components that are mapped but both have initial values; ask the user to select the initial value to keep"""
+def fixInits_UI (comp1, comp2):
     mapped_variables_comp1, mapped_variables_comp2= _findMappedVariables(comp1,comp2)
     doubleInit = [(var1,var2) for var1,var2 in zip(mapped_variables_comp1, mapped_variables_comp2) if (comp1.variable(var1).initialValue()!='') and (comp2.variable(var2).initialValue()!= '')]
-    if len(doubleInit)>0:
-        message="The following variables have initial values in both components. Please select the initial value to keep:"
-        choices=['comp1', 'comp2']	
+    for var1,var2 in doubleInit:
+        message=f"Please select the initial value to keep for {var1} in {comp1.name()} and {var2} in {comp2.name()}"
+        choices=[f'{comp1.name()}:{var1}:{comp1.variable(var1).initialValue()}', f'{comp2.name()}:{var2}:{comp2.variable(var2).initialValue()}']
         answer = ask_for_input( message, 'List', choices)
-        if answer == 'comp1':
-            for var1,var2 in doubleInit:
-                comp2.variable(var2).removeInitialValue()
+        if answer ==f'{comp1.name()}:{var1}:{comp1.variable(var1).initialValue()}':
+            comp2.variable(var2).removeInitialValue()
         else:
-            for var1,var2 in doubleInit:
-                comp1.variable(var1).removeInitialValue()
-   
+            comp1.variable(var1).removeInitialValue()
+
+def suggestConnection (model,comp1, comp2):
+    mapVariablesbyName_UI (model, comp1, comp2)
+    mapVariables_UI (model, comp1, comp2)
+
+# Find the components that have encapsulated components, and connect the parent and children components
+def suggestConnection_parent_child(base_dir,model,parent_component):
+    importer = cellml.resolve_imports(model, base_dir, True)
+    flatModel = importer.flattenModel(model) # this may not be necessary after the units compatibility check function is fixed
+    if parent_component.componentCount()>0:
+        for child_numb in range(parent_component.componentCount()):                
+            child_component = parent_component.component(child_numb)
+            suggestConnection(flatModel,parent_component, child_component)
+            fixInits_UI (parent_component, child_component)
+            suggestConnection_parent_child(base_dir,model,child_component)
+
 """ Carry out the connection. """
-def connect(base_dir,model):
+def connect_UI(base_dir,model):
     importer = cellml.resolve_imports(model, base_dir, True)
     flatModel = importer.flattenModel(model) # this may not be necessary after the units compatibility check function is fixed
     # List the components in the model
     components = getEntityList(model)
-    # Find the components that have encapsulated components, and connect the parent and children components
-    def suggestConnection_parent_child(parent_component):
-        if parent_component.componentCount()>0:
-            for child_numb in range(parent_component.componentCount):                
-                child_component = parent_component.component(child_numb)
-                suggestConnection(flatModel,parent_component, child_component)
-                suggestConnection_parent_child(child_component)
-
-    for comp_numb in range(model.componentCount()):
-        parent_component = model.component(comp_numb)
-        suggestConnection_parent_child(parent_component)
-        
-    while True:
-        message = 'Please select two components to connect or Enter to skip:'
-        answer = ask_for_input(message, 'Checkbox', components)       
-        if len(answer)>0:
-            comp1= answer[0]
-            comp2= answer[1]
-            suggestConnection(flatModel, model.component(comp1), model.component(comp2))
-        else:
-            break
-"""Check the undefined non base units"""
-def _checkUndefinedUnits(model):
-    # inputs:  a model object
-    # outputs: a set of undefined units
-    units_claimed = set()
-    for comp_numb in range(model.componentCount()):
-        for var_numb in range(model.component(comp_numb).variableCount()):
-            if model.component(comp_numb).variable(var_numb).units().name() != '':
-                if  not (model.component(comp_numb).variable(var_numb).units().name() in BUILTIN_UNITS.keys()):
-                    units_claimed.add(model.component(comp_numb).variable(var_numb).units().name())
-
-    units_defined = set()
-    for unit_numb in range(model.unitsCount()):
-        # print(model.units(unit_numb).name())
-        units_defined.add(model.units(unit_numb).name()) 
-    units_undefined = units_claimed - units_defined
-    return units_undefined
-
+    if len(components)>1:
+        for comp_numb in range(model.componentCount()):
+            parent_component = model.component(comp_numb)
+            suggestConnection_parent_child(model,parent_component)    
+        while True:
+            message = 'Please select two components to connect or Enter to skip:'
+            answer = ask_for_input(message, 'Checkbox', components)       
+            if len(answer)>0:
+                comp1= answer[0]
+                comp2= answer[1]
+                suggestConnection(flatModel, model.component(comp1), model.component(comp2))
+                fixInits_UI (model.component(comp1), model.component(comp2))
+            else:
+                break
+    
 def defineUnits_UI(iunitsName):
     print(f'Please define the units {iunitsName}:')
     message = 'Please type the name of the standardUnit or press Enter to skip:'
@@ -436,16 +525,6 @@ def addUnits_UI(model):
                 model.addUnits(iunits)
             else:
                 break
-    # Ask the user to add custom units
-    while True:
-        message = 'Please type the name of a custom units or pressEnter to skip:'
-        answers = ask_for_input(message, 'Text')
-        if answers!= '':
-            iunits=_defineUnits(answers)
-            model.addUnits(iunits)    
-        else:
-            break              
-    # Replace the units with the standard units
 # Write the equations to a component
 def writeEquations_UI(component):
     while True:
@@ -472,19 +551,19 @@ def addEquations(component, equations):
     component. appendMath(MATH_FOOTER)
 
 
-def writeCellML_UI(directory, model):
+def writeCellML_UI(model_path, model):
     message = f'If you want to change the default filename {model.name()}.cellml, please type the new name. Otherwise, just press Enter.'
     file_name = ask_for_input(message, 'Text')
     if file_name == '':
         file_name=model.name()+'.cellml'
     else:
         file_name=file_name+'.cellml'
-    full_path = str(PurePath(directory).joinpath(file_name))
+    full_path = str(PurePath(model_path).joinpath(file_name))
     return full_path
 
 # Write a model to cellml file, input: directory, model, output: cellml file
 def writeCellML(full_path, model): 
-    full_path= assignAllIds(full_path,model)    
+    assignAllIds(model)    
     printer = Printer()
     serialised_model = printer.printModel(model)    
     write_file = open(full_path, "w")
@@ -492,14 +571,14 @@ def writeCellML(full_path, model):
     write_file.close()
     print('CellML model saved to:',full_path)
 
-def writePythonCode_UI(directory, model):
+def writePythonCode_UI(model_path, model):
     message = f'If you want to change the default filename {model.name()}.py, please type the new name. Otherwise, just press Enter.'
     file_name = ask_for_input(message, 'Text')
     if file_name == '':
         file_name=model.name()+'.py'
     else:
         file_name=file_name+'.py'
-    full_path = str(PurePath(directory).joinpath(file_name))  
+    full_path = str(PurePath(model_path).joinpath(file_name))  
     return full_path
       
 """"Write python code for the complete model"""
@@ -519,34 +598,50 @@ def writePythonCode(full_path, model,strict_mode=True):
     print('Python code saved to:', full_path)
 
 """"Edit the model based on the user input"""
-def editModel(directory,model):
-    imported_models,importSources,import_types, imported_components_dicts = importCellML_UI(directory)
-    for i in range(len(imported_models)):
-        importCellML(model,imported_models[i],importSources[i],import_types[i], imported_components_dicts[i])
-
-    addUnits_UI(model)
-    component_parent_selected, component_children_selected=encapsulate_UI(model)
+def editModel(model_path,model,importSource_units,importSources_comp=[], import_components_dicts=[]):
+    # Assume that the new components have been added to the model
+    # import the existing components from other CellML files
+    
+    for importSource, import_components_dict in zip (importSources_comp, import_components_dicts):
+       importComponents(model,importSource,import_components_dict)
+    
+    # Clone variables from import components to the new components when needed
+    compPair4CloneVars_UI(model)
+    # Import units from other CellML files
+    if importSource_units:
+        importUnits(model,importSource_units)
+    cellml.resolve_imports(model, model_path, True)
+    # Encapsulate the components when needed
+    component_parent_selected, component_children_selected = encapsulate_UI(model)
     encapsulate(model, component_parent_selected, component_children_selected)
-    connect(directory,model)
-    model.fixVariableInterfaces()
+    # Carry out the connection between the components
+    connect_UI(model_path,model)
+    # Add units to the model when needed
+    addUnits_UI(model)
+    # Fix the variable interfaces
+    if not model.fixVariableInterfaces():
+        print('Warning: some variable interfaces in the model are incorrect.')
     if model.hasUnlinkedUnits():
-        model.linkUnits()
+        print('Warning: some units in the model are unlinked, and start linking...')
+        if not model.linkUnits():
+            print('Warning: some units in the model are still unlinked.')
     #    Create a validator and use it to check the model so far.
     print_model(model,True)
     cellml.validate_model(model)
     
 
 """" Assign IDs to all entities in the model; """
-def assignAllIds(fullpath,model):
+def assignAllIds(model):
     meassage = f'Do you want to assign all the ids to the {model.name()}?'
     answer = ask_for_input(meassage, 'Confirm', True)
     if answer:
-        directory=str(PurePath(fullpath).parent)
         annotator = Annotator()
         annotator.setModel(model)
         annotator.clearAllIds()
         annotator.assignAllIds()
         duplicates = annotator.duplicateIds()
+        if len(duplicates) > 0: 
+            print('Warning: there are duplicate IDs.')
         """"
         if len(duplicates) > 0: # aways true
             print('There are duplicate IDs. Assigning new IDs to all entities.')
@@ -557,7 +652,7 @@ def assignAllIds(fullpath,model):
             fullpath = str(PurePath(directory).joinpath(filename))
             writeCellML(fullpath, model)
         """
-    return fullpath    
+   
 
 """ Create a model from a list of components. """
 def buildModel():
@@ -569,13 +664,13 @@ def buildModel():
         file_path=read_csv_UI()
         components=read_csv(file_path)    
     else:
-        filename, existing_model=parseCellML_UI()
+        full_path, existing_model=parseCellML_UI()
         components= getEntityList(existing_model)
     
     message="Please type the model name:"
     model_name = ask_for_input(message, 'Text')
     message = 'Please select the folder to save the model:'
-    directory = ask_for_file_or_folder(message,True)
+    model_path = ask_for_file_or_folder(message,True)
 
     while True:
         if model_name!= '':           
@@ -586,15 +681,16 @@ def buildModel():
             indexes = [int(i.split(':')[0]) for i in components_selected]
             for index in indexes:
                 model.addComponent(components[index].clone())
-            
-            editModel(model)
+            importSources_comp, import_components_dicts=importComponents_UI(model_path,strict_mode=True)
+            importSource_units = importUnits_UI(model_path,strict_mode=True)
+            editModel(model_path,model, importSource_units, importSources_comp, import_components_dicts)
 
             message="Do you want to save the model?"
             answer = ask_for_input(message, 'Confirm', True)
             if answer:
-                full_path=writeCellML_UI(directory, model)
+                full_path=writeCellML_UI(model_path, model)
                 writeCellML(full_path, model)
-                full_path=writePythonCode_UI(directory, model)
+                full_path=writePythonCode_UI(model_path, model)
                 writePythonCode(full_path, model)
             
             message="Please type the model name or press Enter to quit building models:"
