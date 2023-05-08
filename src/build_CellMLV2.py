@@ -1,7 +1,6 @@
-from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable, ImportSource, Printer, Annotator, InterfaceType
+from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable, ImportSource, Printer, Annotator
 import pandas as pd
 from utilities import print_model, ask_for_file_or_folder, ask_for_input, infix_to_mathml
-import sys
 import cellml
 from pathlib import PurePath 
 
@@ -89,7 +88,7 @@ def read_csv(file_path):
             variable = Variable(var_name)
             units = Units(units_name)
             variable.setUnits(units)
-            variable.setInterfaceType(Variable.InterfaceType_PUBLIC)
+            variable.setInterfaceType(Variable.InterfaceType.PUBLIC)
             if pd.isna(row['initial_value']):
                 pass
             elif row["param"]=='param':
@@ -141,7 +140,7 @@ def import_setup(model_path,full_path, strict_mode=True):
     importSource = ImportSource()
     importSource.setUrl(relative_path)
     importSource.setModel(import_model)
-    return importSource
+    return importSource, import_model
 
 """" The user interface for importing specific components from a CellML model."""
 def importComponent_UI(import_model):
@@ -164,20 +163,16 @@ def importComponent_UI(import_model):
 def importComponents_default(model_path, importFile):
     # input: model_path: the path of the CellML model that imports other CellML models
     #        importFile: the path of the CellML model that is imported (including the file name and extension)
-    # output: importSources: a list of the ImportSource objects, only one ImportSource object in this case
-    #         import_components_dicts: a list of dictionary of the imported components, 
+    # output: importSources: the ImportSource objects, only one ImportSource object in this case
+    #         import_components_dicts: a dictionary of the imported components, 
     #                                   key: the name of the import component
-    #                                   value: component_ref of the import component 
-    #                                   only one dictionary in this case, and the key and value are the same
-    importSources,import_components_dicts = [], []
-    importSource = import_setup(model_path,importFile, True)
-    importSources.append(importSource)
+    #                                   value: component_ref of the import component                               
+    importSource, import_model = import_setup(model_path,importFile, True)
     imported_components = getEntityList(importSource.model())
     import_components_dict = {}
     for component in imported_components:
         import_components_dict.update({component:component})
-    import_components_dicts.append(import_components_dict)
-    return  importSources, import_components_dicts
+    return  importSource, import_model, import_components_dict
 
 """" Collect import components from multiple cellml files with user inputs."""
 def importComponents_UI(model_path,strict_mode=True):
@@ -188,31 +183,32 @@ def importComponents_UI(model_path,strict_mode=True):
     #                                   key: the name of the import component
     #                                  value: component_ref of the import component 
     import_action = ask_for_input('Do you want to import components?', 'Confirm', True)
-    importSources,import_components_dicts = [], []
+    importSources,import_models, import_components_dicts = [], [], []
     while import_action:
         message='Please select the CellML file to import components:'
         full_path = ask_for_file_or_folder(message)
-        importSource = import_setup(model_path,full_path, strict_mode)
+        importSource, import_model = import_setup(model_path,full_path, strict_mode)
         import_components_dict = importComponent_UI(importSource.model())
         importSources.append(importSource)
+        import_models.append(import_model)
         import_components_dicts.append(import_components_dict)
         import_action = ask_for_input('Do you want to continue to import components?', 'Confirm', False)
 
-    return  importSources, import_components_dicts
+    return  importSources, import_models, import_components_dicts
 
 """ Carry out the import of components . """
-def importComponents(model,importSource,import_components_dict):
+def importComponents(model,importSource,import_model,import_components_dict):
     # input: model: the model that imports other CellML models
     #        importSource: the ImportSource object
     #        imported_components_dict: a dictionary of the imported components 
     # output: None
     #        The import components will be added to the model          
     
-    for component in import_components_dict:
+    for component in list(import_components_dict.keys()):
         c = Component(component)
         c.setImportSource(importSource)
         c.setImportReference(import_components_dict[component])
-        dummy_c = c.importSource().model().component(c.importReference()).clone()
+        dummy_c = import_model.component(c.importReference()).clone()
         while(dummy_c.variableCount()):
              c.addVariable(dummy_c.variable(0))
         model.addComponent(c) 
@@ -221,13 +217,13 @@ def importUnits_UI(model_path,strict_mode=True):
     if ask_for_input('Do you want to import Units?', 'Confirm', True):
         message='Please select the CellML file to import Units:'
         full_path = ask_for_file_or_folder(message)
-        importSource = import_setup(model_path,full_path, strict_mode)
-        return importSource
+        importSource, import_model = import_setup(model_path,full_path, strict_mode)
+        return importSource, import_model
     else:
-        return None
+        return None, None
 
 """ Import units or components from an existing CellML model. """
-def importUnits(model,importSource):
+def importUnits(model,importSource,units_model):
     # input: model: the model that imports units from other CellML models
     #        importSource: the ImportSource object
     # output: None
@@ -236,12 +232,14 @@ def importUnits(model,importSource):
     units_undefined=_checkUndefinedUnits(model)
     if len(units_undefined)>0:
         # Get the intersection of the units_undefined and the units defined in the import source
-        existing_units=set([importSource.model().units(unit_numb).name() for unit_numb in range(importSource.model().unitsCount())]) # Get the units names defined in the import source
+        if importSource.model() is None:
+            print('The import source is not valid.')
+        existing_units=set([units_model.units(unit_numb).name() for unit_numb in range(units_model.unitsCount())]) # Get the units names defined in the import source
         units_to_import = units_undefined.intersection(existing_units)
     else:
         units_to_import = set()
     for unit in units_to_import:
-        u = importSource.model().units(unit) # Get the units object from the import source based on the name
+        u = Units(unit) # Get the units object from the import source based on the name
         u.setImportSource(importSource)
         u.setImportReference(unit)
         model.addUnits(u)
@@ -253,11 +251,11 @@ def _checkUndefinedUnits(model):
     # outputs: a set of undefined units names
     units_claimed = set()
     for comp_numb in range(model.componentCount()): # Does it count the import components?
-        for var_numb in range(model.component(comp_numb).variableCount()):
-            if model.component(comp_numb).variable(var_numb).units().name() != '':
-                if  not (model.component(comp_numb).variable(var_numb).units().name() in BUILTIN_UNITS.keys()):
-                    units_claimed.add(model.component(comp_numb).variable(var_numb).units().name())
-
+        if not model.component(comp_numb).requiresImports(): # Check if the component is imported
+            for var_numb in range(model.component(comp_numb).variableCount()):
+                if model.component(comp_numb).variable(var_numb).units().name() != '':
+                    if  not (model.component(comp_numb).variable(var_numb).units().name() in BUILTIN_UNITS.keys()):
+                        units_claimed.add(model.component(comp_numb).variable(var_numb).units().name())
     units_defined = set()
     for unit_numb in range(model.unitsCount()):
         # print(model.units(unit_numb).name())
@@ -463,7 +461,7 @@ def connect_UI(base_dir,model):
     if len(components)>1:
         for comp_numb in range(model.componentCount()):
             parent_component = model.component(comp_numb)
-            suggestConnection_parent_child(model,parent_component)    
+            suggestConnection_parent_child(base_dir,model,parent_component)    
         while True:
             message = 'Please select two components to connect or Enter to skip:'
             answer = ask_for_input(message, 'Checkbox', components)       
@@ -598,24 +596,61 @@ def writePythonCode(full_path, model,strict_mode=True):
     print('Python code saved to:', full_path)
 
 """"Edit the model based on the user input"""
-def editModel(model_path,model,importSource_units,importSources_comp=[], import_components_dicts=[]):
+def editModel(model_path,model,importSource_units,import_units_model,importSources_comp=[], import_models=[],import_components_dicts=[]):
     # Assume that the new components have been added to the model
     # import the existing components from other CellML files
-    
-    for importSource, import_components_dict in zip (importSources_comp, import_components_dicts):
-       importComponents(model,importSource,import_components_dict)
+    for i, importSource in enumerate(importSources_comp):
+        importComponents(model,importSource,import_models[i],import_components_dicts[i])
     
     # Clone variables from import components to the new components when needed
     compPair4CloneVars_UI(model)
     # Import units from other CellML files
     if importSource_units:
-        importUnits(model,importSource_units)
+        if importSource_units.model() is None:
+            print('Warning: the units file is not a valid CellML file.')
+        importUnits(model,importSource_units,import_units_model)
     cellml.resolve_imports(model, model_path, True)
     # Encapsulate the components when needed
     component_parent_selected, component_children_selected = encapsulate_UI(model)
     encapsulate(model, component_parent_selected, component_children_selected)
     # Carry out the connection between the components
     connect_UI(model_path,model)
+    # Add units to the model when needed
+    addUnits_UI(model)
+    # Fix the variable interfaces
+    if not model.fixVariableInterfaces():
+        print('Warning: some variable interfaces in the model are incorrect.')
+    if model.hasUnlinkedUnits():
+        print('Warning: some units in the model are unlinked, and start linking...')
+        if not model.linkUnits():
+            print('Warning: some units in the model are still unlinked.')
+    #    Create a validator and use it to check the model so far.
+    print_model(model,True)
+    cellml.validate_model(model)
+
+def editModel_default(model_path,model,importSource_units,import_units_model,importSources_comp=[], import_models=[],import_components_dicts=[],comp_pairs=[]):
+    # Assume that the new components have been added to the model
+    # import the existing components from other CellML files
+    for i, importSource in enumerate(importSources_comp):
+        importComponents(model,importSource,import_models[i],import_components_dicts[i])
+    
+    # Clone variables from import components to the new components when needed
+    compPair4CloneVars_UI(model)
+    # Import units from other CellML files
+    if importSource_units:
+        if importSource_units.model() is None:
+            print('Warning: the units file is not a valid CellML file.')
+        importUnits(model,importSource_units,import_units_model)
+    cellml.resolve_imports(model, model_path, True)
+    # Encapsulate the components when needed
+    component_parent_selected, component_children_selected = encapsulate_UI(model)
+    encapsulate(model, component_parent_selected, component_children_selected)
+    # Carry out the connection between the components
+    importer = cellml.resolve_imports(model, model_path, True)
+    flatModel = importer.flattenModel(model) # this may not be necessary after the units compatibility check function is fixed
+    for comp_pair in comp_pairs:
+        suggestConnection(flatModel, model.component(comp_pair[0]), model.component(comp_pair[1]))
+        fixInits_UI (model.component(comp_pair[0]), model.component(comp_pair[1]))
     # Add units to the model when needed
     addUnits_UI(model)
     # Fix the variable interfaces
@@ -681,9 +716,9 @@ def buildModel():
             indexes = [int(i.split(':')[0]) for i in components_selected]
             for index in indexes:
                 model.addComponent(components[index].clone())
-            importSources_comp, import_components_dicts=importComponents_UI(model_path,strict_mode=True)
-            importSource_units = importUnits_UI(model_path,strict_mode=True)
-            editModel(model_path,model, importSource_units, importSources_comp, import_components_dicts)
+            importSources_comp,import_models, import_components_dicts=importComponents_UI(model_path,strict_mode=True)
+            importSource_units,import_units_model = importUnits_UI(model_path,strict_mode=True)
+            editModel(model_path,model, importSource_units, import_units_model, importSources_comp, import_models, import_components_dicts)
 
             message="Do you want to save the model?"
             answer = ask_for_input(message, 'Confirm', True)

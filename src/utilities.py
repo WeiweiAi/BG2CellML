@@ -1,6 +1,6 @@
 # Downloaded from the user tutorials of libCellML on 2023-03-29
 # Added more functions to this file as needed
-from libcellml import Issue, CellmlElementType, cellmlElementTypeAsString
+from libcellml import Issue, cellmlElementTypeAsString
 import tkinter as tk
 from tkinter import filedialog
 import inquirer
@@ -8,6 +8,7 @@ import sys
 import csv
 import numpy as np
 import libsbml
+from pathlib import PurePath
 
 """An interactive utility to ask the user to select a file or folder."""
 def ask_for_file_or_folder(message, is_folder=False):
@@ -20,7 +21,7 @@ def ask_for_file_or_folder(message, is_folder=False):
         path = filedialog.askopenfilename()
     root.update()
     root.destroy()
-    return path
+    return PurePath(path).as_posix()
 
 """ Wrapper function for inquiring the user to Confirm, Text, Checkbox, or Choice."""
 def ask_for_input(message, type ='Confirm', choices = []):
@@ -74,6 +75,8 @@ def infix_to_mathml(infix, ode_var, voi=''):
     mathstr = mathstr.replace ('<math xmlns="http://www.w3.org/1998/Math/MathML">', '')
     mathstr = mathstr.replace ('</math>', '')
     mathstr = mathstr.replace ('<?xml version="1.0" encoding="UTF-8"?>', '')
+    # temporary solution to add cellml units for constant in the mathML string, replace <cn type="integer"> to <cn cellml:units="dimensionless">
+    mathstr = mathstr.replace ('<cn type="integer">', '<cn cellml:units="dimensionless">')
     # add left side of the equation       
     mathstr = preforumla + mathstr + postformula
     return mathstr
