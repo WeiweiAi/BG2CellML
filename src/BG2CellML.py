@@ -363,7 +363,10 @@ def simplify_flux_ss(vss_num,vss_den):
                 else:
                     term_args = term.args # term_args[0] is the q term, term_args[1] is the power
                     Q.update({term_args[0]:(term_args[0],'fmol')})
-            if term.has(exp(F*V_m/(R*T))): qsubliterals.append(exp(F*V_m/(R*T)))
+            if term.has(exp(F*V_m/(R*T))): 
+                qsubliterals.append(exp(F*V_m/(R*T)))
+                Q.update({V_m:(V_m,'volt')})
+             
         if len(qsubliterals)>1:
             vss_num_subterms.add(Mul(*qsubliterals))
         elif len(qsubliterals)==1:
@@ -377,7 +380,8 @@ def simplify_flux_ss(vss_num,vss_den):
             if str(term).startswith('q') or term==E:
                 subliterals.append(term)
               
-            if term.has(exp(F*V_m/(R*T))): subliterals.append(exp(F*V_m/(R*T)))
+            if term.has(exp(F*V_m/(R*T))): 
+                subliterals.append(exp(F*V_m/(R*T)))
         if len(subliterals)>1:
             vss_den_subterms.add(Mul(*subliterals))
         elif len(subliterals)==1:
@@ -604,6 +608,29 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
     component_ss_param=component_ss.clone() # P,E are the simplified parameters, no v_ss or equations
     component_ss_param.setName(model_ss_param.name())
     qnames=[]
+    
+    def add_const_to_component(component):
+        for const in BG.const:
+            const_name = const
+            var_const=Variable(const_name)
+            unit_name = BG.const[const_name][1]
+            u=Units(unit_name)
+            var_const.setUnits(u)
+            component.addVariable(var_const)
+
+    def add_const_to_component_param(component_param):
+        for const in BG.const:
+            const_name = const
+            var_const=Variable(const_name)
+            unit_name = BG.const[const_name][1]
+            u=Units(unit_name)
+            var_const.setUnits(u)
+            param_const = var_const.clone()
+            param_const.setInitialValue(BG.const[const_name][0])
+            component_param.addVariable(param_const)
+
+
+
     for q in Q:
         var_q=Variable(q.name)
         unit_name = Q[q][1]
@@ -613,6 +640,18 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
         var_q.setInterfaceType(Variable.InterfaceType.PUBLIC)
         if q.name == 'E':
             var_E = var_q.clone()
+        elif q.name == 'V_m':
+            component_BG_ss_test.addVariable(var_q.clone())
+            add_const_to_component(component_BG_ss_test)
+            add_const_to_component(component_ss)
+            component_BG_ss_input.addVariable(var_q.clone())
+            component_BG_ss_input.variable(var_q.name()).setInitialValue(1)
+            add_const_to_component_param(component_BG_ss_input)
+            component_ss_test.addVariable(var_q.clone())
+            add_const_to_component(component_ss_test)
+            component_ss_input.addVariable(var_q.clone())
+            component_ss_input.variable(var_q.name()).setInitialValue(1)
+            add_const_to_component_param(component_ss_input)
         else:
             qnames.append(q.name.split('_')[1])
             component_BG_ss_test.addVariable(var_q.clone())
@@ -716,7 +755,6 @@ def build_models ():
     component_ss_test1.removeAllComponents()
     component_ss_test1.setName(model_ss_test1.name())
     model_ss_test1.addComponent(component_ss_test1)
-    print_model(model_ss_test1)
     component_ss1= model_ss.component(model_ss.name()).clone()
     model_ss_test1.addComponent(component_ss1)
     component_ss_param1 = model_ss_param.component(model_ss_param.name()).clone()
@@ -725,7 +763,6 @@ def build_models ():
     model_ss_test1.addComponent(component_ss_input1)
     comp_pairs=[(model_ss.name(),model_ss_param.name()),(model_ss.name(),model_ss_test1.name()),(model_ss.name()+'_input',model_ss_test1.name())]
     importSources_comps, import_models, import_components_dicts = [], [],[]
-    print_model(model_ss_test1)
     writeModel(model_path, model_ss_test1, importSource_units, import_units_model, importSources_comps, import_models, import_components_dicts,comp_pairs)
     
     print('model_BG_ss_test, import the model_BG_param, model_BG_ss and model_ss')
