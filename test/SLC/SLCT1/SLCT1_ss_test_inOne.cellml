@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT1_ss_test_inOne" id="b4da55">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da56">
+    <units units_ref="per_sec9_fmol11" name="per_sec9_fmol11" id="b4da57"/>
+    <units units_ref="fmol" name="fmol" id="b4da58"/>
+    <units units_ref="per_sec9_fmol8" name="per_sec9_fmol8" id="b4da59"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5a"/>
+    <units units_ref="per_sec9_fmol6" name="per_sec9_fmol6" id="b4da5b"/>
+    <units units_ref="per_sec9_fmol9" name="per_sec9_fmol9" id="b4da5c"/>
+    <units units_ref="per_sec9_fmol12" name="per_sec9_fmol12" id="b4da5d"/>
+    <units units_ref="per_sec10_fmol9" name="per_sec10_fmol9" id="b4da5e"/>
+    <units units_ref="per_sec9_fmol5" name="per_sec9_fmol5" id="b4da5f"/>
+  </import>
+  <component name="SLCT1_ss_test_inOne" id="b4da60">
+    <variable name="v_ss" units="fmol_per_sec" interface="private" id="b4da63"/>
+    <variable name="q_Ai" units="fmol" interface="public_and_private" id="b4da64"/>
+    <variable name="q_Ao" units="fmol" interface="public_and_private" id="b4da65"/>
+    <variable name="q_Hi" units="fmol" interface="public_and_private" id="b4da66"/>
+    <variable name="q_Ho" units="fmol" interface="public_and_private" id="b4da67"/>
+    <variable name="q_Ki" units="fmol" interface="public_and_private" id="b4da68"/>
+    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da69"/>
+    <variable name="q_Ko" units="fmol" interface="public_and_private" id="b4da6a"/>
+    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da6b"/>
+    <variable name="E" units="fmol" interface="private" id="b4da6c"/>
+  </component>
+  <component name="SLCT1_ss" id="b4da61">
+    <variable name="P_0" units="per_sec10_fmol9" interface="public" id="b4da6d"/>
+    <variable name="P_1" units="per_sec10_fmol9" interface="public" id="b4da6e"/>
+    <variable name="P_2" units="per_sec9_fmol5" interface="public" id="b4da6f"/>
+    <variable name="P_3" units="per_sec9_fmol8" interface="public" id="b4da70"/>
+    <variable name="P_4" units="per_sec9_fmol8" interface="public" id="b4da71"/>
+    <variable name="P_5" units="per_sec9_fmol8" interface="public" id="b4da72"/>
+    <variable name="P_6" units="per_sec9_fmol11" interface="public" id="b4da73"/>
+    <variable name="P_7" units="per_sec9_fmol8" interface="public" id="b4da74"/>
+    <variable name="P_8" units="per_sec9_fmol8" interface="public" id="b4da75"/>
+    <variable name="P_9" units="per_sec9_fmol11" interface="public" id="b4da76"/>
+    <variable name="P_10" units="per_sec9_fmol8" interface="public" id="b4da77"/>
+    <variable name="P_11" units="per_sec9_fmol8" interface="public" id="b4da78"/>
+    <variable name="P_12" units="per_sec9_fmol11" interface="public" id="b4da79"/>
+    <variable name="P_13" units="per_sec9_fmol8" interface="public" id="b4da7a"/>
+    <variable name="P_14" units="per_sec9_fmol8" interface="public" id="b4da7b"/>
+    <variable name="P_15" units="per_sec9_fmol11" interface="public" id="b4da7c"/>
+    <variable name="P_16" units="per_sec9_fmol5" interface="public" id="b4da7d"/>
+    <variable name="P_17" units="per_sec9_fmol8" interface="public" id="b4da7e"/>
+    <variable name="P_18" units="per_sec9_fmol6" interface="public" id="b4da7f"/>
+    <variable name="P_19" units="per_sec9_fmol9" interface="public" id="b4da80"/>
+    <variable name="P_20" units="per_sec9_fmol9" interface="public" id="b4da81"/>
+    <variable name="P_21" units="per_sec9_fmol12" interface="public" id="b4da82"/>
+    <variable name="E" units="fmol" interface="public" id="b4da83"/>
+    <variable name="q_Ai" units="fmol" interface="public" id="b4da84"/>
+    <variable name="q_Ao" units="fmol" interface="public" id="b4da85"/>
+    <variable name="q_Hi" units="fmol" interface="public" id="b4da86"/>
+    <variable name="q_Ho" units="fmol" interface="public" id="b4da87"/>
+    <variable name="q_Ki" units="fmol" interface="public" id="b4da88"/>
+    <variable name="q_Nao" units="fmol" interface="public" id="b4da89"/>
+    <variable name="q_Ko" units="fmol" interface="public" id="b4da8a"/>
+    <variable name="q_Nai" units="fmol" interface="public" id="b4da8b"/>
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4da8c"/>
+    <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
+      <apply>
+        <eq/>
+        <ci>v_ss</ci>
+        <apply>
+          <divide/>
+          <apply>
+            <times/>
+            <ci>E</ci>
+            <ci>q_Ai</ci>
+            <ci>q_Ao</ci>
+            <ci>q_Hi</ci>
+            <ci>q_Ho</ci>
+            <apply>
+              <minus/>
+              <apply>
+                <times/>
+                <ci>P_0</ci>
+                <ci>q_Ki</ci>
+                <apply>
+                  <power/>
+                  <ci>q_Nao</ci>
+                  <cn cellml:units="dimensionless">3</cn>
+                </apply>
+              </apply>
+              <apply>
+                <times/>
+                <ci>P_1</ci>
+                <ci>q_Ko</ci>
+                <apply>
+                  <power/>
+                  <ci>q_Nai</ci>
+                  <cn cellml:units="dimensionless">3</cn>
+                </apply>
+              </apply>
+            </apply>
+          </apply>
+          <apply>
+            <plus/>
+            <apply>
+              <times/>
+              <ci>P_10</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_11</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_12</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_13</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_14</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_15</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_16</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_17</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_18</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_19</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_2</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_20</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_21</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_3</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_4</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_5</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_6</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_7</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_8</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_9</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+          </apply>
+        </apply>
+      </apply>
+    </math>
+  </component>
+  <component name="SLCT1_ss_param" id="b4da62">
+    <variable name="P_0" units="per_sec10_fmol9" initial_value="1" interface="public" id="b4da8d"/>
+    <variable name="P_1" units="per_sec10_fmol9" initial_value="1" interface="public" id="b4da8e"/>
+    <variable name="P_2" units="per_sec9_fmol5" initial_value="1" interface="public" id="b4da8f"/>
+    <variable name="P_3" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da90"/>
+    <variable name="P_4" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da91"/>
+    <variable name="P_5" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da92"/>
+    <variable name="P_6" units="per_sec9_fmol11" initial_value="1" interface="public" id="b4da93"/>
+    <variable name="P_7" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da94"/>
+    <variable name="P_8" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da95"/>
+    <variable name="P_9" units="per_sec9_fmol11" initial_value="1" interface="public" id="b4da96"/>
+    <variable name="P_10" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da97"/>
+    <variable name="P_11" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da98"/>
+    <variable name="P_12" units="per_sec9_fmol11" initial_value="1" interface="public" id="b4da99"/>
+    <variable name="P_13" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da9a"/>
+    <variable name="P_14" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da9b"/>
+    <variable name="P_15" units="per_sec9_fmol11" initial_value="1" interface="public" id="b4da9c"/>
+    <variable name="P_16" units="per_sec9_fmol5" initial_value="1" interface="public" id="b4da9d"/>
+    <variable name="P_17" units="per_sec9_fmol8" initial_value="1" interface="public" id="b4da9e"/>
+    <variable name="P_18" units="per_sec9_fmol6" initial_value="1" interface="public" id="b4da9f"/>
+    <variable name="P_19" units="per_sec9_fmol9" initial_value="1" interface="public" id="b4daa0"/>
+    <variable name="P_20" units="per_sec9_fmol9" initial_value="1" interface="public" id="b4daa1"/>
+    <variable name="P_21" units="per_sec9_fmol12" initial_value="1" interface="public" id="b4daa2"/>
+    <variable name="E" units="fmol" initial_value="1" interface="public" id="b4daa3"/>
+  </component>
+  <component name="SLCT1_ss_input" id="b4dad3">
+    <variable name="q_Ai" units="fmol" initial_value="1" interface="public" id="b4dad4"/>
+    <variable name="q_Ao" units="fmol" initial_value="1" interface="public" id="b4dad5"/>
+    <variable name="q_Hi" units="fmol" initial_value="1" interface="public" id="b4dad6"/>
+    <variable name="q_Ho" units="fmol" initial_value="1" interface="public" id="b4dad7"/>
+    <variable name="q_Ki" units="fmol" initial_value="1" interface="public" id="b4dad8"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4dad9"/>
+    <variable name="q_Ko" units="fmol" initial_value="1" interface="public" id="b4dada"/>
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4dadb"/>
+  </component>
+  <connection component_1="SLCT1_ss_test_inOne" component_2="SLCT1_ss" id="b4daa4">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4daa7"/>
+    <map_variables variable_1="q_Ai" variable_2="q_Ai" id="b4daa8"/>
+    <map_variables variable_1="q_Ao" variable_2="q_Ao" id="b4daaa"/>
+    <map_variables variable_1="q_Hi" variable_2="q_Hi" id="b4daac"/>
+    <map_variables variable_1="q_Ho" variable_2="q_Ho" id="b4daae"/>
+    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4dab0"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4dab2"/>
+    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4dab4"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4dab6"/>
+    <map_variables variable_1="E" variable_2="E" id="b4dab8"/>
+  </connection>
+  <connection component_1="SLCT1_ss_test_inOne" component_2="SLCT1_ss_input" id="b4daa5">
+    <map_variables variable_1="q_Ai" variable_2="q_Ai" id="b4daa9"/>
+    <map_variables variable_1="q_Ao" variable_2="q_Ao" id="b4daab"/>
+    <map_variables variable_1="q_Hi" variable_2="q_Hi" id="b4daad"/>
+    <map_variables variable_1="q_Ho" variable_2="q_Ho" id="b4daaf"/>
+    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4dab1"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4dab3"/>
+    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4dab5"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4dab7"/>
+  </connection>
+  <connection component_1="SLCT1_ss" component_2="SLCT1_ss_param" id="b4daa6">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4dab9"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4daba"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4dabb"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4dabc"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4dabd"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4dabe"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4dabf"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4dac0"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4dac1"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4dac2"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4dac3"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4dac4"/>
+    <map_variables variable_1="P_12" variable_2="P_12" id="b4dac5"/>
+    <map_variables variable_1="P_13" variable_2="P_13" id="b4dac6"/>
+    <map_variables variable_1="P_14" variable_2="P_14" id="b4dac7"/>
+    <map_variables variable_1="P_15" variable_2="P_15" id="b4dac8"/>
+    <map_variables variable_1="P_16" variable_2="P_16" id="b4dac9"/>
+    <map_variables variable_1="P_17" variable_2="P_17" id="b4daca"/>
+    <map_variables variable_1="P_18" variable_2="P_18" id="b4dacb"/>
+    <map_variables variable_1="P_19" variable_2="P_19" id="b4dacc"/>
+    <map_variables variable_1="P_20" variable_2="P_20" id="b4dacd"/>
+    <map_variables variable_1="P_21" variable_2="P_21" id="b4dace"/>
+    <map_variables variable_1="E" variable_2="E" id="b4dacf"/>
+  </connection>
+  <encapsulation id="b4dadc">
+    <component_ref component="SLCT1_ss_test_inOne" id="b4dad0">
+      <component_ref component="SLCT1_ss" id="b4dad1"/>
+      <component_ref component="SLCT1_ss_param" id="b4dad2"/>
+    </component_ref>
+  </encapsulation>
+</model>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT9_BG_param">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="per_fmol" name="per_fmol"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
+    <units units_ref="fF" name="fF"/>
+  </import>
+  <component name="SLCT9_BG_param">
+    <variable name="K_Nao" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="K_Nai" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="K_Ao" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="K_Ai" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="K_Cli" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="K_Clo" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="K_7" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_7_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="K_8" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_8_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="K_9" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_9_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="K_10" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_10_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="K_11" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_11_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="K_12" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_12_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="K_13" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_13_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="K_14" units="per_fmol" initial_value="1" interface="public"/>
+    <variable name="q_14_init" units="fmol" initial_value="1" interface="public"/>
+    <variable name="C_m" units="fF" initial_value="1" interface="public"/>
+    <variable name="kappa_re1" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="kappa_re2" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="kappa_re3" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="kappa_re4" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="kappa_re5" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="kappa_re6" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="kappa_re7" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="kappa_re8" units="fmol_per_sec" initial_value="1" interface="public"/>
+    <variable name="F" units="C_per_mol" initial_value="96485" interface="public"/>
+    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public"/>
+    <variable name="T" units="kelvin" initial_value="293" interface="public"/>
+  </component>
+</model>

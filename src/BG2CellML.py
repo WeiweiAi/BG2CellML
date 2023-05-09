@@ -363,8 +363,8 @@ def simplify_flux_ss(vss_num,vss_den):
                 else:
                     term_args = term.args # term_args[0] is the q term, term_args[1] is the power
                     Q.update({term_args[0]:(term_args[0],'fmol')})
-            if term.has(exp(F*V_m/(R*T))): 
-                qsubliterals.append(exp(F*V_m/(R*T)))
+            if str(term).startswith('exp'):
+                qsubliterals.append(term)
                 Q.update({V_m:(V_m,'volt')})
              
         if len(qsubliterals)>1:
@@ -380,8 +380,9 @@ def simplify_flux_ss(vss_num,vss_den):
             if str(term).startswith('q') or term==E:
                 subliterals.append(term)
               
-            if term.has(exp(F*V_m/(R*T))): 
-                subliterals.append(exp(F*V_m/(R*T)))
+            if str(term).startswith('exp'):
+                subliterals.append(term)
+
         if len(subliterals)>1:
             vss_den_subterms.add(Mul(*subliterals))
         elif len(subliterals)==1:
@@ -412,12 +413,19 @@ def simplify_flux_ss(vss_num,vss_den):
         kappas_units=[Symbol('fmol')/Symbol('sec') for j in first_term.atoms() if str(j).startswith('kappa')]
         E_units = [Symbol('fmol') for j in first_term.atoms() if j==E]
         if len(Ks_units)>0:
-            Units_list=Units_list+Ks_units
-        if len(kappas_units)>0:
-            Units_list=Units_list+kappas_units
+            if len(Ks_units)>1:
+                Ks_unit=Mul(*Ks_units)
+            elif len(Ks_units)==1:
+                Ks_unit=Ks_units[0]
+            Units_list=Units_list+[Ks_unit]
         if len(E_units)>0:
             Units_list=Units_list+E_units
-
+        if len(kappas_units)>0:
+            if len(kappas_units)>1:
+                kappas_unit=Mul(*kappas_units)
+            elif len(kappas_units)==1:
+                kappas_unit=kappas_units[0]
+            Units_list=Units_list+[kappas_unit]       
         iUnits =  Mul(*Units_list) 
         # if iUnits is number: return dimensionless
         if iUnits.is_number: return 'dimensionless'
@@ -473,11 +481,8 @@ def simplify_flux_ss(vss_num,vss_den):
 def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
     # Based on the approach proposed in 
     # Hill, Terrell. Free energy transduction in biology: the steady-state kinetic and thermodynamic formalism. Elsevier, 2012.
-    #type_convert = lambda x: float(x) if isinstance(x, float) or isinstance(x, int)  else Symbol(x)
     # convert the string stoichiometric matrix to float matrix. TODO: need to handle the case of stoichiometric matrix with symbolic entries   
-    #Nf = nsimplify(Matrix(np.array(N_f)).applyfunc(type_convert))
-    #Nr = nsimplify(Matrix(np.array(N_r)).applyfunc(type_convert))
-    # convert the string stoichiometric matrix to float matrix   
+ 
     Nf = nsimplify(Matrix(np.array(N_f)))
     Nr = nsimplify(Matrix(np.array(N_r)))
     # Get the quantities q of the chemodynamic species (in the enzyme reaction network)
@@ -557,7 +562,7 @@ def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
         kf_all.append(G.get_edge_data(edgej[0],edgej[1])['k_f'])
         kr_all.append(G.get_edge_data(edgej[0],edgej[1])['k_r'])
 
-    vss_num = factor(E*prod(kf_all)-prod(kr_all))
+    vss_num = factor(E*(prod(kf_all)-prod(kr_all)))
     vss_den= sum(q_ss_E[:])
     return vss_num,vss_den
 

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT11_BG_ss_test" id="b4da55">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT11_ss.cellml" id="b4da56">
+    <component component_ref="SLCT11_ss" name="SLCT11_ss" id="b4da5d"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT11_BG_param.cellml" id="b4da57">
+    <component component_ref="SLCT11_BG_param" name="SLCT11_BG_param" id="b4da5e"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT11_BG_ss.cellml" id="b4da58">
+    <component component_ref="SLCT11_BG_ss" name="SLCT11_BG_ss" id="b4da5f"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da59">
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5a"/>
+    <units units_ref="fmol" name="fmol" id="b4da5b"/>
+  </import>
+  <component name="SLCT11_BG_ss_test" id="b4da5c">
+    <variable name="v_ss" units="fmol_per_sec" interface="private" id="b4da60"/>
+    <variable name="q_Clo" units="fmol" interface="public_and_private" id="b4da61"/>
+    <variable name="q_Ki" units="fmol" interface="public_and_private" id="b4da62"/>
+    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da63"/>
+    <variable name="q_So" units="fmol" interface="public_and_private" id="b4da64"/>
+    <variable name="q_Cli" units="fmol" interface="public_and_private" id="b4da65"/>
+    <variable name="q_Ko" units="fmol" interface="public_and_private" id="b4da66"/>
+    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da67"/>
+    <variable name="q_Si" units="fmol" interface="public_and_private" id="b4da68"/>
+    <variable name="E" units="fmol" interface="private" id="b4da69"/>
+  </component>
+  <component name="SLCT11_BG_ss_input" id="b4db95">
+    <variable name="q_Clo" units="fmol" initial_value="1" interface="public" id="b4db96"/>
+    <variable name="q_Ki" units="fmol" initial_value="1" interface="public" id="b4db97"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4db98"/>
+    <variable name="q_So" units="fmol" initial_value="1" interface="public" id="b4db99"/>
+    <variable name="q_Cli" units="fmol" initial_value="1" interface="public" id="b4db9a"/>
+    <variable name="q_Ko" units="fmol" initial_value="1" interface="public" id="b4db9b"/>
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4db9c"/>
+    <variable name="q_Si" units="fmol" initial_value="1" interface="public" id="b4db9d"/>
+  </component>
+  <connection component_1="SLCT11_BG_ss_test" component_2="SLCT11_ss" id="b4db23">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4db27"/>
+    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4db28"/>
+    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4db2a"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4db2c"/>
+    <map_variables variable_1="q_So" variable_2="q_So" id="b4db2e"/>
+    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4db30"/>
+    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4db32"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4db34"/>
+    <map_variables variable_1="q_Si" variable_2="q_Si" id="b4db36"/>
+    <map_variables variable_1="E" variable_2="E" id="b4db38"/>
+  </connection>
+  <connection component_1="SLCT11_BG_ss_test" component_2="SLCT11_BG_ss_input" id="b4db24">
+    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4db29"/>
+    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4db2b"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4db2d"/>
+    <map_variables variable_1="q_So" variable_2="q_So" id="b4db2f"/>
+    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4db31"/>
+    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4db33"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4db35"/>
+    <map_variables variable_1="q_Si" variable_2="q_Si" id="b4db37"/>
+  </connection>
+  <connection component_1="SLCT11_ss" component_2="SLCT11_BG_ss" id="b4db25">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4db39"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4db3a"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4db3b"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4db3c"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4db3d"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4db3e"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4db3f"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4db40"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4db41"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4db42"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4db43"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4db44"/>
+    <map_variables variable_1="P_12" variable_2="P_12" id="b4db45"/>
+    <map_variables variable_1="P_13" variable_2="P_13" id="b4db46"/>
+    <map_variables variable_1="P_14" variable_2="P_14" id="b4db47"/>
+    <map_variables variable_1="P_15" variable_2="P_15" id="b4db48"/>
+    <map_variables variable_1="P_16" variable_2="P_16" id="b4db49"/>
+    <map_variables variable_1="P_17" variable_2="P_17" id="b4db4a"/>
+    <map_variables variable_1="P_18" variable_2="P_18" id="b4db4b"/>
+    <map_variables variable_1="P_19" variable_2="P_19" id="b4db4c"/>
+    <map_variables variable_1="P_20" variable_2="P_20" id="b4db4d"/>
+    <map_variables variable_1="P_21" variable_2="P_21" id="b4db4e"/>
+    <map_variables variable_1="P_22" variable_2="P_22" id="b4db4f"/>
+    <map_variables variable_1="P_23" variable_2="P_23" id="b4db50"/>
+    <map_variables variable_1="P_24" variable_2="P_24" id="b4db51"/>
+    <map_variables variable_1="P_25" variable_2="P_25" id="b4db52"/>
+    <map_variables variable_1="P_26" variable_2="P_26" id="b4db53"/>
+    <map_variables variable_1="P_27" variable_2="P_27" id="b4db54"/>
+    <map_variables variable_1="P_28" variable_2="P_28" id="b4db55"/>
+    <map_variables variable_1="P_29" variable_2="P_29" id="b4db56"/>
+    <map_variables variable_1="P_30" variable_2="P_30" id="b4db57"/>
+    <map_variables variable_1="P_31" variable_2="P_31" id="b4db58"/>
+    <map_variables variable_1="P_32" variable_2="P_32" id="b4db59"/>
+    <map_variables variable_1="P_33" variable_2="P_33" id="b4db5a"/>
+    <map_variables variable_1="P_34" variable_2="P_34" id="b4db5b"/>
+    <map_variables variable_1="P_35" variable_2="P_35" id="b4db5c"/>
+    <map_variables variable_1="P_36" variable_2="P_36" id="b4db5d"/>
+    <map_variables variable_1="P_37" variable_2="P_37" id="b4db5e"/>
+    <map_variables variable_1="P_38" variable_2="P_38" id="b4db5f"/>
+    <map_variables variable_1="P_39" variable_2="P_39" id="b4db60"/>
+    <map_variables variable_1="P_40" variable_2="P_40" id="b4db61"/>
+    <map_variables variable_1="P_41" variable_2="P_41" id="b4db62"/>
+    <map_variables variable_1="P_42" variable_2="P_42" id="b4db63"/>
+    <map_variables variable_1="P_43" variable_2="P_43" id="b4db64"/>
+    <map_variables variable_1="P_44" variable_2="P_44" id="b4db65"/>
+    <map_variables variable_1="P_45" variable_2="P_45" id="b4db66"/>
+    <map_variables variable_1="E" variable_2="E" id="b4db67"/>
+  </connection>
+  <connection component_1="SLCT11_BG_param" component_2="SLCT11_BG_ss" id="b4db26">
+    <map_variables variable_1="K_Ki" variable_2="K_Ki" id="b4db68"/>
+    <map_variables variable_1="K_Ko" variable_2="K_Ko" id="b4db69"/>
+    <map_variables variable_1="K_Nai" variable_2="K_Nai" id="b4db6a"/>
+    <map_variables variable_1="K_Nao" variable_2="K_Nao" id="b4db6b"/>
+    <map_variables variable_1="K_So" variable_2="K_So" id="b4db6c"/>
+    <map_variables variable_1="K_Si" variable_2="K_Si" id="b4db6d"/>
+    <map_variables variable_1="K_Clo" variable_2="K_Clo" id="b4db6e"/>
+    <map_variables variable_1="K_Cli" variable_2="K_Cli" id="b4db6f"/>
+    <map_variables variable_1="K_9" variable_2="K_9" id="b4db70"/>
+    <map_variables variable_1="q_9_init" variable_2="q_9_init" id="b4db71"/>
+    <map_variables variable_1="K_10" variable_2="K_10" id="b4db72"/>
+    <map_variables variable_1="q_10_init" variable_2="q_10_init" id="b4db73"/>
+    <map_variables variable_1="K_11" variable_2="K_11" id="b4db74"/>
+    <map_variables variable_1="q_11_init" variable_2="q_11_init" id="b4db75"/>
+    <map_variables variable_1="K_12" variable_2="K_12" id="b4db76"/>
+    <map_variables variable_1="q_12_init" variable_2="q_12_init" id="b4db77"/>
+    <map_variables variable_1="K_13" variable_2="K_13" id="b4db78"/>
+    <map_variables variable_1="q_13_init" variable_2="q_13_init" id="b4db79"/>
+    <map_variables variable_1="K_14" variable_2="K_14" id="b4db7a"/>
+    <map_variables variable_1="q_14_init" variable_2="q_14_init" id="b4db7b"/>
+    <map_variables variable_1="K_15" variable_2="K_15" id="b4db7c"/>
+    <map_variables variable_1="q_15_init" variable_2="q_15_init" id="b4db7d"/>
+    <map_variables variable_1="K_16" variable_2="K_16" id="b4db7e"/>
+    <map_variables variable_1="q_16_init" variable_2="q_16_init" id="b4db7f"/>
+    <map_variables variable_1="K_17" variable_2="K_17" id="b4db80"/>
+    <map_variables variable_1="q_17_init" variable_2="q_17_init" id="b4db81"/>
+    <map_variables variable_1="K_18" variable_2="K_18" id="b4db82"/>
+    <map_variables variable_1="q_18_init" variable_2="q_18_init" id="b4db83"/>
+    <map_variables variable_1="kappa_re1" variable_2="kappa_re1" id="b4db84"/>
+    <map_variables variable_1="kappa_re2" variable_2="kappa_re2" id="b4db85"/>
+    <map_variables variable_1="kappa_re3" variable_2="kappa_re3" id="b4db86"/>
+    <map_variables variable_1="kappa_re4" variable_2="kappa_re4" id="b4db87"/>
+    <map_variables variable_1="kappa_re5" variable_2="kappa_re5" id="b4db88"/>
+    <map_variables variable_1="kappa_re6" variable_2="kappa_re6" id="b4db89"/>
+    <map_variables variable_1="kappa_re7" variable_2="kappa_re7" id="b4db8a"/>
+    <map_variables variable_1="kappa_re8" variable_2="kappa_re8" id="b4db8b"/>
+    <map_variables variable_1="kappa_re9" variable_2="kappa_re9" id="b4db8c"/>
+    <map_variables variable_1="kappa_re10" variable_2="kappa_re10" id="b4db8d"/>
+    <map_variables variable_1="F" variable_2="F" id="b4db8e"/>
+    <map_variables variable_1="R" variable_2="R" id="b4db8f"/>
+    <map_variables variable_1="T" variable_2="T" id="b4db90"/>
+  </connection>
+  <encapsulation id="b4db9e">
+    <component_ref component="SLCT11_BG_ss_test" id="b4db91">
+      <component_ref component="SLCT11_ss" id="b4db92"/>
+      <component_ref component="SLCT11_BG_param" id="b4db93"/>
+      <component_ref component="SLCT11_BG_ss" id="b4db94"/>
+    </component_ref>
+  </encapsulation>
+</model>

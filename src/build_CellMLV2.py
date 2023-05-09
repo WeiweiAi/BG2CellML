@@ -2,7 +2,8 @@ from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Var
 import pandas as pd
 from utilities import print_model, ask_for_file_or_folder, ask_for_input, infix_to_mathml
 import cellml
-from pathlib import PurePath 
+from pathlib import PurePath
+import os 
 
 MATH_HEADER = '<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">\n'
 MATH_FOOTER = '</math>\n'
@@ -136,7 +137,8 @@ def import_setup(model_path,full_path, strict_mode=True):
     # output: import_model: the existing model that is imported
     #         importSource: the ImportSource object which contains the url of the imported model
     import_model=cellml.parse_model(full_path, strict_mode)
-    relative_path=PurePath(full_path).relative_to(model_path).as_posix()
+    relative_path_os = os.path.relpath(full_path, model_path)
+    relative_path=PurePath(relative_path_os).as_posix()
     importSource = ImportSource()
     importSource.setUrl(relative_path)
     importSource.setModel(import_model)
@@ -643,7 +645,16 @@ def editModel_default(model_path,model,importSource_units,import_units_model,imp
         importUnits(model,importSource_units,import_units_model)
     cellml.resolve_imports(model, model_path, True)
     # Encapsulate the components when needed
-    component_parent_selected, component_children_selected = encapsulate_UI(model)
+    component_list = getEntityList(model)
+    component_children_selected=[]
+    component_parent_selected=''
+    for comp in component_list:
+        comp_namelist = comp.split('_')
+        if 'test' in comp_namelist:
+            component_parent_selected = comp
+        elif 'input' not in comp_namelist:
+            component_children_selected.append(comp)
+
     encapsulate(model, component_parent_selected, component_children_selected)
     # Carry out the connection between the components
     importer = cellml.resolve_imports(model, model_path, True)

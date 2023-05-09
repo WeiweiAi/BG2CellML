@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT8_ss_param">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
+    <units units_ref="per_sec6_fmol3" name="per_sec6_fmol3"/>
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="per_sec6_fmol2" name="per_sec6_fmol2"/>
+    <units units_ref="per_sec6_fmol4" name="per_sec6_fmol4"/>
+    <units units_ref="per_sec6_fmol7" name="per_sec6_fmol7"/>
+    <units units_ref="per_sec7_fmol5" name="per_sec7_fmol5"/>
+    <units units_ref="per_sec6_fmol5" name="per_sec6_fmol5"/>
+  </import>
+  <component name="SLCT8_ss_param">
+    <variable name="P_0" units="per_sec7_fmol5" initial_value="1" interface="public"/>
+    <variable name="P_1" units="per_sec7_fmol5" initial_value="1" interface="public"/>
+    <variable name="P_2" units="per_sec6_fmol2" initial_value="1" interface="public"/>
+    <variable name="P_3" units="per_sec6_fmol2" initial_value="1" interface="public"/>
+    <variable name="P_4" units="per_sec6_fmol5" initial_value="1" interface="public"/>
+    <variable name="P_5" units="per_sec6_fmol5" initial_value="1" interface="public"/>
+    <variable name="P_6" units="per_sec6_fmol5" initial_value="1" interface="public"/>
+    <variable name="P_7" units="per_sec6_fmol5" initial_value="1" interface="public"/>
+    <variable name="P_8" units="per_sec6_fmol3" initial_value="1" interface="public"/>
+    <variable name="P_9" units="per_sec6_fmol4" initial_value="1" interface="public"/>
+    <variable name="P_10" units="per_sec6_fmol7" initial_value="1" interface="public"/>
+    <variable name="E" units="fmol" initial_value="1" interface="public"/>
+  </component>
+</model>

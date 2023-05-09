@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT7_ss">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="per_sec7_fmol8" name="per_sec7_fmol8"/>
+    <units units_ref="per_sec7_fmol5" name="per_sec7_fmol5"/>
+    <units units_ref="per_sec8_fmol8" name="per_sec8_fmol8"/>
+    <units units_ref="per_sec7_fmol4" name="per_sec7_fmol4"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
+    <units units_ref="per_sec7_fmol7" name="per_sec7_fmol7"/>
+    <units units_ref="per_sec8_fmol5" name="per_sec8_fmol5"/>
+    <units units_ref="per_sec7_fmol2" name="per_sec7_fmol2"/>
+  </import>
+  <component name="SLCT7_ss">
+    <variable name="P_0" units="per_sec8_fmol5" interface="public"/>
+    <variable name="P_1" units="per_sec8_fmol8" interface="public"/>
+    <variable name="P_2" units="per_sec7_fmol4" interface="public"/>
+    <variable name="P_3" units="per_sec7_fmol4" interface="public"/>
+    <variable name="P_4" units="per_sec7_fmol2" interface="public"/>
+    <variable name="P_5" units="per_sec7_fmol4" interface="public"/>
+    <variable name="P_6" units="per_sec7_fmol7" interface="public"/>
+    <variable name="P_7" units="per_sec7_fmol5" interface="public"/>
+    <variable name="P_8" units="per_sec7_fmol5" interface="public"/>
+    <variable name="P_9" units="per_sec7_fmol5" interface="public"/>
+    <variable name="P_10" units="per_sec7_fmol5" interface="public"/>
+    <variable name="P_11" units="per_sec7_fmol5" interface="public"/>
+    <variable name="P_12" units="per_sec7_fmol5" interface="public"/>
+    <variable name="P_13" units="per_sec7_fmol5" interface="public"/>
+    <variable name="P_14" units="per_sec7_fmol7" interface="public"/>
+    <variable name="P_15" units="per_sec7_fmol7" interface="public"/>
+    <variable name="P_16" units="per_sec7_fmol8" interface="public"/>
+    <variable name="P_17" units="per_sec7_fmol8" interface="public"/>
+    <variable name="P_18" units="per_sec7_fmol8" interface="public"/>
+    <variable name="P_19" units="per_sec7_fmol8" interface="public"/>
+    <variable name="E" units="fmol" interface="public"/>
+    <variable name="q_Clo" units="fmol" interface="public"/>
+    <variable name="q_Nai" units="fmol" interface="public"/>
+    <variable name="q_HCO3i" units="fmol" interface="public"/>
+    <variable name="q_Cli" units="fmol" interface="public"/>
+    <variable name="q_Nao" units="fmol" interface="public"/>
+    <variable name="q_HCO3o" units="fmol" interface="public"/>
+    <variable name="v_ss" units="fmol_per_sec" interface="public"/>
+    <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
+      <apply>
+        <eq/>
+        <ci>v_ss</ci>
+        <apply>
+          <divide/>
+          <apply>
+            <times/>
+            <apply>
+              <minus/>
+              <ci>E</ci>
+            </apply>
+            <apply>
+              <power/>
+              <ci>q_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <apply>
+              <minus/>
+              <apply>
+                <times/>
+                <ci>P_0</ci>
+                <ci>q_Clo</ci>
+                <ci>q_Nai</ci>
+              </apply>
+              <apply>
+                <times/>
+                <ci>P_1</ci>
+                <ci>q_Cli</ci>
+                <apply>
+                  <power/>
+                  <ci>q_HCO3o</ci>
+                  <cn cellml:units="dimensionless">2</cn>
+                </apply>
+                <ci>q_Nao</ci>
+              </apply>
+            </apply>
+          </apply>
+          <apply>
+            <plus/>
+            <apply>
+              <times/>
+              <ci>P_10</ci>
+              <ci>q_Clo</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_11</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_12</ci>
+              <ci>q_Cli</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_13</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_14</ci>
+              <ci>q_Clo</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_15</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_16</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Clo</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_17</ci>
+              <ci>q_Cli</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_18</ci>
+              <ci>q_Clo</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_19</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_2</ci>
+              <ci>q_Cli</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_3</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_4</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_5</ci>
+              <ci>q_Clo</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_6</ci>
+              <ci>q_Cli</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_7</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Clo</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_8</ci>
+              <ci>q_Clo</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3i</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_9</ci>
+              <ci>q_Cli</ci>
+              <apply>
+                <power/>
+                <ci>q_HCO3o</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <ci>q_Nao</ci>
+            </apply>
+          </apply>
+        </apply>
+      </apply>
+    </math>
+  </component>
+</model>

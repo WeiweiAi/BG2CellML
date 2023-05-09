@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT7_ss_test" id="b4da55">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT7_ss.cellml" id="b4da56">
+    <component component_ref="SLCT7_ss" name="SLCT7_ss" id="b4da5c"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT7_ss_param.cellml" id="b4da57">
+    <component component_ref="SLCT7_ss_param" name="SLCT7_ss_param" id="b4da5d"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da58">
+    <units units_ref="fmol" name="fmol" id="b4da59"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5a"/>
+  </import>
+  <component name="SLCT7_ss_test" id="b4da5b">
+    <variable name="v_ss" units="fmol_per_sec" interface="private" id="b4da5e"/>
+    <variable name="q_Clo" units="fmol" interface="public_and_private" id="b4da5f"/>
+    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da60"/>
+    <variable name="q_HCO3i" units="fmol" interface="public_and_private" id="b4da61"/>
+    <variable name="q_Cli" units="fmol" interface="public_and_private" id="b4da62"/>
+    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da63"/>
+    <variable name="q_HCO3o" units="fmol" interface="public_and_private" id="b4da64"/>
+    <variable name="E" units="fmol" interface="private" id="b4da65"/>
+  </component>
+  <component name="SLCT7_ss_input" id="b4dac0">
+    <variable name="q_Clo" units="fmol" initial_value="1" interface="public" id="b4dac1"/>
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4dac2"/>
+    <variable name="q_HCO3i" units="fmol" initial_value="1" interface="public" id="b4dac3"/>
+    <variable name="q_Cli" units="fmol" initial_value="1" interface="public" id="b4dac4"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4dac5"/>
+    <variable name="q_HCO3o" units="fmol" initial_value="1" interface="public" id="b4dac6"/>
+  </component>
+  <connection component_1="SLCT7_ss_test" component_2="SLCT7_ss" id="b4da97">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da9a"/>
+    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4da9b"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da9d"/>
+    <map_variables variable_1="q_HCO3i" variable_2="q_HCO3i" id="b4da9f"/>
+    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4daa1"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4daa3"/>
+    <map_variables variable_1="q_HCO3o" variable_2="q_HCO3o" id="b4daa5"/>
+    <map_variables variable_1="E" variable_2="E" id="b4daa7"/>
+  </connection>
+  <connection component_1="SLCT7_ss_test" component_2="SLCT7_ss_input" id="b4da98">
+    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4da9c"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da9e"/>
+    <map_variables variable_1="q_HCO3i" variable_2="q_HCO3i" id="b4daa0"/>
+    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4daa2"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4daa4"/>
+    <map_variables variable_1="q_HCO3o" variable_2="q_HCO3o" id="b4daa6"/>
+  </connection>
+  <connection component_1="SLCT7_ss" component_2="SLCT7_ss_param" id="b4da99">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4daa8"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4daa9"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4daaa"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4daab"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4daac"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4daad"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4daae"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4daaf"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4dab0"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4dab1"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4dab2"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4dab3"/>
+    <map_variables variable_1="P_12" variable_2="P_12" id="b4dab4"/>
+    <map_variables variable_1="P_13" variable_2="P_13" id="b4dab5"/>
+    <map_variables variable_1="P_14" variable_2="P_14" id="b4dab6"/>
+    <map_variables variable_1="P_15" variable_2="P_15" id="b4dab7"/>
+    <map_variables variable_1="P_16" variable_2="P_16" id="b4dab8"/>
+    <map_variables variable_1="P_17" variable_2="P_17" id="b4dab9"/>
+    <map_variables variable_1="P_18" variable_2="P_18" id="b4daba"/>
+    <map_variables variable_1="P_19" variable_2="P_19" id="b4dabb"/>
+    <map_variables variable_1="E" variable_2="E" id="b4dabc"/>
+  </connection>
+  <encapsulation id="b4dac7">
+    <component_ref component="SLCT7_ss_test" id="b4dabd">
+      <component_ref component="SLCT7_ss" id="b4dabe"/>
+      <component_ref component="SLCT7_ss_param" id="b4dabf"/>
+    </component_ref>
+  </encapsulation>
+</model>

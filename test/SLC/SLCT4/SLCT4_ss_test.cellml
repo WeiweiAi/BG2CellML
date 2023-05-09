@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT4_ss_test" id="b4da55">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT4_ss.cellml" id="b4da56">
+    <component component_ref="SLCT4_ss" name="SLCT4_ss" id="b4da5c"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT4_ss_param.cellml" id="b4da57">
+    <component component_ref="SLCT4_ss_param" name="SLCT4_ss_param" id="b4da5d"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da58">
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da59"/>
+    <units units_ref="fmol" name="fmol" id="b4da5a"/>
+  </import>
+  <component name="SLCT4_ss_test" id="b4da5b">
+    <variable name="v_ss" units="fmol_per_sec" interface="private" id="b4da5e"/>
+    <variable name="q_Ao" units="fmol" interface="public_and_private" id="b4da5f"/>
+    <variable name="q_Bi" units="fmol" interface="public_and_private" id="b4da60"/>
+    <variable name="q_Ai" units="fmol" interface="public_and_private" id="b4da61"/>
+    <variable name="q_Bo" units="fmol" interface="public_and_private" id="b4da62"/>
+    <variable name="E" units="fmol" interface="private" id="b4da63"/>
+  </component>
+  <component name="SLCT4_ss_input" id="b4da9a">
+    <variable name="q_Ao" units="fmol" initial_value="1" interface="public" id="b4da9b"/>
+    <variable name="q_Bi" units="fmol" initial_value="1" interface="public" id="b4da9c"/>
+    <variable name="q_Ai" units="fmol" initial_value="1" interface="public" id="b4da9d"/>
+    <variable name="q_Bo" units="fmol" initial_value="1" interface="public" id="b4da9e"/>
+  </component>
+  <connection component_1="SLCT4_ss_test" component_2="SLCT4_ss" id="b4da7f">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da82"/>
+    <map_variables variable_1="q_Ao" variable_2="q_Ao" id="b4da83"/>
+    <map_variables variable_1="q_Bi" variable_2="q_Bi" id="b4da85"/>
+    <map_variables variable_1="q_Ai" variable_2="q_Ai" id="b4da87"/>
+    <map_variables variable_1="q_Bo" variable_2="q_Bo" id="b4da89"/>
+    <map_variables variable_1="E" variable_2="E" id="b4da8b"/>
+  </connection>
+  <connection component_1="SLCT4_ss_test" component_2="SLCT4_ss_input" id="b4da80">
+    <map_variables variable_1="q_Ao" variable_2="q_Ao" id="b4da84"/>
+    <map_variables variable_1="q_Bi" variable_2="q_Bi" id="b4da86"/>
+    <map_variables variable_1="q_Ai" variable_2="q_Ai" id="b4da88"/>
+    <map_variables variable_1="q_Bo" variable_2="q_Bo" id="b4da8a"/>
+  </connection>
+  <connection component_1="SLCT4_ss" component_2="SLCT4_ss_param" id="b4da81">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4da8c"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4da8d"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4da8e"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4da8f"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4da90"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4da91"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4da92"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4da93"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4da94"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4da95"/>
+    <map_variables variable_1="E" variable_2="E" id="b4da96"/>
+  </connection>
+  <encapsulation id="b4da9f">
+    <component_ref component="SLCT4_ss_test" id="b4da97">
+      <component_ref component="SLCT4_ss" id="b4da98"/>
+      <component_ref component="SLCT4_ss_param" id="b4da99"/>
+    </component_ref>
+  </encapsulation>
+</model>

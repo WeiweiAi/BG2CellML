@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT6_ss_test" id="b4da55">
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT6_ss.cellml" id="b4da56">
+    <component component_ref="SLCT6_ss" name="SLCT6_ss" id="b4da5e"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT6_ss_param.cellml" id="b4da57">
+    <component component_ref="SLCT6_ss_param" name="SLCT6_ss_param" id="b4da5f"/>
+  </import>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da58">
+    <units units_ref="fmol" name="fmol" id="b4da59"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5a"/>
+    <units units_ref="C_per_mol" name="C_per_mol" id="b4da5b"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol" id="b4da5c"/>
+  </import>
+  <component name="SLCT6_ss_test" id="b4da5d">
+    <variable name="v_ss" units="fmol_per_sec" interface="private" id="b4da60"/>
+    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da61"/>
+    <variable name="q_HCO3i" units="fmol" interface="public_and_private" id="b4da62"/>
+    <variable name="q_HCO3o" units="fmol" interface="public_and_private" id="b4da63"/>
+    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da64"/>
+    <variable name="V_m" units="volt" interface="public_and_private" id="b4da65"/>
+    <variable name="F" units="C_per_mol" interface="public_and_private" id="b4da66"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public_and_private" id="b4da67"/>
+    <variable name="T" units="kelvin" interface="public_and_private" id="b4da68"/>
+    <variable name="E" units="fmol" interface="private" id="b4da69"/>
+  </component>
+  <component name="SLCT6_ss_input" id="b4dacd">
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4dace"/>
+    <variable name="q_HCO3i" units="fmol" initial_value="1" interface="public" id="b4dacf"/>
+    <variable name="q_HCO3o" units="fmol" initial_value="1" interface="public" id="b4dad0"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4dad1"/>
+    <variable name="V_m" units="volt" initial_value="1" interface="public" id="b4dad2"/>
+    <variable name="F" units="C_per_mol" initial_value="96485" interface="public" id="b4dad3"/>
+    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public" id="b4dad4"/>
+    <variable name="T" units="kelvin" initial_value="293" interface="public" id="b4dad5"/>
+  </component>
+  <connection component_1="SLCT6_ss_test" component_2="SLCT6_ss" id="b4da9f">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4daa2"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4daa3"/>
+    <map_variables variable_1="q_HCO3i" variable_2="q_HCO3i" id="b4daa5"/>
+    <map_variables variable_1="q_HCO3o" variable_2="q_HCO3o" id="b4daa7"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4daa9"/>
+    <map_variables variable_1="V_m" variable_2="V_m" id="b4daab"/>
+    <map_variables variable_1="F" variable_2="F" id="b4daad"/>
+    <map_variables variable_1="R" variable_2="R" id="b4daaf"/>
+    <map_variables variable_1="T" variable_2="T" id="b4dab1"/>
+    <map_variables variable_1="E" variable_2="E" id="b4dab3"/>
+  </connection>
+  <connection component_1="SLCT6_ss_test" component_2="SLCT6_ss_input" id="b4daa0">
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4daa4"/>
+    <map_variables variable_1="q_HCO3i" variable_2="q_HCO3i" id="b4daa6"/>
+    <map_variables variable_1="q_HCO3o" variable_2="q_HCO3o" id="b4daa8"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4daaa"/>
+    <map_variables variable_1="V_m" variable_2="V_m" id="b4daac"/>
+    <map_variables variable_1="F" variable_2="F" id="b4daae"/>
+    <map_variables variable_1="R" variable_2="R" id="b4dab0"/>
+    <map_variables variable_1="T" variable_2="T" id="b4dab2"/>
+  </connection>
+  <connection component_1="SLCT6_ss" component_2="SLCT6_ss_param" id="b4daa1">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4dab4"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4dab5"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4dab6"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4dab7"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4dab8"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4dab9"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4daba"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4dabb"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4dabc"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4dabd"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4dabe"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4dabf"/>
+    <map_variables variable_1="P_12" variable_2="P_12" id="b4dac0"/>
+    <map_variables variable_1="P_13" variable_2="P_13" id="b4dac1"/>
+    <map_variables variable_1="P_14" variable_2="P_14" id="b4dac2"/>
+    <map_variables variable_1="P_15" variable_2="P_15" id="b4dac3"/>
+    <map_variables variable_1="P_16" variable_2="P_16" id="b4dac4"/>
+    <map_variables variable_1="P_17" variable_2="P_17" id="b4dac5"/>
+    <map_variables variable_1="P_18" variable_2="P_18" id="b4dac6"/>
+    <map_variables variable_1="P_19" variable_2="P_19" id="b4dac7"/>
+    <map_variables variable_1="P_20" variable_2="P_20" id="b4dac8"/>
+    <map_variables variable_1="E" variable_2="E" id="b4dac9"/>
+  </connection>
+  <encapsulation id="b4dad6">
+    <component_ref component="SLCT6_ss_test" id="b4daca">
+      <component_ref component="SLCT6_ss" id="b4dacb"/>
+      <component_ref component="SLCT6_ss_param" id="b4dacc"/>
+    </component_ref>
+  </encapsulation>
+</model>
