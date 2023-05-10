@@ -50,7 +50,8 @@ def flatten_model(model, importer):
 
 def analyse_model(model):
     analyser = Analyser()
-    a = analyser.analyseModel(model).model()
+    analyser.analyseModel(model)
+    a = analyser.model()
     _dump_issues("analyse_model", analyser)
     return a
 
