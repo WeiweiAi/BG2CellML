@@ -1,8 +1,8 @@
 from libcellml import Component, Model, Units,  Variable
-from utilities import  ask_for_file_or_folder, load_matrix, infix_to_mathml,print_model
+from utilities import  ask_for_file_or_folder, load_matrix, infix_to_mathml
 import sys
 from pathlib import PurePath
-from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML_UI,writeCellML,import_setup, importComponents_default, getEntityList,editModel_default
+from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML_UI,writeCellML,import_setup, importComponents_default, getEntityList,editModel_default, writeCellML_default
 from sympy import *
 import numpy as np
 import networkx as nx
@@ -718,13 +718,14 @@ def writeModel(model_path, model, importSource_units, import_units_model, import
     editModel_default(model_path,model,importSource_units, import_units_model,importSources_comp, import_models,import_components_dicts,comp_pairs)
     file_name = model.name() + '.cellml'
     full_path = str(PurePath(model_path).joinpath(file_name))
-    writeCellML(full_path, model)
+    writeCellML_default(full_path, model)
 
 def build_models ():
     model_BG, model_BG_param, model_BG_test, CompName,CompType,ReName,ReType,N_f,N_r, name_f,component_BG_param, model_path=read_csvBG()
     model_ss, model_ss_param, model_BG_ss, model_ss_test, model_BG_ss_test, unitsSet = build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_param)
     full_path, units_model = parseCellML_UI()
-    updateUnitsFile(unitsSet, full_path, units_model)   
+    updateUnitsFile(unitsSet, full_path, units_model)  
+     
     simple_models = [model_BG,model_BG_param, model_ss, model_ss_param, model_BG_ss]
     for model in simple_models:
         importSource_units,import_units_model = import_setup(model_path,full_path)

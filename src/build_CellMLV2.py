@@ -571,6 +571,15 @@ def writeCellML(full_path, model):
     write_file.close()
     print('CellML model saved to:',full_path)
 
+def writeCellML_default(full_path, model): 
+    assignAllIds_default(model)    
+    printer = Printer()
+    serialised_model = printer.printModel(model)
+    write_file = open(full_path, "w")
+    write_file.write(serialised_model)
+    write_file.close()
+    print('CellML model saved to:',full_path)
+
 def writePythonCode_UI(model_path, model):
     message = f'If you want to change the default filename {model.name()}.py, please type the new name. Otherwise, just press Enter.'
     file_name = ask_for_input(message, 'Text')
@@ -698,7 +707,14 @@ def assignAllIds(model):
             fullpath = str(PurePath(directory).joinpath(filename))
             writeCellML(fullpath, model)
         """
-   
+def assignAllIds_default(model):
+    annotator = Annotator()
+    annotator.setModel(model)
+    annotator.clearAllIds()
+    annotator.assignAllIds()
+    duplicates = annotator.duplicateIds()
+    if len(duplicates) > 0: 
+        print('Warning: there are duplicate IDs.')   
 
 """ Create a model from a list of components. """
 def buildModel():
