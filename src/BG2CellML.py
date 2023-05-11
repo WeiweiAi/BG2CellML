@@ -2,7 +2,7 @@ from libcellml import Component, Model, Units,  Variable
 from utilities import  ask_for_file_or_folder, load_matrix, infix_to_mathml
 import sys
 from pathlib import PurePath
-from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML_UI,writeCellML,import_setup, importComponents_default, getEntityList,editModel_default, writeCellML_default
+from build_CellMLV2 import editModel, MATH_FOOTER, MATH_HEADER,addEquations, _defineUnits,parseCellML_UI,writeCellML,import_setup, importComponents_default, getEntityList,editModel_default, writeCellML_default, writePythonCode
 from sympy import *
 import numpy as np
 import networkx as nx
@@ -77,14 +77,14 @@ def add_BGcomp(model, name, type, voi = 't'):
         q_unit = Units(BG.dom[dom]['q'][1])
         q_init=Variable(q_init_name)
         q_init.setUnits(q_unit)
-        q_init.setInterfaceType(Variable.InterfaceType.PUBLIC)
+        q_init.setInterfaceType(Variable.InterfaceType.PUBLIC) # q_init is a parameter
         component.addVariable(q_init)
         component_param.addVariable(q_init.clone())
         q_name = BG.dom[dom]['q'][0]+ '_' + name
         q=Variable(q_name)
         q.setUnits(q_unit)
         q.setInitialValue(q_init)
-        component.addVariable(q)
+        component.addVariable(q) # q is a state variable
         e_name = BG.dom[dom]['e'][0]+ '_' + name
         e_unit = Units(BG.dom[dom]['e'][1])
         e=Variable(e_name)
@@ -92,13 +92,13 @@ def add_BGcomp(model, name, type, voi = 't'):
         component.addVariable(e)
         ode_var = f'{q.name()}'
         eq = f'{f.name()}'
-        component.appendMath(infix_to_mathml(eq, ode_var, voi))
+        component.appendMath(infix_to_mathml(eq, ode_var, voi)) # ode(q,t) = f
     if type in ['Se','Ve']:
         q_unit = Units(BG.dom[dom]['q'][1])
         q_name = BG.dom[dom]['q'][0]+ '_' + name
         q=Variable(q_name)
         q.setUnits(q_unit)
-        component.addVariable(q)
+        component.addVariable(q) # q is an input variable
         e_name = BG.dom[dom]['e'][0]+ '_' + name
         e_unit = Units(BG.dom[dom]['e'][1])
         e=Variable(e_name)
@@ -110,11 +110,11 @@ def add_BGcomp(model, name, type, voi = 't'):
     if type in ['Ce','Se']:   
         eq = f'R*T*ln({para.name()}*{q.name()})'
         ode_var = f'{e.name()}'          
-        component.appendMath(infix_to_mathml(eq, ode_var)) 
+        component.appendMath(infix_to_mathml(eq, ode_var)) # mu = R*T*ln(K*q)
     elif type in ['C','Ve']: 
-        eq = f'{f.name()}/{para.name()}'
+        eq = f'{q.name()}/{para.name()}'
         ode_var = f'{e.name()}'          
-        component.appendMath(infix_to_mathml(eq, ode_var))                                                                                                                                                   
+        component.appendMath(infix_to_mathml(eq, ode_var)) # V = q/C                                                                                                                                                  
     if type == 'Re':
         ein_name = BG.dom[dom]['e'][0]+ '_' + name+ '_in'
         eout_name = BG.dom[dom]['e'][0]+ '_' + name+ '_out'
@@ -136,8 +136,8 @@ def add_BGbond(model, comps, compd, Nf, Nr):
     for i,ecomp in enumerate(comps):
         name = ecomp[0]
         type = ecomp[1]
-        dom = BG.comp[type]['dom']
-        f_name = BG.dom[dom]['f'][0]+ '_' + name
+        comps_dom = BG.comp[type]['dom']
+        f_name = BG.dom[comps_dom]['f'][0]+ '_' + name
         ode_var = f'{f_name}'
         eq = []
         for j in range(len(Nf[0,:])):
@@ -146,26 +146,44 @@ def add_BGbond(model, comps, compd, Nf, Nr):
                 type = compd[j][1]
                 dom = BG.comp[type]['dom']
                 f_name = BG.dom[dom]['f'][0]+ '_' + name
-                if Nf[i,j] == '1':
-                    eq.append(f'-{f_name}')
+                if comps_dom == 'E': # convert from flux to current
+                    if Nf[i,j] == '1':
+                     eq.append(f'-F*{f_name}')
+                    else:
+                     eq.append(f'-{Nf[i,j]}*F*{f_name}')
                 else:
-                    eq.append(f'-{Nf[i,j]}*{f_name}')
+                    if Nf[i,j] == '1':
+                        eq.append(f'-{f_name}')
+                    else:
+                        eq.append(f'-{Nf[i,j]}*{f_name}')
         for j in range(len(Nr[0,:])):
             if Nr[i,j] != '0':
                 name = compd[j][0]
                 type = compd[j][1]
                 dom = BG.comp[type]['dom']
                 f_name = BG.dom[dom]['f'][0]+ '_' + name
-                if Nr[i,j] == '1':
-                    if len(eq) == 0:
-                        eq.append(f'{f_name}')
+                if comps_dom == 'E': # convert from flux to current
+                    if Nr[i,j] == '1':
+                        if len(eq) == 0:
+                            eq.append(f'F*{f_name}')
+                        else:
+                            eq.append(f'+F*{f_name}')
                     else:
-                        eq.append(f'+{f_name}')
+                        if len(eq) == 0:
+                            eq.append(f'{Nr[i,j]}*F*{f_name}')
+                        else:
+                            eq.append(f'+{Nr[i,j]}*F*{f_name}')
                 else:
-                    if len(eq) == 0:
-                        eq.append(f'{Nr[i,j]}*{f_name}')
+                    if Nr[i,j] == '1':
+                        if len(eq) == 0:
+                            eq.append(f'{f_name}')
+                        else:
+                            eq.append(f'+{f_name}')
                     else:
-                        eq.append(f'+{Nr[i,j]}*{f_name}')
+                        if len(eq) == 0:
+                            eq.append(f'{Nr[i,j]}*{f_name}')
+                        else:
+                            eq.append(f'+{Nr[i,j]}*{f_name}')
                         
         component.appendMath(infix_to_mathml(''.join(eq), ode_var))
     # Add the one nodes, i.e., energy balance equations
@@ -185,32 +203,56 @@ def add_BGbond(model, comps, compd, Nf, Nr):
                 type = comps[i][1]
                 dom = BG.comp[type]['dom']
                 e_name = BG.dom[dom]['e'][0]+ '_' + name
-                if Nf[i,j] == '1':
-                    if len(eqin) == 0:
-                        eqin.append(f'{e_name}')
+                if dom == 'E': # convert from voltage to chemical potential
+                    if Nf[i,j] == '1':
+                        if len(eqin) == 0:
+                            eqin.append(f'F*{e_name}')
+                        else:
+                            eqin.append(f'+F*{e_name}')
                     else:
-                        eqin.append(f'+{e_name}')
+                        if len(eqin) == 0:
+                            eqin.append(f'{Nf[i,j]}*F*{e_name}')
+                        else:
+                            eqin.append(f'+{Nf[i,j]}*F*{e_name}')
                 else:
-                    if len(eqin) == 0:
-                        eqin.append(f'{Nf[i,j]}*{e_name}')
+                    if Nf[i,j] == '1':
+                        if len(eqin) == 0:
+                            eqin.append(f'{e_name}')
+                        else:
+                            eqin.append(f'+{e_name}')
                     else:
-                        eqin.append(f'+{Nf[i,j]}*{e_name}')
+                        if len(eqin) == 0:
+                            eqin.append(f'{Nf[i,j]}*{e_name}')
+                        else:
+                            eqin.append(f'+{Nf[i,j]}*{e_name}')
         for i in range(len(Nr[:,0])):
             if Nr[i,j] != '0':
                 name = comps[i][0]
                 type = comps[i][1]
                 dom = BG.comp[type]['dom']
                 e_name = BG.dom[dom]['e'][0]+ '_' + name
-                if Nr[i,j] == '1':
-                    if len(eqout) == 0:
-                        eqout.append(f'{e_name}')
+                if dom == 'E': # convert from voltage to chemical potential
+                    if Nr[i,j] == '1':
+                        if len(eqout) == 0:
+                            eqout.append(f'F*{e_name}')
+                        else:
+                            eqout.append(f'+F*{e_name}')
                     else:
-                        eqout.append(f'+{e_name}')
+                        if len(eqout) == 0:
+                            eqout.append(f'{Nr[i,j]}*F*{e_name}')
+                        else:
+                            eqout.append(f'+{Nr[i,j]}*F*{e_name}')
                 else:
-                    if len(eqout) == 0:
-                        eqout.append(f'{Nr[i,j]}*{e_name}')
+                    if Nr[i,j] == '1':
+                        if len(eqout) == 0:
+                            eqout.append(f'{e_name}')
+                        else:
+                            eqout.append(f'+{e_name}')
                     else:
-                        eqout.append(f'+{Nr[i,j]}*{e_name}')
+                        if len(eqout) == 0:
+                            eqout.append(f'{Nr[i,j]}*{e_name}')
+                        else:
+                            eqout.append(f'+{Nr[i,j]}*{e_name}')
 
         component.appendMath(infix_to_mathml(''.join(eqin), ode_var_in))
         component.appendMath(infix_to_mathml(''.join(eqout), ode_var_out))
@@ -258,7 +300,7 @@ def read_csvBG():
     vars=getEntityList(model_BG,component.name())
     for var in vars:
         var_list=var.split('_')
-        if component.variable(var).interfaceType() == 'public' and  'v' in var_list:
+        if component.variable(var).interfaceType() == 'public' and  ('v' in var_list or 'I' in var_list):
             component_BG_test.addVariable(component.variable(var).clone())
         elif component.variable(var).interfaceType() == 'public' and 'q' in var_list and 'init' not in var_list:
             component_BG_test.addVariable(component.variable(var).clone())
@@ -621,6 +663,7 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
             unit_name = BG.const[const_name][1]
             u=Units(unit_name)
             var_const.setUnits(u)
+            var_const.setInterfaceType(Variable.InterfaceType.PUBLIC)
             component.addVariable(var_const)
 
     def add_const_to_component_param(component_param):
@@ -632,6 +675,7 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
             var_const.setUnits(u)
             param_const = var_const.clone()
             param_const.setInitialValue(BG.const[const_name][0])
+            param_const.setInterfaceType(Variable.InterfaceType.PUBLIC)
             component_param.addVariable(param_const)
 
 
@@ -668,8 +712,6 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
         component_ss.addVariable(var_q)
 
     component_ss_param.addVariable(var_E.clone()) # E  
-    component_ss_test.addVariable(var_E.clone()) # E 
-    component_BG_ss_test.addVariable(var_E.clone()) # E 
           
     for var_num in range(component_ss_param.variableCount()):
         component_ss_param.variable(var_num).setInitialValue(1)
@@ -719,16 +761,19 @@ def writeModel(model_path, model, importSource_units, import_units_model, import
     file_name = model.name() + '.cellml'
     full_path = str(PurePath(model_path).joinpath(file_name))
     writeCellML_default(full_path, model)
+    python_file_name = model.name() + '.py'
+    python_file_path = str(PurePath(model_path).joinpath(python_file_name))
+    writePythonCode(python_file_path, model)
 
 def build_models ():
     model_BG, model_BG_param, model_BG_test, CompName,CompType,ReName,ReType,N_f,N_r, name_f,component_BG_param, model_path=read_csvBG()
     model_ss, model_ss_param, model_BG_ss, model_ss_test, model_BG_ss_test, unitsSet = build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_param)
-    full_path, units_model = parseCellML_UI()
-    updateUnitsFile(unitsSet, full_path, units_model)  
+    units_full_path, units_model = parseCellML_UI()
+    updateUnitsFile(unitsSet, units_full_path, units_model)  
      
     simple_models = [model_BG,model_BG_param, model_ss, model_ss_param, model_BG_ss]
     for model in simple_models:
-        importSource_units,import_units_model = import_setup(model_path,full_path)
+        importSource_units,import_units_model = import_setup(model_path,units_full_path)
         writeModelwithUnits(model_path, model,importSource_units,import_units_model)
     
     print('model_BG_test, import the model_BG and model_BG_param')
@@ -741,6 +786,7 @@ def build_models ():
         importSources_comps.append(importSources_comp)
         import_models.append(import_model)
         import_components_dicts.append(import_components_dict)
+    importSource_units,import_units_model = import_setup(model_path,units_full_path)
     writeModel(model_path, model_BG_test, importSource_units,import_units_model, importSources_comps, import_models, import_components_dicts,comp_pairs)   
 
     print('model_ss_test, import the model_ss and model_ss_param')
@@ -753,7 +799,7 @@ def build_models ():
         importSources_comps.append(importSources_comp)
         import_models.append(import_model)
         import_components_dicts.append(import_components_dict)
-    
+    importSource_units,import_units_model = import_setup(model_path,units_full_path)
     writeModel(model_path, model_ss_test, importSource_units, import_units_model, importSources_comps, import_models, import_components_dicts,comp_pairs)
     print('model_ss_test_inOne, no import')
     model_ss_test1= Model(model_ss_test.name()+'_inOne')
@@ -769,6 +815,7 @@ def build_models ():
     model_ss_test1.addComponent(component_ss_input1)
     comp_pairs=[(model_ss.name(),model_ss_param.name()),(model_ss.name(),model_ss_test1.name()),(model_ss.name()+'_input',model_ss_test1.name())]
     importSources_comps, import_models, import_components_dicts = [], [],[]
+    importSource_units,import_units_model = import_setup(model_path,units_full_path)
     writeModel(model_path, model_ss_test1, importSource_units, import_units_model, importSources_comps, import_models, import_components_dicts,comp_pairs)
     
     print('model_BG_ss_test, import the model_BG_param, model_BG_ss and model_ss')
@@ -781,6 +828,7 @@ def build_models ():
         importSources_comps.append(importSources_comp)
         import_models.append(import_model)
         import_components_dicts.append(import_components_dict)
+    importSource_units,import_units_model = import_setup(model_path,units_full_path)
     writeModel(model_path, model_BG_ss_test, importSource_units,import_units_model, importSources_comps, import_models, import_components_dicts,comp_pairs)
                           
 # main function

@@ -504,7 +504,7 @@ def _defineUnits(iunitsName):
             else:
                 multiplier = 1.0   
             if prefix == '':
-                prefix = 1   
+                prefix = 0   
             if unitName in BUILTIN_UNITS:
                 iunits.addUnit(BUILTIN_UNITS[unitName], prefix, exponent, multiplier)
             else:
