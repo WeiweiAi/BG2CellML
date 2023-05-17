@@ -1,7 +1,7 @@
-from build_CellMLV2 import getEntityID, getEntityName_UI
+from build_CellMLV2 import getEntityID
 from BG2CellML import BG
 from libcellml import Units
-from utilities import ask_for_input, ask_for_file_or_folder
+from utilities import ask_for_input
 import cellml
 from pathlib import PurePath 
 from rdflib import Graph, Namespace, Literal
@@ -254,68 +254,98 @@ class RDF_Editor():
         self.add_identity_triple(sink_entity,chemical_term)
         self.add_anatomy_triple(sink_entity,anatomy_term)
 
-    def annotate_mediator(self,comp_name,quantity_var, protein_term, anatomy_term,process_entity,mediator_entity):
-        self.annotate_quantity(comp_name,quantity_var)
-        subj=self.getNode_model(comp_name, quantity_var)
+    def annotate_mediator(self,comp_name,processID,mediatorDict):
+        # mediatorDict: {'flux_var': flux_var, 'quantity_var': quantity_var, 'protein_term': protein_term, 'anatomy_term': anatomy_term}
+        process_entity = self.getProcessEntity(processID)
+        mediator_entity = self.getMediatorEntity(processID)
+        self.annotate_flux(comp_name,mediatorDict['flux_var'],process_entity) 
+        self.annotate_quantity(comp_name,mediatorDict['quantity_var'])
+        subj=self.getNode_model(comp_name, mediatorDict['quantity_var'])
         self.add_property_triple(subj,mediator_entity)
         pred = self.prefix_NAMESPACE_local['semsim']['hasMediatorParticipant']
         self.rdf_g.add((process_entity, pred, mediator_entity))
-        self.add_identity_triple(mediator_entity,protein_term)
-        self.add_anatomy_triple(mediator_entity,anatomy_term)
+        self.add_identity_triple(mediator_entity,mediatorDict['protein_term'])
+        self.add_anatomy_triple(mediator_entity,mediatorDict['anatomy_term'])
     
-    # -----------------------  annotate transport processes based on user inputs ---------------------------------------
-    def annotate_bioProcess(self,comp_name):
-        process_id =0
-        flux_vars = self. getVars_byUnits(comp_name, BG.v_Ch_1)
-        quantity_vars = self.getVars_byUnits(comp_name, BG.q_Ch_1)
-        while True:          
-            message = f'Please select the flux variable of the process'
-            flux_var = self.selectVar_UI(message, flux_vars)
-            process_entity = self.getProcessEntity(process_id)                 
-            self.annotate_flux(comp_name,flux_var,process_entity)
-            message = f'Please select the molar amount variable of the transporter'
-            quantity_mediator = self.selectVar_UI(message, quantity_vars)
-            mediator_entity = self.getMediatorEntity(process_id)
-            message = f'Please select the name of the transporter'
-            protein_term= self.getTermID_UI('uniprot',message)
-            protein_term_node =self.getNode_ontology('uniprot', protein_term)
-            message = f'Please select subcellular location of the transporter'
-            anatomy_term= self.getTermID_UI('go',message)
-            anatomy_term_node =self.getNode_ontology('go', anatomy_term)
-            self.annotate_mediator(comp_name,quantity_mediator, protein_term_node, anatomy_term_node,process_entity,mediator_entity)
-            participant_id = 0
-            while True:
-                entity_id = f'{process_id}_{participant_id}'
-                message = f'Please select the transported species name'
-                chemical_term= self.getTermID_UI('chebi',message)
-                chemical_term_node =self.getNode_ontology('chebi', chemical_term)
-                message = f'Please select the molar amount variable of the source participant'
-                quantity_source = self.selectVar_UI(message, quantity_vars)
-                source_entity = self.getSourceEntity(entity_id)
-                multiplier_input = ask_for_input('Please enter the stoichiometric coefficient of the source participant', 'Text')               
-                message = f'Please select the subcellular location of the source participant'
-                anatomy_term= self.getTermID_UI('go',message) 
-                anatomy_term_node =self.getNode_ontology('go', anatomy_term)               
-                self.annotate_source(comp_name,quantity_source,multiplier_input,chemical_term_node,anatomy_term_node,process_entity,source_entity)
-                message = f'Please select the molar amount variable of the sink participant'
-                quantity_sink = self.selectVar_UI(message, quantity_vars)
-                sink_entity = self.getSinkEntity(entity_id)
-                multiplier_input = ask_for_input('Please enter the stoichiometric coefficient of the sink participant', 'Text')
-                message = f'Please select the subcellular location of the sink participant'
-                anatomy_term= self.getTermID_UI('go',message)
-                anatomy_term_node =self.getNode_ontology('go', anatomy_term)
-                self.annotate_sink(comp_name,quantity_sink,multiplier_input,chemical_term_node,anatomy_term_node,process_entity,sink_entity)
+    def annotate_sources(self,comp_name,processID,sourceDict):
+        # sourceDict: [{'quantity_var': quantity_var, 'stoichiometric_coefficient': stoichiometric_coefficient, 'chemical_term': chemical_term, 'anatomy_term': anatomy_term}, {},...]
+        process_entity = self.getProcessEntity(processID)
+        sourceID_subfix = 0       
+        for arg in sourceDict:
+            quantity_var = arg['quantity_var']
+            multiplier_input = arg['stoichiometric_coefficient']
+            chemical_term = arg['chemical_term']
+            anatomy_term = arg['anatomy_term']
+            sourceID= f'{processID}_{sourceID_subfix}'
+            source_entity=self.getSourceEntity(sourceID)
+            self.annotate_source(comp_name,quantity_var,multiplier_input,chemical_term,anatomy_term,process_entity,source_entity)
+            sourceID_subfix += 1 
 
-                message = 'Do you want to add another species?'
-                if ask_for_input(message, 'Confirm'):
-                    participant_id += 1
-                else:
-                    break
-            message = 'Do you want to add another process?'
-            if ask_for_input(message, 'Confirm'):
-                process_id += 1
-            else:
-                break  
+    def annotate_sinks(self,comp_name,processID,sinkDict):
+        # sinkDict: 
+        process_entity = self.getProcessEntity(processID)
+        sinkID_subfix = 0       
+        for arg in sinkDict:
+            quantity_var = arg['quantity_var']
+            multiplier_input = arg['stoichiometric_coefficient']
+            chemical_term = arg['chemical_term']
+            anatomy_term = arg['anatomy_term']
+            sinkID= f'{processID}_{sinkID_subfix}'
+            sink_entity=self.getSinkEntity(sinkID)
+            self.annotate_sink(comp_name,quantity_var,multiplier_input,chemical_term,anatomy_term,process_entity,sink_entity)
+            sinkID_subfix += 1
+    
+    def annotate_bioProcess(self,comp_name,processID, mediatorDict,sourceDict,sinkDict):
+        self.annotate_mediator(comp_name,processID,mediatorDict)
+        self.annotate_sources(comp_name,processID,sourceDict)
+        self.annotate_sinks(comp_name,processID,sinkDict)
+    
+    def build_mediatorDict(self,mediator):
+        # input: mediator=[flux_var, quantity_var,protein_term,anatomy_term]
+        # By default, using uniprot and go as the ontology for protein and anatomy terms,respectively
+        protein_term_node =self.getNode_ontology('uniprot', mediator[2])
+        anatomy_term_node =self.getNode_ontology('go', mediator[3])
+        mediatorDict = {'flux_var': mediator[0], 'quantity_var': mediator[1], 'protein_term': protein_term_node, 'anatomy_term': anatomy_term_node}
+        return mediatorDict
+    
+    def build_participantsDict(self,participants):
+        # input: participants=[[quantity_var, stoichiometric_coefficient,chemical_term,anatomy_term],[],...]
+        # By default, using chebi and go as the ontology for chemical and anatomy terms,respectively
+        participantsDict = []
+        for i in range(len(participants)):
+            quantity_var = participants[i][0]
+            stoichiometric_coefficient = participants[i][1]
+            chemical_term_node =self.getNode_ontology('chebi', participants[i][2])
+            anatomy_term_node =self.getNode_ontology('go', participants[i][3])
+            participantDict = {'quantity_var': quantity_var, 'stoichiometric_coefficient': stoichiometric_coefficient, 'chemical_term': chemical_term_node, 'anatomy_term': anatomy_term_node}
+            participantsDict.append(participantDict)
+        return participantsDict
+
+    def build_mediatorDict_UI(self,flux_vars, quantity_vars):
+        message = f'Please select the flux variable of the process'
+        flux_var = self.selectVar_UI(message, flux_vars)
+        message = f'Please select the molar amount variable of the transporter'
+        quantity_var = self.selectVar_UI(message, quantity_vars)
+        message = f'Please select the name of the transporter'
+        protein_term= self.getTermID_UI('uniprot',message)
+        protein_term_node =self.getNode_ontology('uniprot', protein_term)
+        message = f'Please select subcellular location of the transporter'
+        anatomy_term= self.getTermID_UI('go',message)
+        anatomy_term_node =self.getNode_ontology('go', anatomy_term)
+        mediatorDict = {'flux_var': flux_var, 'quantity_var': quantity_var, 'protein_term': protein_term_node, 'anatomy_term': anatomy_term_node}
+        return mediatorDict
+    
+    def build_participantsDict_UI(self,quantity_vars):
+        for quantity_var in quantity_vars:
+            message = f'Please select the transported species name of the quantity variable {quantity_var}'
+            chemical_term= self.getTermID_UI('chebi',message)
+            chemical_term_node =self.getNode_ontology('chebi', chemical_term)
+            stoichiometric_coefficient = ask_for_input('Please enter the stoichiometric coefficient of the source participant', 'Text')               
+            message = f'Please select the subcellular location of the source participant'
+            anatomy_term= self.getTermID_UI('go',message) 
+            anatomy_term_node =self.getNode_ontology('go', anatomy_term)
+            participantDict = {'quantity_var': quantity_var, 'stoichiometric_coefficient': stoichiometric_coefficient, 'chemical_term': chemical_term_node, 'anatomy_term': anatomy_term_node}
+            return participantDict  
               
     def save_graph(self):
         # Save the RDF triples to a file
@@ -331,16 +361,20 @@ class RDF_Editor():
 if __name__ == "__main__":
 
     rdf_g = RDF_Graph()
-    filename = ask_for_file_or_folder('Please select the CellML file')
+    filename = 'SLCT3V_ss_test_inOne.cellml'
+    foldername = 'C:/Users/wai484/Documents/BG2CellML/test/cellml/SLC_SS'
+    filename = PurePath(foldername).joinpath(filename)
     rdf_editor = RDF_Editor(rdf_g,filename)
-    while True:
-       comp_name= getEntityName_UI(rdf_editor.model)
-       rdf_editor.annotate_bioProcess(comp_name)
-       message = 'Do you want to annotate another component?'
-       if not ask_for_input(message, 'Confirm'):
-            if ask_for_input('Do you want to save the RDF triples?', 'Confirm'):
-               rdf_editor.save_graph()
-            break
+    comp_name = 'SLCT3V_ss'
+    mediator=['v_ss', 'E','P11166','0005886']
+    sources=[['q_Ao','1','4167','0005615']]
+    sinks=[['q_Ai','1','4167','0005829']]
+    mediatorDict = rdf_editor.build_mediatorDict(mediator)
+    sourceDict = rdf_editor.build_participantsDict(sources)
+    sinkDict = rdf_editor.build_participantsDict(sinks)
+    rdf_editor.annotate_bioProcess(comp_name,1, mediatorDict,sourceDict,sinkDict)
+    rdf_editor.save_graph()
+    
     
     
 
