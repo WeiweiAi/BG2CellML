@@ -356,7 +356,39 @@ class RDF_Editor():
         
     def get_graph(self):
         return self.rdf_g
-           
+
+def get_bioProcess(rdf_g):
+    # search for all biological processes in the RDF graph
+    # return: a list of biological processes in the RDF graph [{'cellml_path': cellml_path,'mediator': mediator, 'sources': sources, 'sinks': sinks}] 
+    # mediator: (flux_varID, mediator_term, mediator_location)
+    # sources: [(source_varID, stoichiometric_coefficient, chemical_term, anatomy_term),...]
+    # sinks: [(sink_varID, stoichiometric_coefficient, chemical_term, anatomy_term),...]    
+    bioProcesses = []
+    for local_proc in rdf_g.subjects(RDF_Graph.prefix_NAMESPACE['semsim']['hasMediatorParticipant'],None):
+        for flux_var in rdf_g.subjects(None, local_proc):
+            flux_varID = flux_var.fragment
+            cellml_path = flux_var.n3().split('#')[0].strip('<>')
+        local_mediator = rdf_g.value(local_proc, RDF_Graph.prefix_NAMESPACE['semsim']['hasMediatorParticipant'], None)
+        mediator_term = rdf_g.value(local_mediator, RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf'],None).n3()
+        anatomy_term = rdf_g.value(local_mediator, RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf'],None).n3()
+        mediator = (flux_varID, mediator_term, anatomy_term)
+        sources=[]
+        for local_source in rdf_g.objects(local_proc,RDF_Graph.prefix_NAMESPACE['semsim']['hasSourceParticipant']):
+            source_varID = rdf_g.value(None,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPropertyOf'], local_source).fragment
+            coef = rdf_g.value(local_source, RDF_Graph.prefix_NAMESPACE['semsim']['hasMultiplier']).toPython()
+            anatomy_term = rdf_g.value(local_source, RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf']).n3()
+            chemical_term = rdf_g.value(local_source, RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']).n3()
+            sources.append((source_varID,coef,chemical_term, anatomy_term))
+        sinks=[]
+        for local_sink in rdf_g.objects(local_proc,RDF_Graph.prefix_NAMESPACE['semsim']['hasSinkParticipant']):
+            sink_varID = rdf_g.value(None,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPropertyOf'], local_sink).fragment
+            coef = rdf_g.value(local_sink, RDF_Graph.prefix_NAMESPACE['semsim']['hasMultiplier']).toPython()
+            anatomy_term = rdf_g.value(local_sink, RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf']).n3()
+            chemical_term = rdf_g.value(local_sink, RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']).n3()
+            sinks.append((sink_varID,coef,chemical_term, anatomy_term))
+        bioProcesses.append({'cellml_path': cellml_path,'mediator': mediator, 'sources': sources, 'sinks':sinks})
+    return bioProcesses
+
 # main function for testing
 if __name__ == "__main__":
 
@@ -372,8 +404,9 @@ if __name__ == "__main__":
     mediatorDict = rdf_editor.build_mediatorDict(mediator)
     sourceDict = rdf_editor.build_participantsDict(sources)
     sinkDict = rdf_editor.build_participantsDict(sinks)
-    rdf_editor.annotate_bioProcess(comp_name,1, mediatorDict,sourceDict,sinkDict)
+    rdf_editor.annotate_bioProcess(comp_name,0, mediatorDict,sourceDict,sinkDict)
     rdf_editor.save_graph()
+    get_bioProcess(rdf_g)
     
     
     
