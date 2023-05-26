@@ -1,19 +1,33 @@
-from build_CellMLV2 import getEntityID
-from BG2CellML import BG
-from libcellml import Units
-from utilities import ask_for_input
+# Description: This script is used to annotate a CellML model with RDF metadata. It is based on the CellML 2.0 specification.
 import cellml
 from pathlib import PurePath 
 from rdflib import Graph, Namespace, Literal
 from rdflib.namespace import RDF, FOAF,  DCTERMS, XSD
-
+from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
+import networkx as nx
+from utilities import print_model
+def getEntityID(model, comp_name=None, var_name=None):
+    # input: model, the CellML model object
+    #        comp_name, the CellML component name
+    #        var_name, the CellML variable name
+    # output: the ID of the entity.
+    # if the component name is not provided, the ID of the model is returned; 
+    # if the variable name is not provided, the ID of the component is returned; 
+    # if both the component name and the variable name are provided, the ID of the variable is returned
+    if comp_name is None:
+        return model.id()
+    elif var_name is None:
+        return model.component(comp_name).id()
+    else:
+        return model.component(comp_name).variable(var_name).id()
 class Qualifiers():
     # Hard-coded qualifiers
     # todo: could retrieve these from relevant specifications
     bqmodel_qualifiers = ['is']
     bqbiol_qualifiers=['isPartOf','hasPart','isPropertyOf','hasProperty','isVersionOf','hasVersion','occursIn']
     semsim_qualifiers = ['hasMediatorParticipant','hasSinkParticipant','hasSourceParticipant','hasMultiplier','hasPhysicalEntityReference','isProductOf','isReactantOf']
-    prefix_qualifier = {'bqmodel':bqmodel_qualifiers,'bqbiol':bqbiol_qualifiers,'semsim':semsim_qualifiers}
+    dc_predicates = ['description','creator','created','contributor']
+    prefix_qualifier = {'bqmodel':bqmodel_qualifiers,'bqbiol':bqbiol_qualifiers,'semsim':semsim_qualifiers,'dcterms':dc_predicates}
 
 class LocalOntology():
     # Hard-coded local ontology
@@ -36,13 +50,13 @@ class RDF_Graph(Graph):
     PUBMED = Namespace('http://identifiers.org/pubmed:')
     NCBI_TAXONOMY = Namespace('http://identifiers.org/taxonomy:')
     BIOMOD = Namespace('http://identifiers.org/biomodels.db:')
-    CHEBI = Namespace('http://identifiers.org/chebi/CHEBI:')
+    CHEBI = Namespace('http://identifiers.org/CHEBI:')
     UNIPROT = Namespace('http://identifiers.org/uniprot:')
     OPB = Namespace('http://identifiers.org/opb:')
     FMA = Namespace('http://identifiers.org/FMA:')
     GO = Namespace('http://identifiers.org/GO:')
     SEMSIM = Namespace('http://bime.uw.edu/semsim/')
-    prefix_NAMESPACE = {'rdf':RDF,'foaf':FOAF,'dc':DCTERMS, 'orcid':ORCID, 'bqmodel':BQMODEL,'bqbiol':BQBIOL, 'pubmed':PUBMED,'NCBI_Taxon':NCBI_TAXONOMY,
+    prefix_NAMESPACE = {'rdf':RDF,'foaf':FOAF,'dcterms':DCTERMS, 'orcid':ORCID, 'bqmodel':BQMODEL,'bqbiol':BQBIOL, 'pubmed':PUBMED,'NCBI_Taxon':NCBI_TAXONOMY,
                         'biomod':BIOMOD, 'chebi':CHEBI,'uniprot':UNIPROT,'opb':OPB,'fma':FMA,'go':GO, 'semsim':SEMSIM}
 
     def __init__(self):
@@ -52,7 +66,7 @@ class RDF_Graph(Graph):
         self.bind('orcid', self.ORCID)
         self.bind('rdf', RDF)
         self.bind('foaf', FOAF)
-        self.bind('dc', DCTERMS)
+        self.bind('dcterms', DCTERMS)
         self.bind('bqmodel', self.BQMODEL)
         self.bind('bqbiol', self.BQBIOL)
         self.bind('pubmed', self.PUBMED)
@@ -84,7 +98,11 @@ class RDF_Editor():
         rdf_g.bind('local', LOCAL)   
         rdf_g.bind('model_base', MODEL_BASE)
         self.prefix_NAMESPACE_local = RDF_Graph.prefix_NAMESPACE|{'local':LOCAL,'model_base':MODEL_BASE}
-        self.rdf_g = rdf_g        
+        self.rdf_g = rdf_g 
+        model_entity = self.getNode_model()
+        dc_pred = RDF_Graph.prefix_NAMESPACE['dcterms']['description']
+        description = Literal('Built for automatic model composition project', datatype=XSD.string)
+        self.rdf_g.add((model_entity, dc_pred, description))       
     # -----------------------  RDF node editing functions -----------------------
     def getNode_local(self,subnode):
         # output: node, the RDF URI node of the local entity
@@ -137,43 +155,6 @@ class RDF_Editor():
         # output: sink_entity, the RDF URI node of the sink entity
         sink_entity = self.prefix_NAMESPACE_local['local'][f'Sink_{entity_id}']
         return sink_entity
-    # ----------------------- User interfaces for RDF node creation -----------------------
-    # Provide a variable list for the user to select the variable to be annotated
-    # The variables are grouped by the compatible units, which can be used to infer the biological meaning of the variable,
-    # e.g., the variable with the unit of fmol can be annotated as the molar amount of a chemical species.
-    def getVars_byUnits(self,comp_name, units):
-        # input: comp_name, the CellML component name
-        #        units, the units of the expected returned variables      
-        # output: vars, the list of the  variables, which are the variables with the units compatible with input units       
-        variables = [self.model.component(comp_name).variable(var_numb).name() for var_numb in range(self.model.component(comp_name).variableCount())]
-        vars =[var for var in variables if Units. compatible (self.flatModel.component(comp_name).variable(var).units(),units)]
-        return vars
-    
-    def getLocalEntityName_UI(self):
-        message = 'Please type the local entity name'
-        return ask_for_input(message, 'Text')
-    
-    def selectVar_UI(self,message, var_list):
-        return ask_for_input(message, 'List', var_list)
-   
-    def getDatabase_UI(self):
-        message = 'Please select the database'
-        return ask_for_input(message, 'List', LocalOntology.db_list)
-    
-    def getTermID_UI(self,database, message):
-        choices = [key +':'+ val for key,val in LocalOntology.db_terms[database].items()]
-        term_selected = ask_for_input(message, 'List', choices)
-        return term_selected.split(':')[0]
-    
-    def getQualifier_UI(self):
-        message = 'Please select the prefix of the predicate'
-        choices = list(Qualifiers.prefix_qualifier.keys())
-        base = ask_for_input(message, 'List', choices)
-        message = 'Please select the qualifier'
-        choices = Qualifiers.prefix_qualifier[base]
-        subnode = ask_for_input(message, 'List', choices)
-        return base, subnode
-    
     # -----------------------  RDF triple editing functions with hard-coded items for biological process annotation-----------------------
     def add_triple(self, subject, predicate, object):
         # input: subject, the RDF URI node of the subject
@@ -229,123 +210,99 @@ class RDF_Editor():
         term_id = 'OPB_00425'
         obj= self.getNode_ontology(database, term_id)       
         self.add_identity_triple(subj, obj)
-       
-    def annotate_source(self,comp_name,quantity_var,multiplier_input,chemical_term,anatomy_term,process_entity,source_entity):
-        self.annotate_quantity(comp_name,quantity_var)
-        subj=self.getNode_model(comp_name, quantity_var)
-        self.add_property_triple(subj,source_entity)
-        pred = self.prefix_NAMESPACE_local['semsim']['hasSourceParticipant']
-        self.rdf_g.add((process_entity, pred, source_entity))
-        pred = self.prefix_NAMESPACE_local['semsim']['hasMultiplier']
-        mulitplier = Literal(multiplier_input, datatype=XSD.float)
-        self.rdf_g.add((source_entity, pred, mulitplier))
-        self.add_identity_triple(source_entity,chemical_term)
-        self.add_anatomy_triple(source_entity,anatomy_term)
     
-    def annotate_sink(self,comp_name,quantity_var,multiplier_input,chemical_term,anatomy_term,process_entity,sink_entity):
-        self.annotate_quantity(comp_name,quantity_var)
-        subj=self.getNode_model(comp_name, quantity_var)
-        self.add_property_triple(subj,sink_entity)
-        pred = self.prefix_NAMESPACE_local['semsim']['hasSinkParticipant']
-        self.rdf_g.add((process_entity, pred, sink_entity))
-        pred = self.prefix_NAMESPACE_local['semsim']['hasMultiplier']
-        mulitplier = Literal(multiplier_input, datatype=XSD.float)
-        self.rdf_g.add((sink_entity, pred, mulitplier))
-        self.add_identity_triple(sink_entity,chemical_term)
-        self.add_anatomy_triple(sink_entity,anatomy_term)
-
     def annotate_mediator(self,comp_name,processID,mediatorDict):
-        # mediatorDict: {'flux_var': flux_var, 'quantity_var': quantity_var, 'protein_term': protein_term, 'anatomy_term': anatomy_term}
+        # mediatorDict: {'v_ss':{'physics':[('opb','OPB_00592')],'chemical terms':[('uniprot','P11166')],'anatomy terms': [('go','0005886')]}}
         process_entity = self.getProcessEntity(processID)
         mediator_entity = self.getMediatorEntity(processID)
-        self.annotate_flux(comp_name,mediatorDict['flux_var'],process_entity) 
-        self.annotate_quantity(comp_name,mediatorDict['quantity_var'])
-        subj=self.getNode_model(comp_name, mediatorDict['quantity_var'])
-        self.add_property_triple(subj,mediator_entity)
+        flux_var = list(mediatorDict.keys())[0]
+        if  flux_var:
+            subj = self.getNode_model(comp_name, flux_var)
+            self.add_property_triple(subj, process_entity)
+            for flux_physics in mediatorDict[flux_var]['physics']:           
+               obj= self.getNode_ontology(flux_physics[0], flux_physics[1])       
+               self.add_identity_triple(subj, obj)                             
+        else:
+            print('A flux variable is needed for the bioprocess.')
+            return
         pred = self.prefix_NAMESPACE_local['semsim']['hasMediatorParticipant']
         self.rdf_g.add((process_entity, pred, mediator_entity))
-        self.add_identity_triple(mediator_entity,mediatorDict['protein_term'])
-        self.add_anatomy_triple(mediator_entity,mediatorDict['anatomy_term'])
+        for chemical_term in mediatorDict[flux_var]['chemical terms']:
+            chemical_term_node =self.getNode_ontology(chemical_term[0], chemical_term[1])
+            self.add_identity_triple(mediator_entity,chemical_term_node)
+        for anatomy_term in mediatorDict[flux_var]['anatomy terms']:
+            anatomy_term_node =self.getNode_ontology(anatomy_term[0],anatomy_term[1])
+            self.add_anatomy_triple(mediator_entity,anatomy_term_node)
     
     def annotate_sources(self,comp_name,processID,sourceDict):
-        # sourceDict: [{'quantity_var': quantity_var, 'stoichiometric_coefficient': stoichiometric_coefficient, 'chemical_term': chemical_term, 'anatomy_term': anatomy_term}, {},...]
+        # sourceDict: sourceDict={'q_Ao':{'proportionality':1,'physics':[('opb','OPB_00425')] ,'chemical terms':[('chebi','4167')],'anatomy terms': [('go','0005615')]}}
         process_entity = self.getProcessEntity(processID)
-        sourceID_subfix = 0       
-        for arg in sourceDict:
-            quantity_var = arg['quantity_var']
-            multiplier_input = arg['stoichiometric_coefficient']
-            chemical_term = arg['chemical_term']
-            anatomy_term = arg['anatomy_term']
+        sourceID_subfix = 0
+        quantity_var_list = list(sourceDict.keys())
+        if len(quantity_var_list) == 0:
+            print('A quantity variable is needed for the bioprocess.')
+            return       
+        for quantity_var in quantity_var_list:
+            subj = self.getNode_model(comp_name, quantity_var)
             sourceID= f'{processID}_{sourceID_subfix}'
-            source_entity=self.getSourceEntity(sourceID)
-            self.annotate_source(comp_name,quantity_var,multiplier_input,chemical_term,anatomy_term,process_entity,source_entity)
-            sourceID_subfix += 1 
+            source_entity=self.getSourceEntity(sourceID)           
+            self.add_property_triple(subj,source_entity)
+
+            for quantity_physics in sourceDict[quantity_var]['physics']:           
+               obj= self.getNode_ontology(quantity_physics[0], quantity_physics[1])       
+               self.add_identity_triple(subj, obj)
+
+            pred = self.prefix_NAMESPACE_local['semsim']['hasSourceParticipant']
+            self.rdf_g.add((process_entity, pred, source_entity))
+            pred = self.prefix_NAMESPACE_local['semsim']['hasMultiplier']
+            mulitplier = Literal(sourceDict[quantity_var]['proportionality'], datatype=XSD.float)
+            self.rdf_g.add((source_entity, pred, mulitplier)) 
+
+            for chemical_term in sourceDict[quantity_var]['chemical terms']:
+               chemical_term_node =self.getNode_ontology(chemical_term[0], chemical_term[1])
+               self.add_identity_triple(source_entity,chemical_term_node)
+            for anatomy_term in sourceDict[quantity_var]['anatomy terms']:
+               anatomy_term_node =self.getNode_ontology(anatomy_term[0],anatomy_term[1])
+               self.add_anatomy_triple(source_entity,anatomy_term_node)
+            sourceID_subfix += 1
+
 
     def annotate_sinks(self,comp_name,processID,sinkDict):
-        # sinkDict: 
+        # sinkDict: sinkDict={'q_Ai':{'proportionality':1,'physics':[('opb','OPB_00425')] ,'chemical terms':[('chebi','4167')],'anatomy terms': [('go','0005829')]}}
         process_entity = self.getProcessEntity(processID)
         sinkID_subfix = 0       
-        for arg in sinkDict:
-            quantity_var = arg['quantity_var']
-            multiplier_input = arg['stoichiometric_coefficient']
-            chemical_term = arg['chemical_term']
-            anatomy_term = arg['anatomy_term']
+        quantity_var_list = list(sinkDict.keys())
+        if len(quantity_var_list) == 0:
+            print('A quantity variable is needed for the bioprocess.')
+            return
+        for quantity_var in quantity_var_list:
+            subj = self.getNode_model(comp_name, quantity_var)
             sinkID= f'{processID}_{sinkID_subfix}'
-            sink_entity=self.getSinkEntity(sinkID)
-            self.annotate_sink(comp_name,quantity_var,multiplier_input,chemical_term,anatomy_term,process_entity,sink_entity)
+            sink_entity=self.getSinkEntity(sinkID)           
+            self.add_property_triple(subj,sink_entity)
+
+            for quantity_physics in sinkDict[quantity_var]['physics']:           
+               obj= self.getNode_ontology(quantity_physics[0], quantity_physics[1])       
+               self.add_identity_triple(subj, obj)
+
+            pred = self.prefix_NAMESPACE_local['semsim']['hasSinkParticipant']
+            self.rdf_g.add((process_entity, pred, sink_entity))
+            pred = self.prefix_NAMESPACE_local['semsim']['hasMultiplier']
+            mulitplier = Literal(sinkDict[quantity_var]['proportionality'], datatype=XSD.float)
+            self.rdf_g.add((sink_entity, pred, mulitplier)) 
+
+            for chemical_term in sinkDict[quantity_var]['chemical terms']:
+               chemical_term_node =self.getNode_ontology(chemical_term[0], chemical_term[1])
+               self.add_identity_triple(sink_entity,chemical_term_node)
+            for anatomy_term in sinkDict[quantity_var]['anatomy terms']:
+               anatomy_term_node =self.getNode_ontology(anatomy_term[0],anatomy_term[1])
+               self.add_anatomy_triple(sink_entity,anatomy_term_node)
             sinkID_subfix += 1
     
     def annotate_bioProcess(self,comp_name,processID, mediatorDict,sourceDict,sinkDict):
         self.annotate_mediator(comp_name,processID,mediatorDict)
         self.annotate_sources(comp_name,processID,sourceDict)
         self.annotate_sinks(comp_name,processID,sinkDict)
-    
-    def build_mediatorDict(self,mediator):
-        # input: mediator=[flux_var, quantity_var,protein_term,anatomy_term]
-        # By default, using uniprot and go as the ontology for protein and anatomy terms,respectively
-        protein_term_node =self.getNode_ontology('uniprot', mediator[2])
-        anatomy_term_node =self.getNode_ontology('go', mediator[3])
-        mediatorDict = {'flux_var': mediator[0], 'quantity_var': mediator[1], 'protein_term': protein_term_node, 'anatomy_term': anatomy_term_node}
-        return mediatorDict
-    
-    def build_participantsDict(self,participants):
-        # input: participants=[[quantity_var, stoichiometric_coefficient,chemical_term,anatomy_term],[],...]
-        # By default, using chebi and go as the ontology for chemical and anatomy terms,respectively
-        participantsDict = []
-        for i in range(len(participants)):
-            quantity_var = participants[i][0]
-            stoichiometric_coefficient = participants[i][1]
-            chemical_term_node =self.getNode_ontology('chebi', participants[i][2])
-            anatomy_term_node =self.getNode_ontology('go', participants[i][3])
-            participantDict = {'quantity_var': quantity_var, 'stoichiometric_coefficient': stoichiometric_coefficient, 'chemical_term': chemical_term_node, 'anatomy_term': anatomy_term_node}
-            participantsDict.append(participantDict)
-        return participantsDict
-
-    def build_mediatorDict_UI(self,flux_vars, quantity_vars):
-        message = f'Please select the flux variable of the process'
-        flux_var = self.selectVar_UI(message, flux_vars)
-        message = f'Please select the molar amount variable of the transporter'
-        quantity_var = self.selectVar_UI(message, quantity_vars)
-        message = f'Please select the name of the transporter'
-        protein_term= self.getTermID_UI('uniprot',message)
-        protein_term_node =self.getNode_ontology('uniprot', protein_term)
-        message = f'Please select subcellular location of the transporter'
-        anatomy_term= self.getTermID_UI('go',message)
-        anatomy_term_node =self.getNode_ontology('go', anatomy_term)
-        mediatorDict = {'flux_var': flux_var, 'quantity_var': quantity_var, 'protein_term': protein_term_node, 'anatomy_term': anatomy_term_node}
-        return mediatorDict
-    
-    def build_participantsDict_UI(self,quantity_vars):
-        for quantity_var in quantity_vars:
-            message = f'Please select the transported species name of the quantity variable {quantity_var}'
-            chemical_term= self.getTermID_UI('chebi',message)
-            chemical_term_node =self.getNode_ontology('chebi', chemical_term)
-            stoichiometric_coefficient = ask_for_input('Please enter the stoichiometric coefficient of the source participant', 'Text')               
-            message = f'Please select the subcellular location of the source participant'
-            anatomy_term= self.getTermID_UI('go',message) 
-            anatomy_term_node =self.getNode_ontology('go', anatomy_term)
-            participantDict = {'quantity_var': quantity_var, 'stoichiometric_coefficient': stoichiometric_coefficient, 'chemical_term': chemical_term_node, 'anatomy_term': anatomy_term_node}
-            return participantDict  
               
     def save_graph(self):
         # Save the RDF triples to a file
@@ -353,62 +310,197 @@ class RDF_Editor():
             f.write(self.rdf_g.serialize(format='ttl'))
             f.close()
         print(f'The RDF triples are saved to {self.rdf_file}')
+        G = rdflib_to_networkx_graph(rdf_g)
+        print("Visualizing the graph:")
+        A = nx.nx_agraph.to_agraph(G)
+        A.graph_attr.update(arrowtype='open',arrowsize=0.5,rankdir='LR')
+        A.layout('dot')
+        A.draw('test.png', format='png', prog='dot')
+        
         
     def get_graph(self):
         return self.rdf_g
 
+def visualize_model(model,mode='root', annotations=None):
+    # input: model, the CellML model object
+    # output: None
+    # visualize the model
+    annotation_dict ={}
+    if annotations is not None:
+        proc_list = list(annotations.keys())
+        for bioProc in proc_list:
+            bioDict = annotations[bioProc]
+            for key in bioDict: # 'cellml_path','mediator','sources','sinks'
+                if isinstance (bioDict[key],dict):
+                    for item_key, item_value in bioDict[key].items():
+                        annotation_dict.update({item_key:item_value})
+    
+    annotated_varIDs = list(annotation_dict.keys())
+
+    G_model=nx.DiGraph()
+    root=model.name()+'_model'
+    G_model.add_node(root,shape='box',color='magenta',style='filled',level=0)
+    
+    def visualize_variable(comp,level):
+        for v in range(comp.variableCount()):
+            if (v % 2) == 0:
+                sublevel = 1
+            else:
+                sublevel = 0
+            node_level = level + sublevel
+            var=comp.variable(v)
+            if comp.variable(v).equivalentVariableCount() > 0:
+                G_model.add_node(comp.name()+var.name(),color='lightblue',shape="ellipse",level=node_level,label='{}: {}\n{init}'.format(var.name(),var.units().name(),init="init: "+var.initialValue() if var.initialValue()!="" else ""))
+                for e in range(0,comp.variable(v).equivalentVariableCount()):
+                    ev = comp.variable(v).equivalentVariable(e)
+                    ev_parent = ev.parent()
+                    if not comp.containsComponent(ev_parent):
+                        G_model.add_edge(ev_parent.name()+ev.name(),comp.name()+var.name(),color='black')
+                    elif mode=='complete':
+                        G_model.add_edge(ev_parent.name()+ev.name(),comp.name()+var.name(),color='black')
+            else:
+                G_model.add_node(comp.name()+var.name(),color='lightblue', shape="ellipse",level=node_level,label='{}: {}\n{init}'.format(var.name(),var.units().name(),init="init: "+var.initialValue() if var.initialValue()!="" else ""))
+
+            G_model.add_edge(comp.name()+var.name(),comp.name(),color='blue',weight=1)
+            varID = var.id()
+            if varID in annotated_varIDs:
+                G_model.add_node(varID+'physics',label='physics',color='red',level=node_level+1,shape="ellipse")
+                G_model.add_node(varID+'chemical',label='chemical',color='red',level=node_level+2,shape="ellipse")
+                G_model.add_node(varID+'anatomy',label='anatomy',color='red',level=node_level+1,shape="ellipse")
+                G_model.add_edge(varID+'physics',comp.name()+var.name(),color='red')
+                G_model.add_edge(varID+'chemical',comp.name()+var.name(),color='red')
+                G_model.add_edge(varID+'anatomy',comp.name()+var.name(),color='red')
+                for physics_term in annotation_dict[varID]['physics']:
+                    G_model.add_node(physics_term,label='{}: {}'.format(physics_term[0],physics_term[1]),color='red',level=node_level+1,shape="ellipse")
+                    G_model.add_edge(physics_term,varID+'physics',color='red')
+                for chemical_term in annotation_dict[varID]['chemical terms']:
+                    G_model.add_node(chemical_term,label='{}: {}'.format(chemical_term[0],chemical_term[1]),color='red',level=node_level+2,shape="ellipse")
+                    G_model.add_edge(chemical_term,varID+'chemical',color='red')
+                for anatomy_term in annotation_dict[varID]['anatomy terms']:
+                    G_model.add_node(anatomy_term,label='{}: {}'.format(anatomy_term[0],anatomy_term[1]),color='red',level=node_level+1,shape="ellipse")
+                    G_model.add_edge(anatomy_term,varID+'anatomy',color='red')
+
+
+    def visualize_comp(parentcomp,level):
+        visualize_variable(parentcomp,level+1)
+        if parentcomp.componentCount()>0:
+            G_model.add_node(parentcomp.name(),shape='box',color='orange',style='filled',level=level)
+        else:
+            G_model.add_node(parentcomp.name(),shape='box',color='green',style='filled',level=level)
+        
+        if parentcomp.isImport():
+            G_model.add_node(parentcomp.importReference(),shape='box',color='cyan',style='filled',level=level)
+            G_model.add_edge(parentcomp.importReference(),parentcomp.name(),color='cyan')
+            G_model.add_edge(parentcomp.importSource().url(),parentcomp.importReference(),color='cyan')
+
+        if mode=='complete':            
+            for c in range(parentcomp.componentCount()):
+                childcomp=parentcomp.component(c)
+                G_model.add_edge(childcomp.name(),parentcomp.name(),color='orange')
+                visualize_comp(childcomp,level+2)       
+
+    for c in range(model.componentCount()):
+        G_model.add_edge(model.component(c).name(),root,color='red')
+        visualize_comp(model.component(c),1)
+        
+   # A=nx.nx_agraph.to_agraph(G_model)
+   # A.draw('model.png', format='png', prog='dot', args='-Grankdir=LR')
+    return G_model
+
+
 def get_bioProcess(rdf_g):
     # search for all biological processes in the RDF graph
-    # return: a list of biological processes in the RDF graph [{'cellml_path': cellml_path,'mediator': mediator, 'sources': sources, 'sinks': sinks}] 
-    # mediator: (flux_varID, mediator_term, mediator_location)
-    # sources: [(source_varID, stoichiometric_coefficient, chemical_term, anatomy_term),...]
-    # sinks: [(sink_varID, stoichiometric_coefficient, chemical_term, anatomy_term),...]    
-    bioProcesses = []
+    # return: a list of biological processes in the RDF graph [{'cellml_path': cellml_path,'mediator': mediator, 'sources': sources, 'sinks': sinks}]  
+    bioProcesses = {}
     for local_proc in rdf_g.subjects(RDF_Graph.prefix_NAMESPACE['semsim']['hasMediatorParticipant'],None):
-        for flux_var in rdf_g.subjects(None, local_proc):
-            flux_varID = flux_var.fragment
+        local_procID = local_proc.n3(rdf_g.namespace_manager).split(':')[1]
+        for flux_var in rdf_g.subjects(RDF_Graph.prefix_NAMESPACE['bqbiol']['isPropertyOf'], local_proc):
+            flux_varID = flux_var.n3(rdf_g.namespace_manager).split(':')[1]
             cellml_path = flux_var.n3().split('#')[0].strip('<>')
+            for flux_thing in rdf_g.objects(flux_var,RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']):
+                flux_onotology,_,flux_termID = rdf_g.compute_qname(flux_thing)
         local_mediator = rdf_g.value(local_proc, RDF_Graph.prefix_NAMESPACE['semsim']['hasMediatorParticipant'], None)
-        mediator_term = rdf_g.value(local_mediator, RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf'],None).n3()
-        anatomy_term = rdf_g.value(local_mediator, RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf'],None).n3()
-        mediator = (flux_varID, mediator_term, anatomy_term)
-        sources=[]
+        if local_mediator is None:
+            print('There is no mediator for the process.')
+            return
+        chemical_terms = []
+        anatomy_terms = [] 
+        for mediator in rdf_g.objects(local_mediator,RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']):
+            mediator_ontolgoy,_,mediator_termID = rdf_g.compute_qname(mediator)
+            chemical_terms.append((mediator_ontolgoy,mediator_termID))     
+        for mediator in rdf_g.objects(local_mediator,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf']):
+            mediator_anatomy_ontology,_,mediator_anatomy_termID = rdf_g.compute_qname(mediator)
+            anatomy_terms.append((mediator_anatomy_ontology,mediator_anatomy_termID))          
+        mediator_dict = {flux_varID:{'physics':[(flux_onotology,flux_termID)], 'chemical terms': chemical_terms, 'anatomy terms': anatomy_terms}}
+        sourceDict={}
         for local_source in rdf_g.objects(local_proc,RDF_Graph.prefix_NAMESPACE['semsim']['hasSourceParticipant']):
-            source_varID = rdf_g.value(None,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPropertyOf'], local_source).fragment
+            source_var= rdf_g.value(None,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPropertyOf'], local_source)
+            source_varID = source_var.n3(rdf_g.namespace_manager).split(':')[1]
             coef = rdf_g.value(local_source, RDF_Graph.prefix_NAMESPACE['semsim']['hasMultiplier']).toPython()
-            anatomy_term = rdf_g.value(local_source, RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf']).n3()
-            chemical_term = rdf_g.value(local_source, RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']).n3()
-            sources.append((source_varID,coef,chemical_term, anatomy_term))
-        sinks=[]
+            physics_terms=[]
+            for source_thing in rdf_g.objects(source_var,RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']):
+                source_ontology,_,source_termID = rdf_g.compute_qname(source_thing)
+                physics_terms.append((source_ontology,source_termID))
+            anatomy_terms=[]
+            chemical_terms=[]
+            for SourceParticipant in rdf_g.objects(local_source,RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']):
+                SourceChemical_onotology,_, SourceChemical_termID= rdf_g.compute_qname(SourceParticipant)
+                chemical_terms.append((SourceChemical_onotology,SourceChemical_termID))
+            for SourceParticipant in rdf_g.objects(local_source,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf']):
+                SourceAnatomy_onotology,_, SourceAnatomy_termID= rdf_g.compute_qname(SourceParticipant)
+                anatomy_terms.append((SourceAnatomy_onotology,SourceAnatomy_termID)) 
+
+            sourceDict.update({source_varID:{'proportionality':coef,'physics':physics_terms,'chemical terms':chemical_terms,'anatomy terms':anatomy_terms}})
+        sinkDict={}
         for local_sink in rdf_g.objects(local_proc,RDF_Graph.prefix_NAMESPACE['semsim']['hasSinkParticipant']):
-            sink_varID = rdf_g.value(None,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPropertyOf'], local_sink).fragment
+            sink_var= rdf_g.value(None,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPropertyOf'], local_sink)
+            sink_varID = sink_var.n3(rdf_g.namespace_manager).split(':')[1]
             coef = rdf_g.value(local_sink, RDF_Graph.prefix_NAMESPACE['semsim']['hasMultiplier']).toPython()
-            anatomy_term = rdf_g.value(local_sink, RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf']).n3()
-            chemical_term = rdf_g.value(local_sink, RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']).n3()
-            sinks.append((sink_varID,coef,chemical_term, anatomy_term))
-        bioProcesses.append({'cellml_path': cellml_path,'mediator': mediator, 'sources': sources, 'sinks':sinks})
+            physics_terms=[]
+            for sink_thing in rdf_g.objects(sink_var,RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']):
+                sink_ontology,_,sink_termID = rdf_g.compute_qname(sink_thing)
+                physics_terms.append((sink_ontology,sink_termID))
+            anatomy_terms = []
+            chemical_terms = []
+            for SinkParticipant in rdf_g.objects(local_sink,RDF_Graph.prefix_NAMESPACE['bqbiol']['isVersionOf']):
+                SinkChemical_ontology, _, SinkChemical_termID= rdf_g.compute_qname(SinkParticipant)
+                chemical_terms.append((SinkChemical_ontology,SinkChemical_termID))
+            for SinkParticipant in rdf_g.objects(local_sink,RDF_Graph.prefix_NAMESPACE['bqbiol']['isPartOf']):
+                SinkAnatomy_ontology, _, SinkAnatomy_termID= rdf_g.compute_qname(SinkParticipant)
+                anatomy_terms.append((SinkAnatomy_ontology,SinkAnatomy_termID))
+            sinkDict.update({sink_varID:{'proportionality':coef,'physics':physics_terms,'chemical terms':chemical_terms,'anatomy terms':anatomy_terms}})
+        
+        bioProcesses.update({local_procID:{'cellml_path': cellml_path,'mediator': mediator_dict, 'sources': sourceDict , 'sinks':sinkDict}})
+    
     return bioProcesses
 
 # main function for testing
 if __name__ == "__main__":
 
     rdf_g = RDF_Graph()
-    filename = 'SLCT3V_ss_test_inOne.cellml'
+    filename = 'SLCT3V_ss.cellml'
     foldername = 'C:/Users/wai484/Documents/BG2CellML/test/cellml/SLC_SS'
     filename = PurePath(foldername).joinpath(filename)
     rdf_editor = RDF_Editor(rdf_g,filename)
     comp_name = 'SLCT3V_ss'
-    mediator=['v_ss', 'E','P11166','0005886']
-    sources=[['q_Ao','1','4167','0005615']]
-    sinks=[['q_Ai','1','4167','0005829']]
-    mediatorDict = rdf_editor.build_mediatorDict(mediator)
-    sourceDict = rdf_editor.build_participantsDict(sources)
-    sinkDict = rdf_editor.build_participantsDict(sinks)
+    mediatorDict={'v_ss':{'physics':[('opb','OPB_00592')],'chemical terms':[('uniprot','P11166')],'anatomy terms': [('go','0005886')]}}
+    sourceDict={'q_Ao':{'proportionality':1,'physics':[('opb','OPB_00425')] ,'chemical terms':[('chebi','4167')],'anatomy terms': [('go','0005615')]}}
+    sinkDict={'q_Ai':{'proportionality':1,'physics':[('opb','OPB_00425')] ,'chemical terms':[('chebi','4167')],'anatomy terms': [('go','0005829')]}}
     rdf_editor.annotate_bioProcess(comp_name,0, mediatorDict,sourceDict,sinkDict)
     rdf_editor.save_graph()
-    get_bioProcess(rdf_g)
-    
-    
-    
+    bioPro=get_bioProcess(rdf_g)
+    proc_list = list(bioPro.keys())
+    for bioProc in proc_list:
+        print('biological process:',bioProc)
+        bioDict = bioPro[bioProc]
+        for key in bioDict: # 'cellml_path','mediator','sources','sinks'
+            print(key,':')
+            if isinstance (bioDict[key],dict):
+                for item_key, item_value in bioDict[key].items():
+                    print(item_key,':',item_value)
+            else:
+                print(bioDict[key])  
+    model=cellml.parse_model(filename, True)
+    visualize_model(model,'root',bioPro)
 
 

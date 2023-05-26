@@ -273,9 +273,9 @@ def read_csvBG():
     model_BG_param = Model(name_f  +'_BG' + '_param')
     model_BG_test = Model(name_f  +'_BG' + '_test')
     component_BG_test = Component(model_BG_test.name())
-    component_BG_input = Component(model_BG.name() + '_input')
+    component_BG_io = Component(model_BG.name() + '_io')
     model_BG_test.addComponent(component_BG_test)
-    model_BG_test.addComponent(component_BG_input)
+    model_BG_test.addComponent(component_BG_io)
     # Default voi, units, and init
     voi = 't'
     units = Units('second')
@@ -304,8 +304,8 @@ def read_csvBG():
             component_BG_test.addVariable(component.variable(var).clone())
         elif component.variable(var).interfaceType() == 'public' and 'q' in var_list and 'init' not in var_list:
             component_BG_test.addVariable(component.variable(var).clone())
-            component_BG_input.addVariable(component.variable(var).clone())
-            component_BG_input.variable(var).setInitialValue(1)
+            component_BG_io.addVariable(component.variable(var).clone())
+            component_BG_io.variable(var).setInitialValue(1)
 
     # clone the parameter component from model_BG which will be added to model_BG_param
     component_BG_param = model_BG.component(model_BG_param.name()).clone()
@@ -574,7 +574,6 @@ def flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r):
         G.add_edge(q_f.name,q_r.name,reaction=re, k_f=dict_kf[list(dict_kf.keys())[0]], k_r=dict_kr[list(dict_kr.keys())[0]])
     
     edge_list = list(G.edges(data=True))
-    
     # Construct a 2D sympy matrix to store the product of the rate constants on the edges
     # the first dimension is the number of q_cd, the second dimension is the number of edges (reactions)
     k_mat = Matrix([[0 for i in range(len(edge_list))] for j in range(len(q_cd))])
@@ -614,14 +613,14 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
     model_BG_ss = Model ( name_f + '_BG_ss' )
     model_ss_test = Model(name_f +'_ss'+ '_test')
     component_ss_test = Component(model_ss_test.name())
-    component_ss_input = Component(model_ss.name() + '_input')
+    component_ss_io = Component(model_ss.name() + '_io')
     model_ss_test.addComponent(component_ss_test)
-    model_ss_test.addComponent(component_ss_input)
+    model_ss_test.addComponent(component_ss_io)
     model_BG_ss_test = Model( name_f+'_BG_ss' + '_test')
     component_BG_ss_test = Component(model_BG_ss_test.name())
-    component_BG_ss_input = Component(model_BG_ss.name() + '_input')
+    component_BG_ss_io = Component(model_BG_ss.name() + '_io')
     model_BG_ss_test.addComponent(component_BG_ss_test)
-    model_BG_ss_test.addComponent(component_BG_ss_input)
+    model_BG_ss_test.addComponent(component_BG_ss_io)
 
     # get the steady state expressions
     vss_num,vss_den =  flux_ss_diagram(CompName,CompType,ReName,ReType,N_f,N_r)
@@ -637,6 +636,8 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
     v_ss.setInterfaceType(Variable.InterfaceType.PUBLIC)
     component_ss_test.addVariable(v_ss.clone())
     component_BG_ss_test.addVariable(v_ss.clone())
+    component_ss_io.addVariable(v_ss.clone())
+    component_BG_ss_io.addVariable(v_ss.clone())
     for param in P:
         var_param=Variable(param.name)
         unit_name = P[param][1]
@@ -677,9 +678,6 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
             param_const.setInitialValue(BG.const[const_name][0])
             param_const.setInterfaceType(Variable.InterfaceType.PUBLIC)
             component_param.addVariable(param_const)
-
-
-
     for q in Q:
         var_q=Variable(q.name)
         unit_name = Q[q][1]
@@ -693,22 +691,22 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
             component_BG_ss_test.addVariable(var_q.clone())
             add_const_to_component(component_BG_ss_test)
             add_const_to_component(component_ss)
-            component_BG_ss_input.addVariable(var_q.clone())
-            component_BG_ss_input.variable(var_q.name()).setInitialValue(1)
-            add_const_to_component_param(component_BG_ss_input)
+            component_BG_ss_io.addVariable(var_q.clone())
+            component_BG_ss_io.variable(var_q.name()).setInitialValue(1)
+            add_const_to_component_param(component_BG_ss_io)
             component_ss_test.addVariable(var_q.clone())
             add_const_to_component(component_ss_test)
-            component_ss_input.addVariable(var_q.clone())
-            component_ss_input.variable(var_q.name()).setInitialValue(1)
-            add_const_to_component_param(component_ss_input)
+            component_ss_io.addVariable(var_q.clone())
+            component_ss_io.variable(var_q.name()).setInitialValue(1)
+            add_const_to_component_param(component_ss_io)
         else:
             qnames.append(q.name.split('_')[1])
             component_BG_ss_test.addVariable(var_q.clone())
-            component_BG_ss_input.addVariable(var_q.clone())
-            component_BG_ss_input.variable(var_q.name()).setInitialValue(1)
+            component_BG_ss_io.addVariable(var_q.clone())
+            component_BG_ss_io.variable(var_q.name()).setInitialValue(1)
             component_ss_test.addVariable(var_q.clone())
-            component_ss_input.addVariable(var_q.clone())
-            component_ss_input.variable(var_q.name()).setInitialValue(1)
+            component_ss_io.addVariable(var_q.clone())
+            component_ss_io.variable(var_q.name()).setInitialValue(1)
         component_ss.addVariable(var_q)
 
     component_ss_param.addVariable(var_E.clone()) # E  
@@ -750,7 +748,7 @@ def updateUnitsFile(unitsSet, full_path, units_model):
     writeCellML(full_path, units_model)
 # Incomplete model with units import    
 def writeModelwithUnits(model_path, model,importSource_units,import_units_model):
-    editModel(model_path,model,importSource_units,import_units_model)
+    editModel_default(model_path,model,importSource_units,import_units_model)
     file_name = model.name() + '.cellml'
     full_path = str(PurePath(model_path).joinpath(file_name))
     writeCellML(full_path, model)
@@ -779,7 +777,7 @@ def build_models ():
     print('model_BG_test, import the model_BG and model_BG_param')
     importFiles = [model_BG.name()+ '.cellml', model_BG_param.name()+ '.cellml']
     importSources_comps, import_models,import_components_dicts = [], [],[]
-    comp_pairs=[(model_BG.name(),model_BG_param.name()),(model_BG.name(),model_BG_test.name()),(model_BG_test.name(),model_BG.name()+'_input')]
+    comp_pairs=[(model_BG.name(),model_BG_param.name()),(model_BG.name(),model_BG_test.name()),(model_BG_test.name(),model_BG.name()+'_io')]
     for importFile in importFiles:
         full_path = str(PurePath(model_path).joinpath(importFile))
         importSources_comp, import_model, import_components_dict=importComponents_default(model_path, full_path)
@@ -792,7 +790,7 @@ def build_models ():
     print('model_ss_test, import the model_ss and model_ss_param')
     importFiles = [model_ss.name()+ '.cellml', model_ss_param.name()+ '.cellml']
     importSources_comps, import_models,import_components_dicts = [], [],[]
-    comp_pairs=[(model_ss.name(),model_ss_param.name()),(model_ss.name(),model_ss_test.name()),(model_ss.name()+'_input',model_ss_test.name())]
+    comp_pairs=[(model_ss.name(),model_ss_param.name()),(model_ss.name(),model_ss_test.name()),(model_ss.name()+'_io',model_ss_test.name())]
     for importFile in importFiles:
         full_path = str(PurePath(model_path).joinpath(importFile))
         importSources_comp,import_model, import_components_dict=importComponents_default(model_path, full_path)
@@ -811,9 +809,9 @@ def build_models ():
     model_ss_test1.addComponent(component_ss1)
     component_ss_param1 = model_ss_param.component(model_ss_param.name()).clone()
     model_ss_test1.addComponent(component_ss_param1)
-    component_ss_input1 = model_ss_test.component(model_ss.name()+'_input').clone()
-    model_ss_test1.addComponent(component_ss_input1)
-    comp_pairs=[(model_ss.name(),model_ss_param.name()),(model_ss.name(),model_ss_test1.name()),(model_ss.name()+'_input',model_ss_test1.name())]
+    component_ss_io1 = model_ss_test.component(model_ss.name()+'_io').clone()
+    model_ss_test1.addComponent(component_ss_io1)
+    comp_pairs=[(model_ss.name(),model_ss_param.name()),(model_ss.name(),model_ss_test1.name()),(model_ss.name()+'_io',model_ss_test1.name())]
     importSources_comps, import_models, import_components_dicts = [], [],[]
     importSource_units,import_units_model = import_setup(model_path,units_full_path)
     writeModel(model_path, model_ss_test1, importSource_units, import_units_model, importSources_comps, import_models, import_components_dicts,comp_pairs)
@@ -821,7 +819,7 @@ def build_models ():
     print('model_BG_ss_test, import the model_BG_param, model_BG_ss and model_ss')
     importFiles = [model_ss.name() + '.cellml', model_BG_param.name() + '.cellml', model_BG_ss.name() + '.cellml']
     importSources_comps, import_models,import_components_dicts = [], [],[]
-    comp_pairs=[(model_ss.name(),model_BG_ss_test.name()),(model_BG_ss.name(),model_BG_param.name()),(model_ss.name(),model_BG_ss.name()),(model_ss.name(),model_BG_param.name()),(model_BG_ss.name()+'_input',model_BG_ss_test.name())]
+    comp_pairs=[(model_ss.name(),model_BG_ss_test.name()),(model_BG_ss.name(),model_BG_param.name()),(model_ss.name(),model_BG_ss.name()),(model_ss.name(),model_BG_param.name()),(model_BG_ss.name()+'_io',model_BG_ss_test.name())]
     for importFile in importFiles:
         full_path = str(PurePath(model_path).joinpath(importFile))
         importSources_comp, import_model, import_components_dict=importComponents_default(model_path, full_path)

@@ -40,21 +40,6 @@ def getEntityName_UI(model, comp_name=None):
         choices = getEntityList(model, comp_name)
         return ask_for_input(message, 'List', choices)
 
-def getEntityID(model, comp_name=None, var_name=None):
-    # input: model, the CellML model object
-    #        comp_name, the CellML component name
-    #        var_name, the CellML variable name
-    # output: the ID of the entity.
-    # if the component name is not provided, the ID of the model is returned; 
-    # if the variable name is not provided, the ID of the component is returned; 
-    # if both the component name and the variable name are provided, the ID of the variable is returned
-    if comp_name is None:
-        return model.id()
-    elif var_name is None:
-        return model.component(comp_name).id()
-    else:
-        return model.component(comp_name).variable(var_name).id()
-
 #----------------------------------------------------------------------Build a CellML model from a csv file--------------------------------------------------------------
 """ Read a csv file and create components and variables from it. """
 def read_csv_UI():
@@ -246,6 +231,28 @@ def importUnits(model,importSource,units_model):
         u.setImportReference(unit)
         model.addUnits(u)
     print(f'The units {units_to_import} have been imported.')
+
+def copyUnits(model,importSource,units_model):
+    # input: model: the model that imports units from other CellML models
+    #        importSource: the ImportSource object
+    # output: None
+    #        The import units will be added to the model; 
+    #        The units to import are determined by the intersection of units_undefined in the model and the units defined in the import source
+    units_undefined=_checkUndefinedUnits(model)
+    if len(units_undefined)>0:
+        # Get the intersection of the units_undefined and the units defined in the import source
+        if importSource.model() is None:
+            print('The import source is not valid.')
+        existing_units=set([units_model.units(unit_numb).name() for unit_numb in range(units_model.unitsCount())]) # Get the units names defined in the import source
+        units_to_copy = units_undefined.intersection(existing_units)
+    else:
+        units_to_copy = set()
+    units_to_copy.add('per_sec')
+    units_to_copy.add('per_fmol')
+    for unit in units_to_copy:
+        u = units_model.units(unit).clone() # Get the units object from the import source based on the name       
+        model.addUnits(u)
+    print(f'The units {units_to_copy} have been copied.')
 
 """Check the undefined non base units"""
 def _checkUndefinedUnits(model):
@@ -595,7 +602,7 @@ def writePythonCode(full_path, model,strict_mode=True):
     base_dir = PurePath(full_path).parent.as_posix()
     importer = cellml.resolve_imports(model, base_dir, strict_mode)
     flatModel = importer.flattenModel(model)
-    a = cellml.analyse_model(flatModel)              
+    a = cellml.analyse_model(flatModel)         
     generator = Generator()
     generator.setModel(a)
     profile = GeneratorProfile(GeneratorProfile.Profile.PYTHON)
@@ -651,7 +658,7 @@ def editModel_default(model_path,model,importSource_units,import_units_model,imp
     if importSource_units:
         if importSource_units.model() is None:
             print('Warning: the units file is not a valid CellML file.')
-        importUnits(model,importSource_units,import_units_model)
+        copyUnits(model,importSource_units,import_units_model)
     cellml.resolve_imports(model, model_path, True)
     # Encapsulate the components when needed
     component_list = getEntityList(model)
@@ -661,10 +668,10 @@ def editModel_default(model_path,model,importSource_units,import_units_model,imp
         comp_namelist = comp.split('_')
         if 'test' in comp_namelist:
             component_parent_selected = comp
-        elif 'input' not in comp_namelist:
+        elif 'io' not in comp_namelist:
             component_children_selected.append(comp)
-
-    encapsulate(model, component_parent_selected, component_children_selected)
+    if component_parent_selected != '':
+        encapsulate(model, component_parent_selected, component_children_selected)
     # Carry out the connection between the components
     importer = cellml.resolve_imports(model, model_path, True)
     flatModel = importer.flattenModel(model) # this may not be necessary after the units compatibility check function is fixed
@@ -681,7 +688,7 @@ def editModel_default(model_path,model,importSource_units,import_units_model,imp
         if not model.linkUnits():
             print('Warning: some units in the model are still unlinked.')
     #    Create a validator and use it to check the model so far.
-    print_model(model,True)
+    # print_model(model,True)
     cellml.validate_model(model)
     
 

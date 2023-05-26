@@ -1,0 +1,98 @@
+<?xml-stylesheet type="text/xsl" href="mathml.xsl"?>
+<?xml-stylesheet type="text/xsl" href="http://www.w3.org/Math/XSL/mathml.xsl"?>
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}
+Best Movie Actors
+{% endblock %}
+
+
+{% block content %}
+
+<!--
+	TIPS about using Bootstrap-Flask:
+	https://github.com/helloflask/bootstrap-flask
+	https://bootstrap-flask.readthedocs.io/
+-->
+
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+     window.onload = function() {
+        var iframe = document.getElementById("myiframe");
+        iframe.width = iframe.contentWindow.document.body.scrollWidth;
+        iframe.height = iframe.contentWindow.document.body.scrollHeight;
+     }
+  </script>
+</head>
+    <button onclick="sendData()">Send Data</button>
+    <script>
+        function sendData() {
+            network= document.getElementById('myiframe').contentWindow.network;
+            var selected_nodes = network.getSelectedNodes();
+            // network= document.getElementById('myiframe').contentWindow.drawGraph();
+            function objectToArray(obj) {
+            return Object.keys(obj).map(function (key) {
+          obj[key].id = key;
+          return obj[key];
+        });
+      }
+      function addConnections(elem, index) {
+        // need to replace this with a tree of the network, then get child direct children of the element
+        elem.connections = network.getConnectedNodes(index);
+      }
+      var nodes = objectToArray(network.getPositions());
+      nodes.forEach(addConnections);
+      var exportValue = JSON.stringify(nodes, undefined, 2);
+            console.log(exportValue);
+            $.ajax({
+                url: '/process',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify( {'new_graph': nodes,'selected_nodes':selected_nodes}),
+                success: function(response) {
+                  document.getElementById('myiframe').contentWindow.edges_from_py=response.nodes;
+                  //console.log(response.nodes);
+                  document.getElementById('myiframe').contentWindow.edges_from_py=response.edges;
+                  //console.log(response.edges);
+                  document.getElementById('myiframe').contentWindow.getPydata(response.nodes,response.edges)
+                  document.getElementById('myiframe').contentWindow.drawGraph();
+                  network.fit()
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+
+      <h1 class="pt-5 pb-2">Welcome to CellML model composition!</h1>
+      <p class="lead">This is the page for a CellML model composition demo. </p>
+      <h2 class = "model display"> Model Visualization </h2>
+      <p>Click any model's name.</p>
+      <ul>
+        {% for pair in pairs %}
+            <li><a href="{{ url_for( 'detail', num=pair[0] ) }}"  target="_blank" >{{ pair[1] }}</a></li>
+        {% endfor %}
+      </ul>
+      <iframe id="myiframe", src="{{url_for('static',filename='nx.html')}}",frameborder="0" width="100%"></iframe>
+      {% autoescape off %}
+      {{math_jason}}
+      {% endautoescape %}
+      <h2 class = "component-selection"> Component Selection </h2>
+      {{ render_form(form) }}
+      <h2 class = "Model composition"> Model Composition </h2>
+      <p class="pt-5"><strong>{{ message }}</strong></p>
+
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
