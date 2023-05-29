@@ -1,3 +1,5 @@
+<?xml-stylesheet type="text/xsl" href="mathml.xsl"?>
+<?xml-stylesheet type="text/xsl" href="http://www.w3.org/Math/XSL/mathml.xsl"?>
 {% extends 'base.html' %}
 {% from 'bootstrap5/form.html' import render_form %}
 
@@ -13,19 +15,60 @@ Best Movie Actors
 	https://github.com/helloflask/bootstrap-flask
 	https://bootstrap-flask.readthedocs.io/
 -->
-
-<div class="container">
-  <div class="row">
-    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-
-      <h1 class="pt-5 pb-2">Welcome to CellML model composition!</h1>
-      <p class="lead">This is the page for a CellML model composition demo. </p>
-      <h2 class = "model display"> Model Visualization </h2>
-      {{ render_form(form) }}
-      <img src="{{url_for('static', filename=graph)}}" />
-
-    </div>
-  </div>
-</div>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <div id="nodes" data-pynodes="{{nodes}}"></div>
+  <div id="edges" data-pyedges="{{edges}}"> </div>
+  <div id = "model_name" data-pymodel_name="{{model_name}}"></div>
+  <script>
+     window.onload = function() {
+        var iframe = document.getElementById("myiframe");
+        iframe.width = iframe.contentWindow.document.body.scrollWidth;
+        iframe.height = iframe.contentWindow.document.body.scrollHeight;
+        network= document.getElementById('myiframe').contentWindow.network;
+        var nodes= JSON.parse(document.getElementById("nodes").dataset.pynodes);
+        var edges = JSON.parse(document.getElementById("edges").dataset.pyedges);
+        document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(nodes),JSON.stringify(edges));
+        document.getElementById('myiframe').contentWindow.drawGraph();
+        network.fit()
+     }
+  </script>
+  <script>
+    function sendData() {
+        network= document.getElementById('myiframe').contentWindow.network;
+        var selected_nodes = network.getSelectedNodes();
+        var model_name = document.getElementById("model_name").dataset.pymodel_name;
+        console.log(selected_nodes);
+        $.ajax({
+            url: '/process',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify( {'model_name':model_name, 'selected_nodes':selected_nodes}),
+            success: function(response) {
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+        document.getElementById("select-result").innerHTML = selected_nodes;
+    }
+</script>
+</head>
+<body>
+  <h1>Model visualization and module selection
+  <h2>The model structure of {{model_name}}:
+    <iframe id="myiframe", src="{{url_for('static',filename='nx.html')}}",frameborder="0" width="100%"></iframe>
+  </h2>
+  <button onclick="sendData()">Submit your selected modules</button>
+  <div>The selected modules are: <span id="select-result"></span></div>
+  <h2> The math in the model    
+    {% for math in math_list %}
+    {% autoescape off %}
+      <li>{{math[0]}}:{{math[1]}}</li>
+    {% endautoescape %}
+    {% endfor %}
+  </h2>
+</h1>
+</body>
 
 {% endblock %}

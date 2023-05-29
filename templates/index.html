@@ -74,7 +74,7 @@ Best Movie Actors
       <h1 class="pt-5 pb-2">Welcome to CellML model composition!</h1>
       <p class="lead">This is the page for a CellML model composition demo. </p>
       <h2 class = "model display"> Model Visualization </h2>
-      <p>Click any model's name.</p>
+      <p>Click any model's name to view its structure.</p>
       <ul>
         {% for pair in pairs %}
             <li><a href="{{ url_for( 'detail', num=pair[0] ) }}"  target="_blank" >{{ pair[1] }}</a></li>

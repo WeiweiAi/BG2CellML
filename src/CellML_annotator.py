@@ -5,7 +5,10 @@ from rdflib import Graph, Namespace, Literal
 from rdflib.namespace import RDF, FOAF,  DCTERMS, XSD
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 import networkx as nx
-from utilities import print_model
+from utilities import infix_to_mathml
+from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable
+from build_CellMLV2 import importComponents_clone,getEntityList,copyUnits_temp
+import numpy as np
 def getEntityID(model, comp_name=None, var_name=None):
     # input: model, the CellML model object
     #        comp_name, the CellML component name
@@ -20,6 +23,21 @@ def getEntityID(model, comp_name=None, var_name=None):
         return model.component(comp_name).id()
     else:
         return model.component(comp_name).variable(var_name).id()
+    
+def getNamebyID(model, ID):
+    # input: model, the CellML model object
+    #        ID, the ID of the entity.
+    # output: the name of the entity.
+    # if the ID is the ID of the component, the name of the component is returned; 
+    # if the ID is the ID of the variable, the name of the component and the variable is returned
+    for comp in range(model.componentCount()):
+        if ID == model.component(comp).id():
+            return (model.component(comp).name())
+        else:
+            for var in range(model.component(comp).variableCount()):
+                if ID == model.component(comp).variable(var).id():
+                    return (model.component(comp).name(), model.component(comp).variable(var).name())
+    return None
 class Qualifiers():
     # Hard-coded qualifiers
     # todo: could retrieve these from relevant specifications
@@ -321,6 +339,144 @@ class RDF_Editor():
     def get_graph(self):
         return self.rdf_g
 
+def compose_model(new_model_name,selection_dict,units_model):
+    # input: new_model_name, the name of the new model
+    #        model_list, a list of CellML model objects and its selected components:[{model: ['component1','component2']}, 'model: ['component1','component2']}]
+    #        annotations, a list of dictionaries of annotations
+    # output: the new model object
+    # species_list = {1:{'varID':[],chemical terms:[],anatomy terms:[]},2:{'':[],chemical terms:[],anatomy terms:[]}}
+    species_list = {}
+    flux_list = {}
+    def update_unique_process(flux_list,mediator,model):
+        unique_flag=True
+        if len(flux_list) == 0:
+            unique_flag=True
+        else:
+            for id,flux_dict in flux_list.items():
+                v_ss_ID = list(mediator.keys())[0]
+                if set(mediator[v_ss_ID]["chemical terms"])& set(flux_dict["chemical terms"]) and set(mediator[v_ss_ID]["anatomy terms"])& set(flux_dict["anatomy terms"]):
+                    unique_flag=False                    
+                    flux_list[id]["varinfo"].append((model,v_ss_ID))
+                    break
+        if unique_flag:
+            id = len(flux_list)+1
+            v_ss_ID = list(mediator.keys())[0]
+            flux_list.update({id:{'varinfo':[(model,v_ss_ID)],"chemical terms":mediator[v_ss_ID]["chemical terms"],"anatomy terms":mediator[v_ss_ID]["anatomy terms"]}})
+
+    def update_unique_species(species_list,species,participant_location,v_ss_ID,model):
+        unique_flag=True
+        if len(species_list) == 0:
+            unique_flag=True
+        else:          
+            for id,species_dict in species_list.items():
+                if set(species["anatomy terms"])& set(species_dict["anatomy terms"]) and set(species["chemical terms"])& set(species_dict["chemical terms"]):
+                    unique_flag=False
+                    q_varID = list(species.keys())[0]
+                    species_list[id]["varinfo"].append((model,v_ss_ID,participant_location,species['proportionality'],q_varID))
+                    break
+        
+        if unique_flag:
+            id = len(species_list)+1
+            q_varID = list(species.keys())[0]
+            species_list.update({id:{'varinfo':[(model,v_ss_ID,participant_location,species['proportionality'],q_varID)],"chemical terms":species["chemical terms"],"anatomy terms":species["anatomy terms"]}})
+    # Todo: check if the flux is unique, now assume all fluxes are unique
+    for model,model_info in selection_dict.items():
+        for bioProc in list(model_info['annotation'].values()):
+            v_ss_ID = list(bioProc['mediator'].keys())[0]
+            update_unique_process(flux_list,bioProc['mediator'],model)
+            for participant_location, participants in bioProc.items():
+                if participant_location == 'sources':
+                    for participant in list(participants.items()):
+                        update_unique_species(species_list,participant,participant_location,v_ss_ID,model)
+
+                if participant_location == 'sinks':
+                    for participant in list(participants.items()):
+                        update_unique_species(species_list,participant,participant_location,v_ss_ID,model)
+    
+    # Add a new component to the new model
+    new_model = Model(new_model_name)
+    new_component = Component(new_model_name)
+    new_model.addComponent(new_component)
+    voi = 't'
+    units = Units('second')
+    voi = Variable(voi)
+    voi.setUnits(units)
+    new_component.addVariable(voi)
+    # Clone the selected components from the selected models to the new model
+    for import_model,model_info in selection_dict.items():
+       import_components_dict=model_info['components']
+       importComponents_clone(new_model,import_model,import_components_dict)
+    # Add new variables for each unique species to the new component
+    # To do: check if the species is selected by the user; now assume all species are selected
+    for speciesID, species_info in species_list.items():
+        q_var = Variable(f"q_{new_model_name}_{speciesID}")
+        new_component.addVariable(q_var)
+        ode_var = f'{q_var.name()}'
+        eq = []
+        # get the units of the quantity variable
+        qvar_infos = species_info['varinfo']
+        for qvar_info in qvar_infos:
+            model = qvar_info[0]
+            v_ss_ID = qvar_info[1]
+            participant_location = qvar_info[2]
+            coef=qvar_info[3]
+            q_varID = qvar_info[4]
+            model_info=selection_dict[model]
+            import_components_dict=model_info['components']
+            comp_name, qvar_name=getNamebyID(model, q_varID)
+            for component in list(import_components_dict.keys()):
+                if comp_name == component:
+                    Variable.addEquivalence(new_component.variable(q_var), model(comp_name).variable(qvar_name))
+
+            for fluxID, mediator_info in flux_list.items():
+                flux_infos = mediator_info['varinfo']
+                for flux_info in flux_infos:
+                    model_f = flux_info[0]
+                    v_ss_ID_f = flux_info[1]
+                    if model == model_f and v_ss_ID == v_ss_ID_f:
+                        comp_name, fvar_name=getNamebyID(model_f, v_ss_ID)
+                        model_info=selection_dict[model_f]
+                        import_components_dict=model_info['components']
+                        for component in list(import_components_dict.keys()):
+                           if comp_name == component:                              
+                               var_list=getEntityList(new_model,new_model.name())
+                               new_v_ss_name = f'{fvar_name}_{comp_name}_{new_model.name()}'
+                               if new_v_ss_name not in var_list:
+                                      new_v_ss = Variable(new_v_ss_name)
+                                      vss_units=model_f(comp_name).variable(fvar_name).units().clone()
+                                      new_v_ss.setUnits(vss_units)
+                                      new_component.addVariable(new_v_ss)                                      
+                                      Variable.addEquivalence(new_component.variable(new_v_ss_name), model_f(comp_name).variable(fvar_name))
+                               else:
+                                      Variable.addEquivalence(new_component.variable(new_v_ss_name), model_f(comp_name).variable(fvar_name))                                                                    
+                        if participant_location == 'sources':
+                            if coef == 1:
+                                eq.append(f'-{fvar_name}_{comp_name}')
+                            else:
+                                eq.append(f'-{coef}*{fvar_name}_{comp_name}')
+                        elif participant_location == 'sinks':
+                            if coef == 1:
+                                eq.append(f'{fvar_name}_{comp_name}')
+                            else:
+                                eq.append(f'{coef}*{fvar_name}_{comp_name}')
+        new_component.appendMath(infix_to_mathml(''.join(eq), ode_var,voi="t"))            
+        # Assume the units of the quantity variable is the same as the units of the first variable in the var_infos  
+        units = model.component(comp_name).variable(qvar_name).units().clone()
+        q_var.setUnits(units) 
+
+        copyUnits_temp (new_model,units_model)
+    return new_model          
+
+def update_varmap(model, varmaps):
+    # input: model, the CellML model object
+    #        varmaps, a list of variable mappings [(comp1,var1,comp2,var2),(comp3,var3,comp4,var4)]
+    for varmap in varmaps:
+        comp1 = varmap[0]
+        var1 = varmap[1]
+        comp2 = varmap[2]
+        var2 = varmap[3]
+        Variable.addEquivalence(model.component(comp1).variable(var1), model.component(comp2).variable(var2))
+
 def visualize_model(model,mode='root', annotations=None):
     # input: model, the CellML model object
     # output: None
@@ -332,7 +488,7 @@ def visualize_model(model,mode='root', annotations=None):
             bioDict = annotations[bioProc]
             for key in bioDict: # 'cellml_path','mediator','sources','sinks'
                 if isinstance (bioDict[key],dict):
-                    for item_key, item_value in bioDict[key].items():
+                    for item_key, item_value in bioDict[key].items(): # item_key=varID, item_value={'physics':[('opb','OPB_00592')],'chemical terms':[('uniprot','P11166')],'anatomy terms': [('go','0005886')]}
                         annotation_dict.update({item_key:item_value})
     
     annotated_varIDs = list(annotation_dict.keys())
@@ -349,18 +505,18 @@ def visualize_model(model,mode='root', annotations=None):
                 sublevel = 0
             node_level = level + sublevel
             var=comp.variable(v)
-            if comp.variable(v).equivalentVariableCount() > 0:
-                G_model.add_node(comp.name()+var.name(),color='lightblue',shape="ellipse",level=node_level,label='{}: {}\n{init}'.format(var.name(),var.units().name(),init="init: "+var.initialValue() if var.initialValue()!="" else ""))
+            if var.initialValue() != "":
+                   G_model.add_node(comp.name()+var.name(),color='turquoise',shape="ellipse",level=node_level,label='{}: {}\n{init}'.format(var.name(),var.units().name(),init="init: "+var.initialValue()))
+            else:
+                G_model.add_node(comp.name()+var.name(),color='lightblue', shape="ellipse",level=node_level,label='{}: {}'.format(var.name(),var.units().name()))
+            if comp.variable(v).equivalentVariableCount() > 0:                 
                 for e in range(0,comp.variable(v).equivalentVariableCount()):
                     ev = comp.variable(v).equivalentVariable(e)
                     ev_parent = ev.parent()
                     if not comp.containsComponent(ev_parent):
                         G_model.add_edge(ev_parent.name()+ev.name(),comp.name()+var.name(),color='black')
                     elif mode=='complete':
-                        G_model.add_edge(ev_parent.name()+ev.name(),comp.name()+var.name(),color='black')
-            else:
-                G_model.add_node(comp.name()+var.name(),color='lightblue', shape="ellipse",level=node_level,label='{}: {}\n{init}'.format(var.name(),var.units().name(),init="init: "+var.initialValue() if var.initialValue()!="" else ""))
-
+                        G_model.add_edge(ev_parent.name()+ev.name(),comp.name()+var.name(),color='black')       
             G_model.add_edge(comp.name()+var.name(),comp.name(),color='blue',weight=1)
             varID = var.id()
             if varID in annotated_varIDs:
@@ -397,7 +553,7 @@ def visualize_model(model,mode='root', annotations=None):
             for c in range(parentcomp.componentCount()):
                 childcomp=parentcomp.component(c)
                 G_model.add_edge(childcomp.name(),parentcomp.name(),color='orange')
-                visualize_comp(childcomp,level+2)       
+                visualize_comp(childcomp,level+3)       
 
     for c in range(model.componentCount()):
         G_model.add_edge(model.component(c).name(),root,color='red')
@@ -488,6 +644,7 @@ if __name__ == "__main__":
     sinkDict={'q_Ai':{'proportionality':1,'physics':[('opb','OPB_00425')] ,'chemical terms':[('chebi','4167')],'anatomy terms': [('go','0005829')]}}
     rdf_editor.annotate_bioProcess(comp_name,0, mediatorDict,sourceDict,sinkDict)
     rdf_editor.save_graph()
+
     bioPro=get_bioProcess(rdf_g)
     proc_list = list(bioPro.keys())
     for bioProc in proc_list:

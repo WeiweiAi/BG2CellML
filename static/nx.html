@@ -69,6 +69,7 @@
         { id: 4, label: "Module 3", level : 3},
         { id: 5, label: "Module 4", level : 2},
       ];
+	    console.log(nodes_from_py);
 			  var edges_from_py = [
         {
           from: 1,
@@ -129,8 +130,12 @@
 
                function getPydata(nodes_from_py_new,edges_from_py_new) {
 			   
-			   nodes = new vis.DataSet(eval('(' + nodes_from_py_new + ')'));
-			   edges = new vis.DataSet(eval('(' + edges_from_py_new + ')'));
+			     nodes = new vis.DataSet(eval('(' + nodes_from_py_new + ')'));
+			     edges = new vis.DataSet(eval('(' + edges_from_py_new + ')'));
+			     console.log(nodes_from_py_new);
+				 console.log(edges_from_py_new);
+			     //nodes= new vis.DataSet(nodes_from_py);
+				 //edges = new vis.Dataset(edges_from_py_new);
 			   			   			   
 			   }
               // This method is responsible for drawing the graph, returns the drawn network
@@ -146,7 +151,7 @@
                   // adding nodes and edges to the graph
                   data = {nodes: nodes, edges: edges};
 
-                  var options = {"manipulation": {"enabled": true, "initiallyActive": true},"physics":{"barnesHut":{"avoidOverlap":3}},"interaction": {"multiselect": true},"layout":{"randomSeed": 5,"hierarchical": {"sortMethod": 'directed',"enabled":true,"direction": 'RL',"shakeTowards": 'roots',"levelSeparation": 300,"nodeSpacing": 200,"treeSpacing": 500} },"edges": { "smooth": {"type": "continuous","forceDirection": "none"}}};
+                  var options = {"manipulation": {"enabled": true, "initiallyActive": true},"physics":{"barnesHut":{"avoidOverlap":3}},"interaction": {"multiselect": true},"layout":{"randomSeed": 5,"hierarchical": {"sortMethod": 'directed',"enabled":true,"direction": 'RL',"shakeTowards": 'roots',"levelSeparation": 300,"nodeSpacing": 200,"treeSpacing": 500} },"edges": { "smooth": {"type": "horizontal","forceDirection": "none"}}};
 
                   
 

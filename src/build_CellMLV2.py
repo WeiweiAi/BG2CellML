@@ -199,6 +199,14 @@ def importComponents(model,importSource,import_model,import_components_dict):
         while(dummy_c.variableCount()):
              c.addVariable(dummy_c.variable(0))
         model.addComponent(c) 
+""" Carry out the clone of components (temporary solution to get around of units issues of libcellml) . """
+def importComponents_clone(model,import_model,import_components_dict):        
+    
+    for component in list(import_components_dict.keys()):
+        importReference=import_components_dict[component]
+        dummy_c = import_model.component(importReference).clone()
+        dummy_c.setName(component)
+        model.addComponent(dummy_c)
 
 def importUnits_UI(model_path,strict_mode=True):
     if ask_for_input('Do you want to import Units?', 'Confirm', True):
@@ -243,6 +251,26 @@ def copyUnits(model,importSource,units_model):
         # Get the intersection of the units_undefined and the units defined in the import source
         if importSource.model() is None:
             print('The import source is not valid.')
+        existing_units=set([units_model.units(unit_numb).name() for unit_numb in range(units_model.unitsCount())]) # Get the units names defined in the import source
+        units_to_copy = units_undefined.intersection(existing_units)
+    else:
+        units_to_copy = set()
+    units_to_copy.add('per_sec')
+    units_to_copy.add('per_fmol')
+    for unit in units_to_copy:
+        u = units_model.units(unit).clone() # Get the units object from the import source based on the name       
+        model.addUnits(u)
+    print(f'The units {units_to_copy} have been copied.')
+
+def copyUnits_temp(model,units_model):
+    # input: model: the model that imports units from other CellML models
+    #        importSource: the ImportSource object
+    # output: None
+    #        The import units will be added to the model; 
+    #        The units to import are determined by the intersection of units_undefined in the model and the units defined in the import source
+    units_undefined=_checkUndefinedUnits(model)
+    if len(units_undefined)>0:
+        # Get the intersection of the units_undefined and the units defined in the import source
         existing_units=set([units_model.units(unit_numb).name() for unit_numb in range(units_model.unitsCount())]) # Get the units names defined in the import source
         units_to_copy = units_undefined.intersection(existing_units)
     else:
@@ -557,6 +585,20 @@ def addEquations(component, equations):
         component. appendMath(infix_to_mathml(infix, ode_var, voi))
     component. appendMath(MATH_FOOTER)
 
+def getEquations(model):
+    # input: model: the model object
+    # output: equations: a dictionary of the equations in the model: {component_name:equation}
+    equations = {}
+    def _getEquations(component):
+        if component.math()!='':
+            equations.update({component.name():component.math()})
+        if component.componentCount()>0:
+            for c in range(component.componentCount()):                   
+                   _getEquations(component.component(c))
+    
+    for c in range(model.componentCount()):
+            _getEquations(model.component(c))
+    return equations
 
 def writeCellML_UI(model_path, model):
     message = f'If you want to change the default filename {model.name()}.cellml, please type the new name. Otherwise, just press Enter.'
