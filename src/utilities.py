@@ -122,6 +122,16 @@ def load_matrix(fmatrix,rmatrix):
         sys.exit('There are duplicate components or empty stoichiometry') 
     else:
         return CompName,CompType,ReName,ReType,np.array(N_f),np.array(N_r)
+def getCompinfo(nodes,id):
+    for node in nodes:
+        if node['id']==id and node['shape']=='box':
+            comp_name = id
+            return ({"comp":comp_name,"var":''})
+        if node['id']==id and node['shape']=='ellipse':
+            var_name = node['label']
+            comp_name = id.strip(var_name)
+            return ({"comp":comp_name,"var":var_name})
+    return ({"comp":'',"var":''})
 
 def print_model(model, include_maths=False):
 

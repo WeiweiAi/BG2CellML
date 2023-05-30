@@ -20,7 +20,6 @@ Best Movie Actors
   <div id="nodes" data-pynodes="{{nodes}}"></div>
   <div id="edges" data-pyedges="{{edges}}"> </div>
   <div id = "model_name" data-pymodel_name="{{model_name}}"></div>
-  <div id = "model_index" data-pymodel_index="{{model_index}}"></div>
   <script>
      window.onload = function() {
         var iframe = document.getElementById("myiframe");
@@ -38,13 +37,12 @@ Best Movie Actors
     function sendData() {
         network= document.getElementById('myiframe').contentWindow.network;
         var selected_nodes = network.getSelectedNodes();   
-        var model_index = document.getElementById("model_index").dataset.pymodel_index;
         console.log(selected_nodes);
         $.ajax({
             url: '/process',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify( {'model_index':model_index, 'selected_nodes':selected_nodes}),
+            data: JSON.stringify( {'selected_nodes':selected_nodes}),
             success: function(response) {
             },
             error: function(error) {

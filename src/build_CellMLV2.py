@@ -3,7 +3,8 @@ import pandas as pd
 from utilities import print_model, ask_for_file_or_folder, ask_for_input, infix_to_mathml
 import cellml
 from pathlib import PurePath
-import os 
+import os
+import re 
 
 MATH_HEADER = '<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">\n'
 MATH_FOOTER = '</math>\n'
@@ -207,6 +208,7 @@ def importComponents_clone(model,import_model,import_components_dict):
         dummy_c = import_model.component(importReference).clone()
         dummy_c.setName(component)
         model.addComponent(dummy_c)
+    copyUnits_temp(model,import_model)
 
 def importUnits_UI(model_path,strict_mode=True):
     if ask_for_input('Do you want to import Units?', 'Confirm', True):
@@ -473,6 +475,60 @@ def fixInits_UI (comp1, comp2):
             comp2.variable(var2).removeInitialValue()
         else:
             comp1.variable(var1).removeInitialValue()
+
+def checkInits(model):
+    # input: model: the model object
+    # output: 1. a set of variables that have no initial values set((comp1,var1),(comp1,var1)); 
+    #         2. a set of variables that have more than two initial values set(set((comp1,var1),(comp1,var1)),set((comp1,var1),(comp1,var1)))
+    noInit = set()
+    multipleInit = {}
+    for comp_numb in range(model.componentCount()):
+        multipleInit.update({model.component(comp_numb).name():[]})
+        for var_numb in range(model.component(comp_numb).variableCount()):
+            if model.component(comp_numb).variable(var_numb).equivalentVariableCount()==0:
+                if model.component(comp_numb).variable(var_numb).initialValue() == '':
+                    noInit.add((model.component(comp_numb).name(), model.component(comp_numb).variable(var_numb).name()))                   
+            else:
+                tempset=set()
+                initcount = 0
+                if model.component(comp_numb).variable(var_numb).initialValue() != '':
+                    initcount += 1
+                    tempset.add((model.component(comp_numb).name(), model.component(comp_numb).variable(var_numb).name())) 
+                for e in range(model.component(comp_numb).variable(var_numb).equivalentVariableCount()):
+                    ev = model.component(comp_numb).variable(var_numb).equivalentVariable(e)               
+                    ev_parent = ev.parent()
+                    if ev.initialValue() != '':
+                        initcount += 1
+                        tempset.add((ev_parent.name(), ev.name()))
+                if initcount > 1:
+                    multipleInit[model.component(comp_numb).name()].append(tempset)
+    
+    multipleInit_summary = set()
+    for comp in multipleInit.keys():
+        for item in multipleInit[comp]:
+            multipleInit_summary.add(item)
+    
+    return noInit, multipleInit_summary
+
+def addInits(model,comp_name,var_name,init):
+    # input: model: the model object
+    #        comp_name: the name of the component
+    #        var_name: the name of the variable
+    #        init: the initial value to be set
+    # output: None
+    #        The initial value will be set to the variable
+    model.component(comp_name).variable(var_name).setInitialValue(init)
+
+def update_varmap(model, varmaps):
+    # input: model, the CellML model object
+    #        varmaps, a list of variable mappings [(comp1,var1,comp2,var2),(comp3,var3,comp4,var4)]
+    for varmap in varmaps:
+        comp1 = varmap[0]
+        var1 = varmap[1]
+        comp2 = varmap[2]
+        var2 = varmap[3]
+        Variable.addEquivalence(model.component(comp1).variable(var1), model.component(comp2).variable(var2))
+
 
 def suggestConnection (model,comp1, comp2):
     mapVariablesbyName_UI (model, comp1, comp2)

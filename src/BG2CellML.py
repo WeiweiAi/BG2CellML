@@ -280,7 +280,7 @@ def read_csvBG():
     voi = 't'
     units = Units('second')
     voi = Variable(voi)
-    voi.setUnits(units)
+    voi.setUnits(units) 
     # Build model_BG
     component=Component(model_BG.name())
     component_param=Component(model_BG_param.name())

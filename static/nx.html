@@ -65,9 +65,8 @@
 			  var nodes_from_py=[
         { id: 1, label: "CellML model", level:0},
         { id: 2, label: "Module 1", level :1},
-        { id: 3, label: "Module 2" , level : 2},
-        { id: 4, label: "Module 3", level : 3},
-        { id: 5, label: "Module 4", level : 2},
+        { id: 3, label: "Module 2" , level : 1},
+        { id: 4, label: "Module 3", level : 1},
       ];
 	    console.log(nodes_from_py);
 			  var edges_from_py = [
@@ -88,12 +87,6 @@
           to: 3,
           arrows: "to, from",
           color: { color: "red" },
-        },
-        {
-          from: 5,
-          to: 2,
-          arrows:  "to, from",
-          color: { color: "green" },
         },
         {
           from: 4,
@@ -153,22 +146,8 @@
 
                   var options = {"manipulation": {"enabled": true, "initiallyActive": true},"physics":{"barnesHut":{"avoidOverlap":3}},"interaction": {"multiselect": true},"layout":{"randomSeed": 5,"hierarchical": {"sortMethod": 'directed',"enabled":true,"direction": 'RL',"shakeTowards": 'roots',"levelSeparation": 300,"nodeSpacing": 200,"treeSpacing": 500} },"edges": { "smooth": {"type": "horizontal","forceDirection": "none"}}};
 
-                  
-
-
-                  
-
                   network = new vis.Network(container, data, options);
-
-                  
-
-                  
-
-                  
-
-
-                  
-
+                                  
                   return network;
 
               }
