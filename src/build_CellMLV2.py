@@ -208,7 +208,25 @@ def importComponents_clone(model,import_model,import_components_dict):
         dummy_c = import_model.component(importReference).clone()
         dummy_c.setName(component)
         model.addComponent(dummy_c)
+        real_c = import_model.component(importReference)
+        # list of the children components of the dummy component
+        children_components = [dummy_c.component(child_numb).name() for child_numb in range(dummy_c.componentCount())]
+        # check if the component has children components and if the children components have equivalent variables
+        for child_numb in range(dummy_c.componentCount()):
+            dummy_c_child = dummy_c.component(child_numb)
+            real_c_child = real_c.component(child_numb)
+            for var_numb in range(dummy_c_child.variableCount()):
+                if real_c_child.variable(var_numb).equivalentVariableCount()>0:
+                    for e in range(real_c_child.variable(var_numb).equivalentVariableCount()):
+                        ev = real_c_child.variable(var_numb).equivalentVariable(e)          
+                        ev_parent = ev.parent()
+                        if ev_parent.name() in children_components:
+                            Variable.addEquivalence(dummy_c_child.variable(var_numb), model.component(ev_parent.name()).variable(ev.name())) 
+                        if ev_parent.name() == real_c.name():
+                            Variable.addEquivalence(dummy_c_child.variable(var_numb), model.component(dummy_c.name()).variable(ev.name()))             
     copyUnits_temp(model,import_model)
+
+
 
 def importUnits_UI(model_path,strict_mode=True):
     if ask_for_input('Do you want to import Units?', 'Confirm', True):
@@ -480,34 +498,74 @@ def checkInits(model):
     # input: model: the model object
     # output: 1. a set of variables that have no initial values set((comp1,var1),(comp1,var1)); 
     #         2. a set of variables that have more than two initial values set(set((comp1,var1),(comp1,var1)),set((comp1,var1),(comp1,var1)))
+    # get the list of variables on the left hand side of the equations
+    equations=getEquations(model)
+    regex = r'<apply>\s*<eq/>\s*<ci>(.*?)</ci>\s*<apply>'
+    output_dict = {}
+    for comp_name, equation in equations.items():
+        math_c_reg = equation.replace('\n','')
+        output_vars = re.findall(regex, math_c_reg)
+        output_dict.update({comp_name:output_vars})
+    
+    comp_withMath_list = list(output_dict.keys())
+
     noInit = set()
     multipleInit = {}
-    for comp_numb in range(model.componentCount()):
-        multipleInit.update({model.component(comp_numb).name():[]})
-        for var_numb in range(model.component(comp_numb).variableCount()):
-            if model.component(comp_numb).variable(var_numb).equivalentVariableCount()==0:
-                if model.component(comp_numb).variable(var_numb).initialValue() == '':
-                    noInit.add((model.component(comp_numb).name(), model.component(comp_numb).variable(var_numb).name()))                   
+    def _checkInits(parentcomp):
+        multipleInit.update({parentcomp.name():[]})
+        for var_numb in range(parentcomp.variableCount()):
+            if parentcomp.variable(var_numb).equivalentVariableCount()==0:
+                if parentcomp.variable(var_numb).initialValue() == '':
+                    if parentcomp.name() in comp_withMath_list:
+                        if parentcomp.variable(var_numb).name() not in output_dict[parentcomp.name()]:
+                           noInit.add((parentcomp.name(), parentcomp.variable(var_numb).name()))                   
             else:
                 tempset=set()
                 initcount = 0
-                if model.component(comp_numb).variable(var_numb).initialValue() != '':
+
+                if parentcomp.variable(var_numb).initialValue() != '':
                     initcount += 1
-                    tempset.add((model.component(comp_numb).name(), model.component(comp_numb).variable(var_numb).name())) 
-                for e in range(model.component(comp_numb).variable(var_numb).equivalentVariableCount()):
-                    ev = model.component(comp_numb).variable(var_numb).equivalentVariable(e)               
+                    tempset.add((parentcomp.name(), parentcomp.variable(var_numb).name())) 
+                for e in range(parentcomp.variable(var_numb).equivalentVariableCount()):
+                    ev = parentcomp.variable(var_numb).equivalentVariable(e)               
                     ev_parent = ev.parent()
                     if ev.initialValue() != '':
                         initcount += 1
                         tempset.add((ev_parent.name(), ev.name()))
+                
                 if initcount > 1:
-                    multipleInit[model.component(comp_numb).name()].append(tempset)
+                    multipleInit[parentcomp.name()].append(tempset)
+                elif initcount == 0:
+                    if parentcomp.name() in comp_withMath_list:
+                        if parentcomp.variable(var_numb).name() not in output_dict[parentcomp.name()]:
+                           noInit.add((parentcomp.name(), parentcomp.variable(var_numb).name()))
+                    else:
+                        flag_output = False
+                        for comp_withMath, output_vars in output_dict.items():
+                            for output_var in output_vars:
+                                if not parentcomp.variable(var_numb).hasEquivalentVariable(model.component(comp_withMath).variable(output_var),True): # to do: seems not working
+                                    print(comp_withMath, output_var,parentcomp.variable(var_numb).name()) #
+                                    #noInit.add((parentcomp.name(), parentcomp.variable(var_numb).name()))                           
+                                for e in range(parentcomp.variable(var_numb).equivalentVariableCount()):
+                                    ev = parentcomp.variable(var_numb).equivalentVariable(e)               
+                                    ev_parent = ev.parent()
+                                    if ev_parent.name()==comp_withMath and ev.name()==output_var:
+                                        flag_output = True
+                                        break
+                        if not flag_output:
+                            noInit.add((parentcomp.name(), parentcomp.variable(var_numb).name()))
+
+        for child_numb in range(parentcomp.componentCount()):
+            _checkInits(parentcomp.component(child_numb))
+
+    for comp_numb in range(model.componentCount()):
+        _checkInits(model.component(comp_numb))
     
     multipleInit_summary = set()
     for comp in multipleInit.keys():
         for item in multipleInit[comp]:
             multipleInit_summary.add(item)
-    
+
     return noInit, multipleInit_summary
 
 def addInits(model,comp_name,var_name,init):

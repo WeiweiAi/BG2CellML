@@ -3,7 +3,7 @@ import sys
 sys.path.insert(1, './src')
 from flask import Flask, render_template, redirect, url_for,request,jsonify
 from flask_bootstrap import Bootstrap5
-from src.build_CellMLV2 import getEquations
+from src.build_CellMLV2 import getEquations,writeCellML_default,checkInits
 import os
 from pathlib import Path, PurePath
 from flask_wtf import FlaskForm, CSRFProtect
@@ -15,7 +15,7 @@ from src.CellML_annotator import visualize_model,get_bioProcess,RDF_Graph,compos
 from src import cellml
 from pyvis.network import Network
 from src.utilities import getCompinfo
-
+import re
 selection_dict = {} # {model1:{'components':{comp:compref,..},"annotation":annotation_dict,...}}
 
 
@@ -28,13 +28,24 @@ def getEquations_present(model):
         #preff = '{http://www.w3.org/1998/Math/MathML}'
         if '<math ' not in math_c:
             math_c = '<math xmlns="http://www.w3.org/1998/Math/MathML">' + math_c + '</math>'
-        mml_dom = etree.fromstring(math_c)
-        mmldom = tran_c2p(mml_dom)            
-        return str(mmldom).replace('·', '&#xB7;').replace('−', '-').replace('<?xml version="1.0"?>', '<?xml version="1.0" encoding="UTF-8"?>')
+        # separate the math_c according to <math> and </math>
+        math_c_reg=math_c.replace('\n','')
+        regex = r'(<math[^>]*>)(.*?)(</math>)'
+        math_match = re.findall(regex, math_c_reg)
+        math_present = []
+        for tuple in math_match:
+            submath_c = ''.join(tuple)
+            if '<math ' not in submath_c:
+                submath_c = '<math xmlns="http://www.w3.org/1998/Math/MathML">' + submath_c + '</math>'
+
+            mml_dom = etree.fromstring(submath_c)
+            mmldom = tran_c2p(mml_dom)
+            math_present.append(str(mmldom).replace('·', '&#xB7;').replace('−', '-').replace('<?xml version="1.0"?>', '<?xml version="1.0" encoding="UTF-8"?>'))  
+                    
+        return math_present
     
     for key,value in equations.items():
         math_jason.append((key,m_c2p(value)))
-
     return math_jason
 
 class model_form(FlaskForm):
@@ -50,7 +61,6 @@ model_fullpath_list = []
 model_list = []
 pyvis_graph_list = []
 bioPro_list = []
-selected_components = set() # 
 
 for filename in filenames:
     model_fullpath = PurePath(foldername).joinpath(filename)
@@ -77,37 +87,24 @@ bootstrap = Bootstrap5(app)
 # Flask-WTF requires this line
 csrf = CSRFProtect(app)
 
+# The index page
 @app.route("/", methods=['GET', 'POST'])
 def index():
-    pairs = []
-    for model_index, model_fullpath in enumerate (model_fullpath_list):
-        pairs.append((model_index,model_fullpath))
-    form = model_form('test')
-    selected_components_list = list(selected_components)
-    forms=[form]
-    for iform in forms:
-       if iform.validate_on_submit():
-          var_init = iform.var_init.data
-          print(var_init)
-
-    return render_template('index.html', graph="model.png", pairs=pairs, selected_components=selected_components_list,forms=forms)
-
-@app.route("/new_model_display", methods=['GET', 'POST'])
-def new_model_display():
-
-    pyvis_graph = pyvis_graph_list[-1]
-    model=model_list[-1]
     if request.method == 'GET':
-        nodes =pyvis_graph.nodes
-        edges= pyvis_graph.edges
-        nodes=json.dumps(nodes)
-        edges=json.dumps(edges)
-        math_list = getEquations_present(model)
-
-    return render_template('new_model.html', mmodel_name='aa',nodes=nodes,edges=edges,math_list=math_list)
+        pairs = []
+        for model_index, model_fullpath in enumerate (model_fullpath_list):
+            pairs.append((model_index,model_fullpath))
+        selected_components = set() # 
+        for model,selected in selection_dict.items():
+            for comp,comp_ref in selected['components'].items():
+                selected_components.add((model.name(),comp_ref))  
+        selected_components_list = list(selected_components)
+    
+    return render_template('index.html', graph="model.png", pairs=pairs, selected_components=selected_components_list)
 
 @csrf.exempt
 @app.route("/compose",methods=['POST'])
+# When the user clicks the compose button in the index page, the new model will be composed
 def compose():
     data = request.get_json() # retrieve the data sent from JavaScript
     model_name = data['model_name']
@@ -117,12 +114,70 @@ def compose():
     new_G_model=visualize_model(new_model,'complete',None)
     pyvis_graph = Network(height="750px", width="100%",directed=True,layout=True)
     pyvis_graph.from_nx(new_G_model)
-    nodes =pyvis_graph.nodes
-    edges= pyvis_graph.edges
     pyvis_graph_list.append(pyvis_graph)
     model_list.append(new_model)
-        
-    return jsonify(nodes=nodes,edges=edges) # return the result to JavaScript
+    full_path=f'./test/cellml/SLC_SS/{model_name}.cellml'
+    writeCellML_default(full_path, new_model)
+    return jsonify(model_name=model_name) # return the result to JavaScript
+   
+@app.route("/model/<num>", methods=['GET', 'POST'])
+# When the user clicks the model name in the index page, the model page will be shown
+def detail(num):
+    model_fullpath = model_fullpath_list[int(num)]
+    pyvis_graph = pyvis_graph_list[int(num)]
+    model=model_list[int(num)]
+    if request.method == 'GET':
+        nodes =pyvis_graph.nodes
+        edges= pyvis_graph.edges
+        nodes=json.dumps(nodes)
+        edges=json.dumps(edges)
+        math_list = getEquations_present(model)
+        selection_dict.update({model:{"components":{},"annotation":{}}})
+        return render_template('model.html', model_name=model_fullpath,model_index=num, nodes=nodes,edges=edges,math_list=math_list)
+    else:
+        return redirect('/')
+    
+@csrf.exempt
+@app.route("/process",methods=['POST'])
+# When the user clicks the submit button in the model page, the selected components will be processed
+def process():
+    data = request.get_json() # retrieve the data sent from JavaScript
+    model_index = data['model_index']
+    selected_nodes = data['selected_nodes']
+    model=model_list[int(model_index)]
+    import_components_dict={}
+    bioPro=bioPro_list[int(model_index)]   
+    for comp_ref in selected_nodes:
+        comp= f"{comp_ref}_{model_index}"
+        import_components_dict.update({comp:comp_ref})
+    selection_dict.update({model:{"components":import_components_dict,"annotation":bioPro}})
+    print(selection_dict)
+     
+    return jsonify('success') # return the result to JavaScript
+
+# The new model page
+@app.route("/new_model", methods=['GET', 'POST'])
+def new_model():
+    if request.method == 'GET':
+        pyvis_graph = pyvis_graph_list[-1]
+        model=model_list[-1]
+        nodes =pyvis_graph.nodes
+        edges= pyvis_graph.edges
+        nodes=json.dumps(nodes)
+        edges=json.dumps(edges)
+        math_list = getEquations_present(model)
+        noInit, multipleInit_summary = checkInits(model)
+        var_noInit_forms=[]
+        for var in noInit:
+            form = model_form(var)
+            var_noInit_forms.append(form)
+
+    for iform in var_noInit_forms:
+       if iform.validate_on_submit():
+          var_init = iform.var_init.data
+          print(var_init)    
+
+    return render_template('new_model.html', forms=var_noInit_forms, mmodel_name='aa',nodes=nodes,edges=edges,math_list=math_list)
 
 @csrf.exempt
 @app.route("/add_edge",methods=['POST'])
@@ -136,56 +191,5 @@ def add_edge():
 
     return jsonify(nodes=nodes,edges=edges) # return the result to JavaScript
 
-@csrf.exempt
-@app.route("/process",methods=['POST'])
-def process():
-    data = request.get_json() # retrieve the data sent from JavaScript
-    model_index = data['model_index']
-    selected_nodes = data['selected_nodes']
-    model=model_list[int(model_index)]
-    import_components_dict={}
-    bioPro=bioPro_list[int(model_index)]   
-    for comp_ref in selected_nodes:
-        comp= f"{comp_ref}_{model_index}"
-        selected_components.add((model.name(),comp_ref))
-        import_components_dict.update({comp:comp_ref})
-    selection_dict.update({model:{"components":import_components_dict,"annotation":bioPro}})
-    print(selection_dict)
-     
-     # process the data using Python code
-    nodes =pyvis_graph.nodes
-    edges= pyvis_graph.edges
-    nodes=json.dumps(nodes)
-    edges=json.dumps(edges)
-    # get back to index.html
-
-    return jsonify(nodes=nodes,edges=edges) # return the result to JavaScript
-
-    # process the data using Python code
-   
-    
-
-@app.route("/model/<num>", methods=['GET', 'POST'])
-def detail(num):
-    model_fullpath = model_fullpath_list[int(num)]
-    pyvis_graph = pyvis_graph_list[int(num)]
-    model=model_list[int(num)]
-    if request.method == 'GET':
-        nodes =pyvis_graph.nodes
-        edges= pyvis_graph.edges
-        nodes=json.dumps(nodes)
-        edges=json.dumps(edges)
-        math_list = getEquations_present(model)
-        return render_template('model.html', model_name=model_fullpath,model_index=num, nodes=nodes,edges=edges,math_list=math_list)
-    else:
-        nodes = request.form.get('nodes')
-        edges = request.form.get('edges')
-        nodes=json.loads(nodes)
-        edges=json.loads(edges)
-        print(nodes)
-        print(edges)
-        return redirect('/')
-
-
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=7000, debug=True)
+    app.run(host="127.0.0.1", port=8000, debug=True)

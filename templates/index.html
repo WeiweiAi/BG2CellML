@@ -19,39 +19,7 @@ Best Movie Actors
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script>
-     window.onload = function() {
-        var iframe = document.getElementById("myiframe");
-        iframe.width = iframe.contentWindow.document.body.scrollWidth;
-        iframe.height = iframe.contentWindow.document.body.scrollHeight;
-     }
-  </script>
-  <script>
-    function add_edge() {
-      network= document.getElementById('myiframe').contentWindow.network;
-      var selected_edges = network.getSelectedEdges();
-      var new_selected_nodes = network.getConnectedNodes(selected_edges[0]);   
-        $.ajax({
-            url: '/add_edge',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify( {'new_edge':new_selected_nodes}),
-            success: function(response) {
-              document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(response.nodes),JSON.stringify(response.edges));
-              document.getElementById('myiframe').contentWindow.drawGraph();
-              network.fit()
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-        document.getElementById("node-pair").innerHTML = new_selected_nodes;
-    }
-</script>
-  <script>
-    function compose() {
-      network= document.getElementById('myiframe').contentWindow.network;
-      var selected_edges = network.getSelectedEdges();
-      var new_selected_nodes = network.getConnectedNodes(selected_edges[0]);       
+    function compose() {      
       var model_name = document.getElementById("name").value;
       var input =document.getElementById("name").value;
       console.log(model_name);
@@ -61,9 +29,8 @@ Best Movie Actors
           contentType: 'application/json',
           data: JSON.stringify( {'model_name':model_name}),
           success: function(response) {
-            document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(response.nodes),JSON.stringify(response.edges));
-            document.getElementById('myiframe').contentWindow.drawGraph();
-            network.fit()
+              console.log(response);
+              window.location.href = "/new_model";
           },
           error: function(error) {
               console.log(error);
@@ -75,38 +42,29 @@ Best Movie Actors
 <div class="container">
   <div class="row">
     <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-
-      <h1 class="pt-5 pb-2">CellML model composition</h1>
+      <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
+      <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
+      <h1 class="pt-5 pb-2">CellML Model Composition</h1>
       <p class="lead">This is the page for a CellML model composition demo. </p>
-      <h2 class = "model display"> Model Visualization </h2>
-      <p>Click the model to view its structure and select the components to import.</p>
+      <h2 class = "model search"> Search the models in PMR or select the modules in the generic cell flatmap </h2>
+      <h2 class = "model display"> Model candidate list </h2>
+      <p>The following are the models selected for your application, please click on individual model to view its structure and select the modules to import.</p>
       <ul>
         {% for pair in pairs %}
             <li><a href="{{ url_for( 'detail', num=pair[0] ) }}"  target="_blank" >{{ pair[1] }}</a></li>
         {% endfor %}
       </ul>
-      <p>The selected components are: </p>
+      <p>The selected modules are as following: </p>
       <ul>
         {% for selected_component in selected_components %}
-            <li> {{selected_component[0]}}:{{selected_component[1]}}</li>
+            <li> {{selected_component[0]}}:  {{selected_component[1]}}</li>
         {% endfor %}
       </ul>
       <h2 class = "Model composition"> Model Composition </h2>
-      <label for="name">Please type the model name:</label>
+      <p>Click the compose model button and you will be seeing the new model on success.</p>
+      <label for="name">Please type the model name first:</label>
       <input type="text" id="name" name="name" required minlength="1"  size="10">
-      <button onclick="compose()">Compose the new model</button>
-      <li><a href="{{ url_for( 'new_model_display' ) }}"  target="_blank" >go to new model</a></li>
-      <p>Please provide an initial value for the following variables: </p>
-      <ul>
-        {% for form in forms %}
-           {{ render_form(form) }}
-        {% endfor %}
-      </ul>
-      <div>The selected edge links: <span id="node-pair"></span></div>
-      <button onclick="add_edge()">Select and add new connection</button>
-      <p>The composed new model: </p>
-      <iframe id="myiframe", src="{{url_for('static',filename='nx.html')}}",frameborder="0" width="100%"></iframe>
-            
+      <button onclick="compose()">Compose the new model</button>            
     </div>
   </div>
 </div>

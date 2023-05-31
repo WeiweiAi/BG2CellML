@@ -56,9 +56,11 @@ Best Movie Actors
 </script>
 </head>
 <body>
-  <h1>Model visualization and module selection
-  <h2> Module selection </h2>
-    <p> Please select the modules you want to use in your model and click the button to confirm. </p>
+  <h1>Module Visualization and Selection
+    <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
+    <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
+  <h2> Module Selection </h2>
+    <p> Please select the modules that you want to use in your model and click the button to confirm. </p>
     <button onclick="sendData()">Submit your selected modules</button>
     <h2>  </h2>
     <div>The selected modules are: <span id="select-result"></span></div>
@@ -68,7 +70,12 @@ Best Movie Actors
   <h2> The math in the model    
     {% for math in math_list %}
     {% autoescape off %}
-      <li>{{math[0]}}:{{math[1]}}</li>
+      <li>{{math[0]}}:</li>
+	  {% for submath in math[1] %}
+	  {% autoescape off %}
+	   <li>{{submath}}</li>
+	   {% endautoescape %}
+	  {% endfor %}
     {% endautoescape %}
     {% endfor %}
   </h2>

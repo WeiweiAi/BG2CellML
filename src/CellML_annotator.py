@@ -7,7 +7,7 @@ from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 import networkx as nx
 from utilities import infix_to_mathml
 from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable, Annotator
-from build_CellMLV2 import importComponents_clone,getEntityList,copyUnits_temp
+from build_CellMLV2 import importComponents_clone,getEntityList,copyUnits_temp, MATH_FOOTER, MATH_HEADER
 import numpy as np
 def getEntityID(model, comp_name=None, var_name=None):
     # input: model, the CellML model object
@@ -353,7 +353,8 @@ def compose_model(new_model_name,selection_dict):
     units = Units('second')
     voi = Variable(voi)
     voi.setUnits(units)
-    new_component.addVariable(voi)    
+    new_component.addVariable(voi)   
+    new_component.setMath(MATH_HEADER)
     # Clone the selected components from the selected models to the new model
     for import_model,model_info in selection_dict.items():
        import_components_dict=model_info['components']
@@ -365,7 +366,7 @@ def compose_model(new_model_name,selection_dict):
     annotator.setModel(new_model)
     annotator.clearAllIds()
     annotator.assignAllIds()
-    
+
     species_list = {}
     flux_list = {}
     def update_unique_process(flux_list,mediator,model):
@@ -415,12 +416,21 @@ def compose_model(new_model_name,selection_dict):
     
     for speciesID, species_info in species_list.items():
         print("species", speciesID, species_info)
-        q_var = Variable(f"q_{new_model_name}_{speciesID}")
+        qvar_infos = species_info['varinfo']
+        q_var = Variable(f"q_{speciesID}")
         new_component.addVariable(q_var)
         ode_var = f'{q_var.name()}'
+        new_v_ss_q = f'v_ss_{speciesID}_new'
+        new_v_ss = Variable(new_v_ss_q)
+        model = qvar_infos[0][0]
+        v_ss_ID = qvar_infos[0][1]
+        comp_name, fvar_name=getNamebyID(model, v_ss_ID)
+        vss_units=model.component(comp_name).variable(fvar_name).units().clone()
+        new_v_ss.setUnits(vss_units)
+        new_component.addVariable(new_v_ss)
+        new_component.appendMath(infix_to_mathml(''.join(new_v_ss_q), ode_var,voi="t"))
         eq = []
-        # get the units of the quantity variable
-        qvar_infos = species_info['varinfo']
+        # get the units of the quantity variable        
         print('qvar_infos',qvar_infos)
         for qvar_info in qvar_infos:
             model = qvar_info[0]
@@ -452,7 +462,9 @@ def compose_model(new_model_name,selection_dict):
                         for component in list(import_components_dict.keys()):
                            if comp_name == import_components_dict[component]:                              
                                var_list=getEntityList(new_model,new_model.name())
-                               new_v_ss_name = f'{fvar_name}_{comp_name}_{new_model.name()}'
+                               # get the end of the component name to avoid duplication
+                               compid=component.split('_')[-1]
+                               new_v_ss_name = f'{fvar_name}_{compid}'
                                if new_v_ss_name not in var_list:
                                       new_v_ss = Variable(new_v_ss_name)
                                       vss_units=model_f.component(comp_name).variable(fvar_name).units().clone()
@@ -463,15 +475,22 @@ def compose_model(new_model_name,selection_dict):
                                       Variable.addEquivalence(new_component.variable(new_v_ss_name), new_model.component(component).variable(fvar_name))                                                                    
                         if participant_location == 'sources':
                             if coef == 1:
-                                eq.append(f'-{fvar_name}_{comp_name}')
+                                eq.append(f'-{fvar_name}_{compid}')
                             else:
-                                eq.append(f'-{coef}*{fvar_name}_{comp_name}')
+                                eq.append(f'-{coef}*{fvar_name}_{compid}')
                         elif participant_location == 'sinks':
                             if coef == 1:
-                                eq.append(f'{fvar_name}_{comp_name}')
+                                if len(eq) == 0:
+                                    eq.append(f'{fvar_name}_{compid}')
+                                else:
+                                    eq.append(f'+{fvar_name}_{compid}')
                             else:
-                                eq.append(f'{coef}*{fvar_name}_{comp_name}')
-        new_component.appendMath(infix_to_mathml(''.join(eq), ode_var,voi="t"))            
+                                if len(eq) == 0:
+                                    eq.append(f'{coef}*{fvar_name}_{compid}')
+                                else:
+                                    eq.append(f'+{coef}*{fvar_name}_{compid}')
+        new_component.appendMath(infix_to_mathml(''.join(eq), new_v_ss_q))
+    new_component.appendMath(MATH_FOOTER)            
     return new_model
         
 

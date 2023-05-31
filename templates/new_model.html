@@ -34,6 +34,28 @@ Best Movie Actors
      }
   </script>
   <script>
+    function add_edge() {
+      network= document.getElementById('myiframe').contentWindow.network;
+      var selected_edges = network.getSelectedEdges();
+      var new_selected_nodes = network.getConnectedNodes(selected_edges[0]);   
+        $.ajax({
+            url: '/add_edge',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify( {'new_edge':new_selected_nodes}),
+            success: function(response) {
+              document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(response.nodes),JSON.stringify(response.edges));
+              document.getElementById('myiframe').contentWindow.drawGraph();
+              network.fit()
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+        document.getElementById("node-pair").innerHTML = new_selected_nodes;
+    }
+</script>
+  <script>
     function sendData() {
         network= document.getElementById('myiframe').contentWindow.network;
         var selected_nodes = network.getSelectedNodes();   
@@ -54,19 +76,39 @@ Best Movie Actors
 </script>
 </head>
 <body>
-  <h1>Model visualization and module selection
-  <h2> Module selection </h2>
-    <p> Please select the modules you want to use in your model and click the button to confirm. </p>
-    <button onclick="sendData()">Submit your selected modules</button>
+  <h1>Model Review and Validation
+    <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
+    <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
+  <h2> Model Review </h2>
+    <p> Please review the new model and edit it as needed. You could also return the composition page to recompose the model.</p>
+    <p><a href="/">Return to the model composition page</a> </p>
+  <h2> Model editing </h2>
+  <h3> Initial vaules </h3>
+  <p>Please provide an initial value for the following variables: </p>
+  <ul>
+    {% for form in forms %}
+       {{ render_form(form) }}
+    {% endfor %}
+  </ul>
+  <p>Please select one node to keep the initial value </p>
+  <h3> Variable mapping </h3>
+    <div>The selected edge links: <span id="node-pair"></span></div>
+      <button onclick="add_edge()">Select and add new connection</button>
     <h2>  </h2>
-    <div>The selected modules are: <span id="select-result"></span></div>
-    <p><a href="/">Return to the model composition page</a> </p>  
+	
+      
+      
     <iframe id="myiframe", src="{{url_for('static',filename='nx.html')}}",frameborder="0" width="100%"></iframe>  
   <p class="lead">The model structure of {{model_name}} </p>
-  <h2> The math in the model    
+   <h2> The math in the model    
     {% for math in math_list %}
     {% autoescape off %}
-      <li>{{math[0]}}:{{math[1]}}</li>
+      <li>{{math[0]}}:</li>
+	  {% for submath in math[1] %}
+	  {% autoescape off %}
+	   <li>{{submath}}</li>
+	   {% endautoescape %}
+	  {% endfor %}
     {% endautoescape %}
     {% endfor %}
   </h2>
