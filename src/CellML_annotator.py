@@ -354,11 +354,13 @@ def compose_model(new_model_name,selection_dict):
     voi = Variable(voi)
     voi.setUnits(units)
     new_component.addVariable(voi)   
-    new_component.setMath(MATH_HEADER)
+    #new_component.setMath(MATH_HEADER)
     # Clone the selected components from the selected models to the new model
     for import_model,model_info in selection_dict.items():
        import_components_dict=model_info['components']
        importComponents_clone(new_model,import_model,import_components_dict)
+       
+    copyUnits_temp(new_model,import_model)
     print('new_model components',getEntityList(new_model))
     # Add new variables for each unique species to the new component
     # To do: check if the species is selected by the user; now assume all species are selected
@@ -428,7 +430,9 @@ def compose_model(new_model_name,selection_dict):
         vss_units=model.component(comp_name).variable(fvar_name).units().clone()
         new_v_ss.setUnits(vss_units)
         new_component.addVariable(new_v_ss)
+        new_component.appendMath(MATH_HEADER)
         new_component.appendMath(infix_to_mathml(''.join(new_v_ss_q), ode_var,voi="t"))
+        new_component.appendMath(MATH_FOOTER)
         eq = []
         # get the units of the quantity variable        
         print('qvar_infos',qvar_infos)
@@ -489,8 +493,10 @@ def compose_model(new_model_name,selection_dict):
                                     eq.append(f'{coef}*{fvar_name}_{compid}')
                                 else:
                                     eq.append(f'+{coef}*{fvar_name}_{compid}')
+        new_component.appendMath(MATH_HEADER)
         new_component.appendMath(infix_to_mathml(''.join(eq), new_v_ss_q))
-    new_component.appendMath(MATH_FOOTER)            
+        new_component.appendMath(MATH_FOOTER)
+    new_model.fixVariableInterfaces()            
     return new_model
         
 

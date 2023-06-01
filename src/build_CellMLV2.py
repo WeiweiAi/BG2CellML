@@ -288,19 +288,47 @@ def copyUnits_temp(model,units_model):
     # output: None
     #        The import units will be added to the model; 
     #        The units to import are determined by the intersection of units_undefined in the model and the units defined in the import source
-    units_undefined=_checkUndefinedUnits(model)
+    units_undefined=_checkUndefinedUnits_temp(model)
     if len(units_undefined)>0:
         # Get the intersection of the units_undefined and the units defined in the import source
         existing_units=set([units_model.units(unit_numb).name() for unit_numb in range(units_model.unitsCount())]) # Get the units names defined in the import source
         units_to_copy = units_undefined.intersection(existing_units)
     else:
         units_to_copy = set()
-    units_to_copy.add('per_sec')
-    units_to_copy.add('per_fmol')
     for unit in units_to_copy:
         u = units_model.units(unit).clone() # Get the units object from the import source based on the name       
         model.addUnits(u)
     print(f'The units {units_to_copy} have been copied.')
+
+"""Check the undefined non base units"""
+def _checkUndefinedUnits_temp(model):
+    # inputs:  a model object
+    # outputs: a set of undefined units names
+    units_claimed = set()
+    def _getUnitsClaimed(component):
+        for var_numb in range(component.variableCount()):
+            if component.variable(var_numb).units().name() != '':
+                if  not (component.variable(var_numb).units().name() in BUILTIN_UNITS.keys()):
+                    units_claimed.add(component.variable(var_numb).units().name())
+        for child_numb in range(component.componentCount()):
+            _getUnitsClaimed(component.component(child_numb))
+
+    for comp_numb in range(model.componentCount()): # Does it count the import components?
+        if not model.component(comp_numb).requiresImports(): # Check if the component is imported
+            _getUnitsClaimed(model.component(comp_numb))
+    
+    for units_numb in range(model.unitsCount()):
+        # print(model.units(unit_numb).name())
+        for unit_numb in range(model.units(units_numb).unitCount()):
+            if  not (model.units(units_numb).unitAttributeReference(unit_numb) in BUILTIN_UNITS.keys()):
+                units_claimed.add(model.units(units_numb).unitAttributeReference(unit_numb))
+
+    units_defined = set()
+    for units_numb in range(model.unitsCount()):
+        # print(model.units(unit_numb).name())
+        units_defined.add(model.units(units_numb).name()) 
+    units_undefined = units_claimed - units_defined
+    return units_undefined
 
 """Check the undefined non base units"""
 def _checkUndefinedUnits(model):
@@ -507,6 +535,13 @@ def checkInits(model):
         output_vars = re.findall(regex, math_c_reg)
         output_dict.update({comp_name:output_vars})
     
+    regex = r'<apply>\s*<eq/>\s*<apply>\s*<diff/>\s*<bvar>\s*<ci>(.*?)</ci>\s*</bvar>\s*<ci>(.*?)</ci>\s*</apply>' # odes
+    for comp_name, equation in equations.items():
+        math_c_reg = equation.replace('\n','')
+        output_vars = re.findall(regex, math_c_reg)
+        for var in output_vars:
+            output_dict[comp_name].append(var[1]) # 
+
     comp_withMath_list = list(output_dict.keys())
 
     noInit = set()

@@ -7,7 +7,6 @@
 Best Movie Actors
 {% endblock %}
 
-
 {% block content %}
 
 <!--
@@ -15,104 +14,258 @@ Best Movie Actors
 	https://github.com/helloflask/bootstrap-flask
 	https://bootstrap-flask.readthedocs.io/
 -->
+
 <head>
+
+  <style>
+    .column {
+      float: left;
+      width: 50%;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+  </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <div id="nodes" data-pynodes="{{nodes}}"></div>
   <div id="edges" data-pyedges="{{edges}}"> </div>
-  <div id = "model_name" data-pymodel_name="{{model_name}}"></div>
+  <div id="model_name" data-pymodel_name="{{model_name}}"></div>
   <script>
-     window.onload = function() {
-        var iframe = document.getElementById("myiframe");
-        iframe.width = iframe.contentWindow.document.body.scrollWidth;
-        iframe.height = iframe.contentWindow.document.body.scrollHeight;
-        network= document.getElementById('myiframe').contentWindow.network;
-        var nodes= JSON.parse(document.getElementById("nodes").dataset.pynodes);
-        var edges = JSON.parse(document.getElementById("edges").dataset.pyedges);
-        document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(nodes),JSON.stringify(edges));
-        document.getElementById('myiframe').contentWindow.drawGraph();
-        network.fit()
-     }
+    window.onload = function () {
+      var iframe = document.getElementById("myiframe");
+      iframe.width = iframe.contentWindow.document.body.scrollWidth;
+      iframe.height = iframe.contentWindow.document.body.scrollHeight;
+      network = document.getElementById('myiframe').contentWindow.network;
+      var nodes = JSON.parse(document.getElementById("nodes").dataset.pynodes);
+      var edges = JSON.parse(document.getElementById("edges").dataset.pyedges);
+      document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(nodes), JSON.stringify(edges));
+      document.getElementById('myiframe').contentWindow.drawGraph();
+      network.fit()
+    }
   </script>
   <script>
     function add_edge() {
-      network= document.getElementById('myiframe').contentWindow.network;
+      network = document.getElementById('myiframe').contentWindow.network;
       var selected_edges = network.getSelectedEdges();
-      var new_selected_nodes = network.getConnectedNodes(selected_edges[0]);   
-        $.ajax({
-            url: '/add_edge',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify( {'new_edge':new_selected_nodes}),
-            success: function(response) {
-              document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(response.nodes),JSON.stringify(response.edges));
-              document.getElementById('myiframe').contentWindow.drawGraph();
-              network.fit()
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-        document.getElementById("node-pair").innerHTML = new_selected_nodes;
+      var new_selected_nodes = network.getConnectedNodes(selected_edges[0]);
+      $.ajax({
+        url: '/add_edge',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'new_edge': new_selected_nodes }),
+        success: function (response) {
+          document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(response.nodes), JSON.stringify(response.edges));
+          document.getElementById('myiframe').contentWindow.drawGraph();
+          network.fit()
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+      document.getElementById("node-pair").innerHTML = new_selected_nodes;
     }
-</script>
+  </script>
   <script>
     function sendData() {
-        network= document.getElementById('myiframe').contentWindow.network;
-        var selected_nodes = network.getSelectedNodes();   
-        console.log(selected_nodes);
-        $.ajax({
-            url: '/process',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify( {'selected_nodes':selected_nodes}),
-            success: function(response) {
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-        document.getElementById("select-result").innerHTML = selected_nodes;
+      network = document.getElementById('myiframe').contentWindow.network;
+      var selected_nodes = network.getSelectedNodes();
+      if (selected_nodes.length == 1) {
+        if (network.body.data.nodes.get(selected_nodes[0]).shape == "box") {
+          var comp_name = network.body.data.nodes.get(selected_nodes[0]).label;
+          document.getElementById("comp_name").value = comp_name;
+          document.getElementById("var_name").value = "";
+        };
+        if (network.body.data.nodes.get(selected_nodes[0]).shape == "ellipse") {
+          var var_name = network.body.data.nodes.get(selected_nodes[0]).label;
+          document.getElementById("var_name").value = var_name;
+          // comp_name is the id stripped from the label
+          var_name_0 = var_name.split(':')[0];
+          var comp_name = network.body.data.nodes.get(selected_nodes[0]).id.replace(var_name_0, '');
+          document.getElementById("comp_name").value = comp_name;
+        };
+      } else {
+        document.getElementById("comp_name").value = "";
+        document.getElementById("var_name").value = "";
+      };
+      var selected_edges = network.getSelectedEdges();
+      if (selected_edges.length == 1) {
+        var new_selected_nodes = network.getConnectedNodes(selected_edges[0]);
+        console.log(new_selected_nodes);
+        if (new_selected_nodes.length == 2) {
+          if (network.body.data.nodes.get(new_selected_nodes[0]).shape == "box") {
+            var comp_name_1 = network.body.data.nodes.get(new_selected_nodes[0]).label;
+            document.getElementById("comp_name_1").value = comp_name_1;
+            document.getElementById("var_name_1").value = "";
+          };
+          if (network.body.data.nodes.get(new_selected_nodes[1]).shape == "box") {
+            var comp_name_2 = network.body.data.nodes.get(new_selected_nodes[1]).label;
+            document.getElementById("comp_name_2").value = comp_name_2;
+            document.getElementById("var_name_2").value = "";
+          };
+          if (network.body.data.nodes.get(new_selected_nodes[0]).shape == "ellipse") {
+            var var_name_1 = network.body.data.nodes.get(new_selected_nodes[0]).label;
+            document.getElementById("var_name_1").value = var_name_1;
+            // comp_name is the id stripped from the label
+            var var_name_1_0 = var_name_1.split(':')[0];
+            var comp_name_1 = network.body.data.nodes.get(new_selected_nodes[0]).id.replace(var_name_1_0, '');
+            document.getElementById("comp_name_1").value = comp_name_1;
+          };
+          if (network.body.data.nodes.get(new_selected_nodes[1]).shape == "ellipse") {
+            var var_name_2 = network.body.data.nodes.get(new_selected_nodes[1]).label;
+            document.getElementById("var_name_2").value = var_name_2;
+            var var_name_2_0 = var_name_2.split(':')[0];
+            // comp_name is the id stripped from the label
+            var comp_name_2 = network.body.data.nodes.get(new_selected_nodes[1]).id.replace(var_name_2_0, '');
+            document.getElementById("comp_name_2").value = comp_name_2;
+          };
+        } else {
+          document.getElementById("comp_name_1").value = "";
+          document.getElementById("var_name_1").value = "";
+          document.getElementById("comp_name_2").value = "";
+          document.getElementById("var_name_2").value = "";
+        };
+      } else {
+        document.getElementById("comp_name_1").value = "";
+        document.getElementById("var_name_1").value = "";
+        document.getElementById("comp_name_2").value = "";
+        document.getElementById("var_name_2").value = "";
+      };
+
     }
-</script>
+  </script>
+  <script>
+    function model_validation() {
+      var iframe_validation = document.getElementById("validation");
+
+      $.ajax({
+        url: '/validation',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'new_edge': 'aa' }),
+        success: function (response) {
+          iframe_validation.srcdoc = response.json_issues;
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+
+    }
+  </script>
+
+  <script>
+    function update_init() {
+
+      var iframe_validation = document.getElementById("validation");
+
+      $.ajax({
+        url: '/validation',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'new_edge': 'aa' }),
+        success: function (response) {
+          iframe_validation.srcdoc = response.json_issues;
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+
+    }
+  </script>
+
 </head>
+
 <body>
   <h1>Model Review and Validation
-    <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
-    <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
-  <h2> Model Review </h2>
-    <p> Please review the new model and edit it as needed. You could also return the composition page to recompose the model.</p>
+    <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="100" height="100"
+      style="vertical-align:top;float:right">
+    <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="100" height="100"
+      style="vertical-align:top;float:right">
+    <h2>1. Model Review </h2>
+    <p> Please review the new model and edit it as needed. You could also return the composition page to recompose the
+      model.</p>
     <p><a href="/">Return to the model composition page</a> </p>
-  <h2> Model editing </h2>
-  <h3> Initial vaules </h3>
-  <p>Please provide an initial value for the following variables: </p>
-  <ul>
-    {% for form in forms %}
-       {{ render_form(form) }}
-    {% endfor %}
-  </ul>
-  <p>Please select one node to keep the initial value </p>
-  <h3> Variable mapping </h3>
-    <div>The selected edge links: <span id="node-pair"></span></div>
-      <button onclick="add_edge()">Select and add new connection</button>
-    <h2>  </h2>
-	
-      
-      
-    <iframe id="myiframe", src="{{url_for('static',filename='nx.html')}}",frameborder="0" width="100%"></iframe>  
-  <p class="lead">The model structure of {{model_name}} </p>
-   <h2> The math in the model    
-    {% for math in math_list %}
-    {% autoescape off %}
+    <div class="row">
+      <div style="width: 70%; float:left">
+        <iframe id="myiframe" , src="{{url_for('static',filename='nx.html')}}" ,frameborder="0"
+          width="100%"></iframe><br>
+      </div>
+      <div style="width: 30%; float:right">
+        <h2> 2. Model validation </h2>
+        <button onclick="model_validation()">Model validation</button>
+        <iframe id="validation" , srcdoc="The model validation results" ,frameborder="0" height="200"
+          width="100%"></iframe>
+        <h2> 3. Model editing </h2>
+        Select a node or an edge in the graph to edit the model, then click the submission button to confirm. <br>
+        <button onclick="sendData()">Submit your selection </button>
+        <div class="row">
+          <div class="column">
+            <label for="comp_name">component name:</label><br>
+            <input type="text" id="comp_name" value=""><br><br>
+          </div>
+          <div class="column">
+            <label for="var_name">variable name and unit:</label><br>
+            <input type="text" id="var_name" value=""><br><br>
+          </div>
+        </div>
+        <div class="row">
+          <div class="column">
+            <label for="update_init">initial value:</label><br>
+            <input type="text" id="update_init" value=""><br><br>
+          </div>
+          <div class="column">
+            <br>
+            <button onclick="update_init()">Update initial value</button>
+          </div>
+        </div>
+
+        <h3> Variable mapping </h3>
+
+        <div class="row">
+          <div class="column">
+            <label for="comp_name_1">component 1 name:</label><br>
+            <input type="text" id="comp_name_1" value=""><br><br>
+            <label for="comp_name_2">component 2 name:</label><br>
+            <input type="text" id="comp_name_2" value=""><br><br>
+          </div>
+          <div class="column">
+            <label for="var_name_1">variable 1 name and unit:</label><br>
+            <input type="text" id="var_name_1" value=""><br><br>
+            <label for="var_name_2">variable 2 name and unit:</label><br>
+            <input type="text" id="var_name_2" value=""><br><br>
+          </div>
+        </div>
+        <div class="row">
+          <div class="column">
+            <br>
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+          </div>
+        </div>
+
+        <h2> 4. Model parameterization and simulation </h2>
+        <p><a href="">To the model parameterization and simulation page</a> </p>
+      </div>
+    </div>
+
+    <h2> The math in the model
+      {% for math in math_list %}
+      {% autoescape off %}
       <li>{{math[0]}}:</li>
-	  {% for submath in math[1] %}
-	  {% autoescape off %}
-	   <li>{{submath}}</li>
-	   {% endautoescape %}
-	  {% endfor %}
-    {% endautoescape %}
-    {% endfor %}
-  </h2>
-</h1>
+      {% for submath in math[1] %}
+      {% autoescape off %}
+      <li>{{submath}}</li>
+      {% endautoescape %}
+      {% endfor %}
+      {% endautoescape %}
+      {% endfor %}
+    </h2>
+  </h1>
 </body>
 
 {% endblock %}

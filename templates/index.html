@@ -19,56 +19,78 @@ Best Movie Actors
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script>
-    function compose() {      
+    function compose() {
       var model_name = document.getElementById("name").value;
-      var input =document.getElementById("name").value;
+      var input = document.getElementById("name").value;
       console.log(model_name);
       $.ajax({
-          url: '/compose',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify( {'model_name':model_name}),
-          success: function(response) {
-              console.log(response);
-              window.location.href = "/new_model";
-          },
-          error: function(error) {
-              console.log(error);
-          }
+        url: '/compose',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'model_name': model_name }),
+        success: function (response) {
+          console.log(response);
+          window.location.href = "/new_model";
+        },
+        error: function (error) {
+          console.log(error);
+        }
       });
     }
-</script>
+  </script>
+  <script>
+    function deposition() { }
+  </script>
 </head>
 <div class="container">
   <div class="row">
     <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-      <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
-      <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
-      <h1 class="pt-5 pb-2">CellML Model Composition</h1>
-      <p class="lead">This is the page for a CellML model composition demo. </p>
-      <h2 class = "model search"> Search the models in PMR or select the modules in the generic cell flatmap </h2>
-      <h2 class = "model display"> Model candidate list </h2>
-      <p>The following are the models selected for your application, please click on individual model to view its structure and select the modules to import.</p>
+      <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="100" height="100"
+        style="vertical-align:top;float:right">
+      <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="100" height="100"
+        style="vertical-align:top;float:right">
+      <h1 class="pt-5 pb-2">CellML Model Composition<br>Energy-based Approach</h1>
+      <h2> 1. Introduction </h2>
+      <p class="lead">This is the page for a CellML model composition demo. The composition process is based on the
+        <strong> bond graph formalism</strong>,
+        which is an energy-based modelling framework that supports hierarchical and modular modelling.
+      </p>
+      <h2>2. Bond graph model construction </h2>
+      <p> The bond graph model can be created by the tool <a href="/">Bond Graph WebUI</a>. </p>
+      <h2>3. Model Discovery and Retrieval </h2>
+      <h3>Search the models in <a href="https://models.physiomeproject.org/welcome">PMR</a></h3>
+      <h3>Select the modules in the <a href="/">generic cell flatmap</a> </h3>
+
+      <img src="{{url_for('static',filename='GC.png')}}" alt="logo" width=70% style="vertical-align:top;float:center">
+      <h2 class="model display"> 4. Module Selection </h2>
+      <p>The following shows the models selected for your application. Please click on individual model to view its
+        structure and select the modules to import.</p>
       <ul>
         {% for pair in pairs %}
-            <li><a href="{{ url_for( 'detail', num=pair[0] ) }}"  target="_blank" >{{ pair[1] }}</a></li>
+        <li><a href="{{ url_for( 'detail', num=pair[0] ) }}" target="_blank">{{ pair[1] }}</a></li>
         {% endfor %}
       </ul>
+      <h2 class="Model composition">5. Model Composition </h2>
       <p>The selected modules are as following: </p>
       <ul>
         {% for selected_component in selected_components %}
-            <li> {{selected_component[0]}}:  {{selected_component[1]}}</li>
+        <li> {{selected_component[0]}}: {{selected_component[1]}}</li>
         {% endfor %}
       </ul>
-      <h2 class = "Model composition"> Model Composition </h2>
-      <p>Click the compose model button and you will be seeing the new model on success.</p>
-      <label for="name">Please type the model name first:</label>
-      <input type="text" id="name" name="name" required minlength="1"  size="10">
-      <button onclick="compose()">Compose the new model</button>            
+      <p>Please type the model name first, then click the compose model button. You will be redirected to the new model
+        session on success.</p>
+      <label for="name">Model name:</label>
+      <input type="text" id="name" name="name" required minlength="1" size="10">
+      <button onclick="compose()">Compose the new model</button>
+      <p><a href="/new_model">Back to the composed model</a></p>
+      <h2>6. Model Deposition and Sharing </h2>
+      <strong>Please submit <u> the composed model</u> to <a href="https://models.physiomeproject.org/welcome">PMR</a>
+        to <span style="color:#ff0000;">SHARE</span> with the
+        research community.</strong> <br>
+      <br>
+      <button onclick="deposition()">Submit and share </button>
     </div>
   </div>
 </div>
-
-
 
 {% endblock %}

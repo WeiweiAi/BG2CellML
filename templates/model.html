@@ -15,71 +15,114 @@ Best Movie Actors
 	https://github.com/helloflask/bootstrap-flask
 	https://bootstrap-flask.readthedocs.io/
 -->
+
 <head>
+  <style>
+    .column {
+      float: left;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+  </style>
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <div id="nodes" data-pynodes="{{nodes}}"></div>
   <div id="edges" data-pyedges="{{edges}}"> </div>
-  <div id = "model_name" data-pymodel_name="{{model_name}}"></div>
-  <div id = "model_index" data-pymodel_index="{{model_index}}"></div>
+  <div id="model_name" data-pymodel_name="{{model_name}}"></div>
+  <div id="model_index" data-pymodel_index="{{model_index}}"></div>
   <script>
-     window.onload = function() {
-        var iframe = document.getElementById("myiframe");
-        iframe.width = iframe.contentWindow.document.body.scrollWidth;
-        iframe.height = iframe.contentWindow.document.body.scrollHeight;
-        network= document.getElementById('myiframe').contentWindow.network;
-        var nodes= JSON.parse(document.getElementById("nodes").dataset.pynodes);
-        var edges = JSON.parse(document.getElementById("edges").dataset.pyedges);
-        document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(nodes),JSON.stringify(edges));
-        document.getElementById('myiframe').contentWindow.drawGraph();
-        network.fit()
-     }
+    window.onload = function () {
+      var iframe = document.getElementById("myiframe");
+      iframe.width = iframe.contentWindow.document.body.scrollWidth;
+      iframe.height = iframe.contentWindow.document.body.scrollHeight;
+      network = document.getElementById('myiframe').contentWindow.network;
+      var nodes = JSON.parse(document.getElementById("nodes").dataset.pynodes);
+      var edges = JSON.parse(document.getElementById("edges").dataset.pyedges);
+      document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(nodes), JSON.stringify(edges));
+      document.getElementById('myiframe').contentWindow.drawGraph();
+      network.fit()
+    }
   </script>
   <script>
     function sendData() {
-        network= document.getElementById('myiframe').contentWindow.network;
-        var selected_nodes = network.getSelectedNodes();   
-        var model_index = document.getElementById("model_index").dataset.pymodel_index;
-        console.log(selected_nodes);
-        $.ajax({
-            url: '/process',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify( {'model_index':model_index, 'selected_nodes':selected_nodes}),
-            success: function(response) {
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-        document.getElementById("select-result").innerHTML = selected_nodes;
+      network = document.getElementById('myiframe').contentWindow.network;
+      var selected_nodes = network.getSelectedNodes();
+      var model_index = document.getElementById("model_index").dataset.pymodel_index;
+      console.log(selected_nodes);
+      $.ajax({
+        url: '/process',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'model_index': model_index, 'selected_nodes': selected_nodes }),
+        success: function (response) {
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+      document.getElementById("select-result").innerHTML = selected_nodes;
     }
-</script>
+  </script>
 </head>
+
 <body>
   <h1>Module Visualization and Selection
-    <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
-    <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="80" height="80" style="vertical-align:top;float:right">
-  <h2> Module Selection </h2>
-    <p> Please select the modules that you want to use in your model and click the button to confirm. </p>
-    <button onclick="sendData()">Submit your selected modules</button>
-    <h2>  </h2>
-    <div>The selected modules are: <span id="select-result"></span></div>
-    <p><a href="/">Return to the model composition page</a> </p>  
-    <iframe id="myiframe", src="{{url_for('static',filename='nx.html')}}",frameborder="0" width="100%"></iframe>  
-  <p class="lead">The model structure of {{model_name}} </p>
-  <h2> The math in the model    
-    {% for math in math_list %}
-    {% autoescape off %}
+    <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="100" height="100"
+      style="vertical-align:top;float:right">
+    <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="100" height="100"
+      style="vertical-align:top;float:right">
+    <h2> 1. Module Selection </h2>
+    <p class="lead">The model structure of {{model_name}} is shown in the figure below. </p>
+    <p> <strong> Brief physiology description of the model according to the annotation: </strong> </p>
+    <p><u>coming soon</u></p>
+    <iframe id="physiology" ,
+      srcdoc="The model captures the function of SLC2A1(Solute carrier family 2, facilitated glucose transporter member 1).
+      SLCA1 facilitates transport of glucose from extracellular space to cytosol. <br> The relationship between the flux rate and the concentrations/quantity of glucose in each compartment is defined."
+      ,frameborder="0" height="200" width="80%"></iframe>
+
+    <p><strong> Graph notation: </strong> </p>
+    <p> The box node represents the components in CellML, while the ellipses in blue are variables with units and
+      initial
+      values. <br>
+      The red highlights the physiological annotations. You can click on it to view the ontology page ( <u>coming
+        soon</u>,
+      e.g.<a href="https://www.uniprot.org/uniprotkb/P11166/entry">Uniprot:P11166</a> ).
+    </p>
+
+    <div class="row">
+      <div class="column" , style="width: 80%;"><iframe id="myiframe" , src="{{url_for('static',filename='nx.html')}}"
+          ,frameborder="0" width="100%"></iframe></div>
+      <div class="column" , style="width: 20%;">
+        <p> <strong> Instruction: </strong> <br>
+          Please select the modules that you want to use in your model and then click the submission button to
+          confirm.</p>
+        <p><button onclick="sendData()">Submit your selected modules</button> <br></p>
+        <p>The selected modules are: </p>
+        <span id="select-result"></span> <br>
+        <p><a href="/">Return to the model composition page to continue.</a></p>
+
+      </div>
+    </div>
+
+    <h2> The math in the model
+      {% for math in math_list %}
+      {% autoescape off %}
       <li>{{math[0]}}:</li>
-	  {% for submath in math[1] %}
-	  {% autoescape off %}
-	   <li>{{submath}}</li>
-	   {% endautoescape %}
-	  {% endfor %}
-    {% endautoescape %}
-    {% endfor %}
-  </h2>
-</h1>
+      {% for submath in math[1] %}
+      {% autoescape off %}
+      <li>{{submath}}</li>
+      {% endautoescape %}
+      {% endfor %}
+      {% endautoescape %}
+      {% endfor %}
+    </h2>
+
+  </h1>
 </body>
 
 {% endblock %}

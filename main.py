@@ -16,6 +16,27 @@ from src import cellml
 from pyvis.network import Network
 from src.utilities import getCompinfo
 import re
+from libcellml import Validator
+
+def _dump_issues(source_method_name, logger):
+    issues_list = ''
+    if logger.issueCount() > 0:
+        issue_sum = 'The method "{}" found {} issues:'.format(source_method_name, logger.issueCount())
+        issues_list=issues_list+issue_sum+'<br>'
+        for i in range(0, logger.issueCount()):
+            issuei=logger.issue(i).description()
+            issues_list=issues_list+issuei+'<br>'
+    return issues_list
+
+def validate_model(model):
+    validator = Validator()
+    validator.validateModel(model)
+    issues_list=_dump_issues("validate_model", validator)
+    if issues_list=='':
+        issues_list="No issues found!"
+    json_issues = json.dumps(issues_list)
+    return json_issues
+
 selection_dict = {} # {model1:{'components':{comp:compref,..},"annotation":annotation_dict,...}}
 
 
@@ -118,8 +139,9 @@ def compose():
     model_list.append(new_model)
     full_path=f'./test/cellml/SLC_SS/{model_name}.cellml'
     writeCellML_default(full_path, new_model)
+    model_fullpath_list.append(full_path)
     return jsonify(model_name=model_name) # return the result to JavaScript
-   
+  
 @app.route("/model/<num>", methods=['GET', 'POST'])
 # When the user clicks the model name in the index page, the model page will be shown
 def detail(num):
@@ -178,6 +200,28 @@ def new_model():
           print(var_init)    
 
     return render_template('new_model.html', forms=var_noInit_forms, mmodel_name='aa',nodes=nodes,edges=edges,math_list=math_list)
+
+@csrf.exempt
+@app.route("/validation",methods=['POST'])
+def validation():
+    data = request.get_json() # retrieve the data sent from JavaScript
+    model=model_list[-1]
+    json_issues= validate_model(model)
+
+    # get back to index.html
+
+    return jsonify(json_issues=json_issues) # return the result to JavaScript
+
+@csrf.exempt
+@app.route("/update_init",methods=['POST'])
+def update_init():
+    data = request.get_json() # retrieve the data sent from JavaScript
+    model=model_list[-1]
+    json_issues= validate_model(model)
+
+    # get back to index.html
+
+    return jsonify(json_issues=json_issues) # return the result to JavaScript
 
 @csrf.exempt
 @app.route("/add_edge",methods=['POST'])
