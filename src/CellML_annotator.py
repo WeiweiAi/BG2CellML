@@ -420,6 +420,7 @@ def compose_model(new_model_name,selection_dict):
         print("species", speciesID, species_info)
         qvar_infos = species_info['varinfo']
         q_var = Variable(f"q_{speciesID}")
+        q_var.setInitialValue(1.0)
         new_component.addVariable(q_var)
         ode_var = f'{q_var.name()}'
         new_v_ss_q = f'v_ss_{speciesID}_new'

@@ -48,28 +48,6 @@ Best Movie Actors
     }
   </script>
   <script>
-    function add_edge() {
-      network = document.getElementById('myiframe').contentWindow.network;
-      var selected_edges = network.getSelectedEdges();
-      var new_selected_nodes = network.getConnectedNodes(selected_edges[0]);
-      $.ajax({
-        url: '/add_edge',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ 'new_edge': new_selected_nodes }),
-        success: function (response) {
-          document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(response.nodes), JSON.stringify(response.edges));
-          document.getElementById('myiframe').contentWindow.drawGraph();
-          network.fit()
-        },
-        error: function (error) {
-          console.log(error);
-        }
-      });
-      document.getElementById("node-pair").innerHTML = new_selected_nodes;
-    }
-  </script>
-  <script>
     function sendData() {
       network = document.getElementById('myiframe').contentWindow.network;
       var selected_nodes = network.getSelectedNodes();
@@ -84,7 +62,7 @@ Best Movie Actors
           document.getElementById("var_name").value = var_name;
           // comp_name is the id stripped from the label
           var_name_0 = var_name.split(':')[0];
-          var comp_name = network.body.data.nodes.get(selected_nodes[0]).id.replace(var_name_0, '');
+          var comp_name = network.body.data.nodes.get(selected_nodes[0]).id.slice(0, -var_name_0.length);
           document.getElementById("comp_name").value = comp_name;
         };
       } else {
@@ -111,7 +89,7 @@ Best Movie Actors
             document.getElementById("var_name_1").value = var_name_1;
             // comp_name is the id stripped from the label
             var var_name_1_0 = var_name_1.split(':')[0];
-            var comp_name_1 = network.body.data.nodes.get(new_selected_nodes[0]).id.replace(var_name_1_0, '');
+            var comp_name_1 = network.body.data.nodes.get(new_selected_nodes[0]).id.slice(0, -var_name_1_0.length);
             document.getElementById("comp_name_1").value = comp_name_1;
           };
           if (network.body.data.nodes.get(new_selected_nodes[1]).shape == "ellipse") {
@@ -119,7 +97,7 @@ Best Movie Actors
             document.getElementById("var_name_2").value = var_name_2;
             var var_name_2_0 = var_name_2.split(':')[0];
             // comp_name is the id stripped from the label
-            var comp_name_2 = network.body.data.nodes.get(new_selected_nodes[1]).id.replace(var_name_2_0, '');
+            var comp_name_2 = network.body.data.nodes.get(new_selected_nodes[1]).id.slice(0, -var_name_2_0.length);
             document.getElementById("comp_name_2").value = comp_name_2;
           };
         } else {
@@ -160,15 +138,18 @@ Best Movie Actors
   <script>
     function update_init() {
 
-      var iframe_validation = document.getElementById("validation");
+      var comp_name = document.getElementById("comp_name").value;
+      var var_name = document.getElementById("var_name").value;
+      var update_init = document.getElementById("update_init").value;
 
       $.ajax({
-        url: '/validation',
+        url: '/update_init',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ 'new_edge': 'aa' }),
+        data: JSON.stringify({ 'comp_name': comp_name, 'var_name': var_name, 'init_text': update_init }),
         success: function (response) {
-          iframe_validation.srcdoc = response.json_issues;
+          window.location.href = "/new_model";
+   
         },
         error: function (error) {
           console.log(error);
@@ -177,6 +158,55 @@ Best Movie Actors
 
     }
   </script>
+<script>
+    function connect() {
+
+      var comp_name_1 = document.getElementById("comp_name_1").value;
+      var var_name_1 = document.getElementById("var_name_1").value;
+      var comp_name_2 = document.getElementById("comp_name_2").value;
+      var var_name_2 = document.getElementById("var_name_2").value;
+
+      $.ajax({
+        url: '/connect',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'comp_name_1': comp_name_1, 'var_name_1': var_name_1, 'comp_name_2': comp_name_2, 'var_name_2': var_name_2 }),	
+        success: function (response) {
+          window.location.href = "/new_model";
+   
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+
+    }
+  </script>
+
+<script>
+  function disconnect() {
+
+    var comp_name_1 = document.getElementById("comp_name_1").value;
+    var var_name_1 = document.getElementById("var_name_1").value;
+    var comp_name_2 = document.getElementById("comp_name_2").value;
+    var var_name_2 = document.getElementById("var_name_2").value;
+
+    $.ajax({
+      url: '/disconnect',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ 'comp_name_1': comp_name_1, 'var_name_1': var_name_1, 'comp_name_2': comp_name_2, 'var_name_2': var_name_2 }),	
+      success: function (response) {
+        window.location.href = "/new_model";
+ 
+      },
+      error: function (error) {
+        console.log(error);
+      }
+    });
+
+  }
+</script>
 
 </head>
 
@@ -203,6 +233,7 @@ Best Movie Actors
         <h2> 3. Model editing </h2>
         Select a node or an edge in the graph to edit the model, then click the submission button to confirm. <br>
         <button onclick="sendData()">Submit your selection </button>
+        <h3> Update initial values </h3>
         <div class="row">
           <div class="column">
             <label for="comp_name">component name:</label><br>

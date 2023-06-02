@@ -46,6 +46,8 @@ Best Movie Actors
       document.getElementById('myiframe').contentWindow.getPydata(JSON.stringify(nodes), JSON.stringify(edges));
       document.getElementById('myiframe').contentWindow.drawGraph();
       network.fit()
+      var phy_frame = document.getElementById("physiology");
+      phy_frame.contentWindow.document.body.style.fontSize = "16pt"
     }
   </script>
   <script>
@@ -78,20 +80,19 @@ Best Movie Actors
       style="vertical-align:top;float:right">
     <h2> 1. Module Selection </h2>
     <p class="lead">The model structure of {{model_name}} is shown in the figure below. </p>
-    <p> <strong> Brief physiology description of the model according to the annotation: </strong> </p>
+    <p> <strong> Physiology description of the model according to the annotation: </strong> </p>
     <p><u>coming soon</u></p>
-    <iframe id="physiology" ,
-      srcdoc="The model captures the function of SLC2A1(Solute carrier family 2, facilitated glucose transporter member 1).
-      SLCA1 facilitates transport of glucose from extracellular space to cytosol. <br> The relationship between the flux rate and the concentrations/quantity of glucose in each compartment is defined."
+    <iframe id="physiology" , style="font-size: 20px;" ,
+      srcdoc="The model captures the function of SLC2A1 (Solute carrier family 2, facilitated glucose transporter member 1) ('uniprot','P11166').
+      <br> SLC2A1 facilitates transport of glucose ('chebi','4167') from extracellular space ('go','0005615') to cytosol ('go','0005829'). 
+      <br> The relationship between the flux rate ('opb','OPB_00592') and the concentrations/quantity ('opb','OPB_00425') of glucose ('chebi','4167') in each compartment is defined."
       ,frameborder="0" height="200" width="80%"></iframe>
 
     <p><strong> Graph notation: </strong> </p>
-    <p> The box node represents the components in CellML, while the ellipses in blue are variables with units and
+    <p> The box represents the components in CellML, while the ellipses in blue are variables with units and
       initial
       values. <br>
-      The red highlights the physiological annotations. You can click on it to view the ontology page ( <u>coming
-        soon</u>,
-      e.g.<a href="https://www.uniprot.org/uniprotkb/P11166/entry">Uniprot:P11166</a> ).
+      The red highlights the physiological annotations. You can click on it to view the ontology page ( e.g.<a href="https://www.uniprot.org/uniprotkb/P11166/entry">Uniprot:P11166</a> ).
     </p>
 
     <div class="row">

@@ -1,0 +1,37 @@
+@prefix bqbiol: <http://biomodels.net/biology-qualifiers/> .
+@prefix chebi: <http://identifiers.org/CHEBI:> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix go: <http://identifiers.org/GO:> .
+@prefix local: <./SLCT3_ss_test_inOne.ttl#> .
+@prefix model_base: <./SLCT3_ss_test_inOne.cellml#> .
+@prefix opb: <http://identifiers.org/opb:> .
+@prefix semsim: <http://bime.uw.edu/semsim/> .
+@prefix uniprot: <http://identifiers.org/uniprot:> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+model_base:b4da55 dcterms:description "Built for automatic model composition project"^^xsd:string .
+
+model_base:b4da6c bqbiol:isPropertyOf local:Process_0 ;
+    bqbiol:isVersionOf opb:OPB_00592 .
+
+model_base:b4da6d bqbiol:isPropertyOf local:Source_0_0 ;
+    bqbiol:isVersionOf opb:OPB_00425 .
+
+model_base:b4da6e bqbiol:isPropertyOf local:Sink_0_0 ;
+    bqbiol:isVersionOf opb:OPB_00425 .
+
+local:Mediator_0 bqbiol:isPartOf go:0005886 ;
+    bqbiol:isVersionOf uniprot:P11166 .
+
+local:Process_0 semsim:hasMediatorParticipant local:Mediator_0 ;
+    semsim:hasSinkParticipant local:Sink_0_0 ;
+    semsim:hasSourceParticipant local:Source_0_0 .
+
+local:Sink_0_0 semsim:hasMultiplier "1"^^xsd:float ;
+    bqbiol:isPartOf go:0005829 ;
+    bqbiol:isVersionOf chebi:4167 .
+
+local:Source_0_0 semsim:hasMultiplier "1"^^xsd:float ;
+    bqbiol:isPartOf go:0005615 ;
+    bqbiol:isVersionOf chebi:4167 .
+

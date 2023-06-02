@@ -578,8 +578,8 @@ def checkInits(model):
                         flag_output = False
                         for comp_withMath, output_vars in output_dict.items():
                             for output_var in output_vars:
-                                if not parentcomp.variable(var_numb).hasEquivalentVariable(model.component(comp_withMath).variable(output_var),True): # to do: seems not working
-                                    print(comp_withMath, output_var,parentcomp.variable(var_numb).name()) #
+                                #if not parentcomp.variable(var_numb).hasEquivalentVariable(model.component(comp_withMath).variable(output_var),True): # to do: seems not working
+                                   # print(comp_withMath, output_var,parentcomp.variable(var_numb).name()) #
                                     #noInit.add((parentcomp.name(), parentcomp.variable(var_numb).name()))                           
                                 for e in range(parentcomp.variable(var_numb).equivalentVariableCount()):
                                     ev = parentcomp.variable(var_numb).equivalentVariable(e)               
@@ -612,7 +612,7 @@ def addInits(model,comp_name,var_name,init):
     #        The initial value will be set to the variable
     model.component(comp_name).variable(var_name).setInitialValue(init)
 
-def update_varmap(model, varmaps):
+def update_varmap(model, varmaps,connection=True):
     # input: model, the CellML model object
     #        varmaps, a list of variable mappings [(comp1,var1,comp2,var2),(comp3,var3,comp4,var4)]
     for varmap in varmaps:
@@ -620,7 +620,12 @@ def update_varmap(model, varmaps):
         var1 = varmap[1]
         comp2 = varmap[2]
         var2 = varmap[3]
-        Variable.addEquivalence(model.component(comp1).variable(var1), model.component(comp2).variable(var2))
+        if connection:
+           Variable.addEquivalence(model.component(comp1).variable(var1), model.component(comp2).variable(var2))
+           print(f'{var1} in {comp1} is mapped to {var2} in {comp2}.')
+        else:
+           Variable.removeEquivalence(model.component(comp1).variable(var1), model.component(comp2).variable(var2))
+           print(f'{var1} in {comp1} is unmapped to {var2} in {comp2}.')
 
 
 def suggestConnection (model,comp1, comp2):
