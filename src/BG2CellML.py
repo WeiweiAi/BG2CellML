@@ -441,6 +441,7 @@ def simplify_flux_ss(vss_num,vss_den):
            else:
                unit_list.append(f'{s.name}{power_s[0][0]}')
         unit_list = first_unit + unit_list
+        unit_list.sort()
         unit_expr = '_'.join(unit_list)
 
         return unit_expr
@@ -451,7 +452,7 @@ def simplify_flux_ss(vss_num,vss_den):
         Ks_units=[1/Symbol('fmol') for j in first_term.atoms() if str(j).startswith('K')]
         for term in first_term.atoms(Pow):
             if str(term.args[0]).startswith('K'):
-                Ks_units=Ks_units+[1/Symbol('fmol') for i in range(term.args[1])]
+                Ks_units=Ks_units+[1/Symbol('fmol') for i in range(term.args[1]-1)] # power of K -1 because the first K is already in the list
         kappas_units=[Symbol('fmol')/Symbol('sec') for j in first_term.atoms() if str(j).startswith('kappa')]
         E_units = [Symbol('fmol') for j in first_term.atoms() if j==E]
         if len(Ks_units)>0:
@@ -693,7 +694,7 @@ def build_ss_model(CompName,CompType,ReName,ReType,N_f,N_r,name_f,component_BG_p
             add_const_to_component(component_ss)
             component_BG_ss_io.addVariable(var_q.clone())
             component_BG_ss_io.variable(var_q.name()).setInitialValue(1)
-            add_const_to_component_param(component_BG_ss_io)
+            #add_const_to_component_param(component_BG_ss_io)
             component_ss_test.addVariable(var_q.clone())
             add_const_to_component(component_ss_test)
             component_ss_io.addVariable(var_q.clone())

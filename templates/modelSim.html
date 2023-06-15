@@ -1,0 +1,92 @@
+<?xml-stylesheet type="text/xsl" href="mathml.xsl"?>
+<?xml-stylesheet type="text/xsl" href="http://www.w3.org/Math/XSL/mathml.xsl"?>
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}
+Best Movie Actors
+{% endblock %}
+
+{% block content %}
+
+<!--
+	TIPS about using Bootstrap-Flask:
+	https://github.com/helloflask/bootstrap-flask
+	https://bootstrap-flask.readthedocs.io/
+-->
+
+<head>
+
+  <style>
+    .column {
+      float: left;
+      width: 50%;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <div id="nodes" data-pynodes="{{nodes}}"></div>
+  <div id="edges" data-pyedges="{{edges}}"> </div>
+  <div id="model_name" data-pymodel_name="{{model_name}}"></div>
+  <script>
+    window.onload = function () {
+    }
+  </script>
+  
+  <script>
+    function model_validation() {
+      var iframe_validation = document.getElementById("validation");
+      var model_fullpath = document.getElementById("model_fullpath").value;
+      console.log(model_fullpath);
+
+      $.ajax({
+        url: '/modelSim_validate',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'model_fullpath': model_fullpath }),
+        success: function (response) {
+          iframe_validation.srcdoc = response.issues;
+        },
+        error: function (error) {
+          console.log(error);
+        }
+      });
+
+    }
+  </script>
+
+</head>
+
+<body>
+  <h1>Model Simulation
+    <img src="{{url_for('static',filename='logoTempWLarge.png')}}" alt="logo" width="100" height="100"
+      style="vertical-align:top;float:right">
+    <img src="{{url_for('static',filename='logo-cellml.png')}}" alt="logo" width="100" height="100"
+      style="vertical-align:top;float:right">
+    <h2>1. Load Model </h2>
+    <p> Please upload the model.</p>
+    <form action="/modelSim_getModel" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input type="file"  id="model_file" name="model_file" >
+        <input type="hidden" id="model_fullpath" name="model_fullpath" value="{{model_fullpath}}">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+
+    </form>
+    <h2> 2. Model validation </h2>
+        <button onclick="model_validation()">Model validation</button>
+    <iframe id="validation" , srcdoc="The model validation results" ,frameborder="0" height="200"
+          width="100%"></iframe>
+    
+    
+  </h1>
+</body>
+
+{% endblock %}

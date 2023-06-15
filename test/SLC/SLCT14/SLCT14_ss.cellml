@@ -2,13 +2,13 @@
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT14_ss">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
     <units units_ref="fmol" name="fmol"/>
+    <units units_ref="per_fmol2_sec7" name="per_fmol2_sec7"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
     <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
     <units units_ref="per_fmol4_sec7" name="per_fmol4_sec7"/>
     <units units_ref="per_fmol3_sec8" name="per_fmol3_sec8"/>
-    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
-    <units units_ref="C_per_mol" name="C_per_mol"/>
-    <units units_ref="per_fmol2_sec7" name="per_fmol2_sec7"/>
     <units units_ref="per_fmol_sec7" name="per_fmol_sec7"/>
   </import>
   <component name="SLCT14_ss">
@@ -43,9 +43,9 @@
     <variable name="q_InAAo" units="fmol" interface="public"/>
     <variable name="q_Nao" units="fmol" interface="public"/>
     <variable name="q_cAAi" units="fmol" interface="public"/>
-    <variable name="F" units="C_per_mol"/>
-    <variable name="R" units="J_per_K_per_mol"/>
-    <variable name="T" units="kelvin"/>
+    <variable name="F" units="C_per_mol" interface="public"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public"/>
+    <variable name="T" units="kelvin" interface="public"/>
     <variable name="V_m" units="volt" interface="public"/>
     <variable name="v_ss" units="fmol_per_sec" interface="public"/>
     <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">

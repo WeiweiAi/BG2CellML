@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT1_BG">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="fmol" name="fmol"/>
     <units units_ref="per_fmol" name="per_fmol"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
     <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
     <units units_ref="C_per_mol" name="C_per_mol"/>
     <units units_ref="J_per_mol" name="J_per_mol"/>
   </import>
@@ -906,49 +906,27 @@
         <eq/>
         <ci>v_Ao</ci>
         <apply>
-          <plus/>
-          <apply>
-            <minus/>
-            <ci>v_re5</ci>
-          </apply>
-          <ci>v_re3</ci>
+          <minus/>
+          <ci>v_re5</ci>
         </apply>
       </apply>
       <apply>
         <eq/>
         <ci>v_Ai</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <minus/>
-            <ci>v_re4</ci>
-          </apply>
-          <ci>v_re6</ci>
-        </apply>
+        <ci>v_re6</ci>
       </apply>
       <apply>
         <eq/>
         <ci>v_Ho</ci>
         <apply>
-          <plus/>
-          <apply>
-            <minus/>
-            <ci>v_re3</ci>
-          </apply>
-          <ci>v_re1</ci>
+          <minus/>
+          <ci>v_re3</ci>
         </apply>
       </apply>
       <apply>
         <eq/>
         <ci>v_Hi</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <minus/>
-            <ci>v_re2</ci>
-          </apply>
-          <ci>v_re4</ci>
-        </apply>
+        <ci>v_re4</ci>
       </apply>
       <apply>
         <eq/>
@@ -1120,20 +1098,12 @@
       <apply>
         <eq/>
         <ci>mu_re1_out</ci>
-        <apply>
-          <plus/>
-          <ci>mu_Ho</ci>
-          <ci>mu_11</ci>
-        </apply>
+        <ci>mu_11</ci>
       </apply>
       <apply>
         <eq/>
         <ci>mu_re2_in</ci>
-        <apply>
-          <plus/>
-          <ci>mu_Hi</ci>
-          <ci>mu_12</ci>
-        </apply>
+        <ci>mu_12</ci>
       </apply>
       <apply>
         <eq/>
@@ -1160,20 +1130,12 @@
       <apply>
         <eq/>
         <ci>mu_re3_out</ci>
-        <apply>
-          <plus/>
-          <ci>mu_Ao</ci>
-          <ci>mu_13</ci>
-        </apply>
+        <ci>mu_13</ci>
       </apply>
       <apply>
         <eq/>
         <ci>mu_re4_in</ci>
-        <apply>
-          <plus/>
-          <ci>mu_Ai</ci>
-          <ci>mu_14</ci>
-        </apply>
+        <ci>mu_14</ci>
       </apply>
       <apply>
         <eq/>

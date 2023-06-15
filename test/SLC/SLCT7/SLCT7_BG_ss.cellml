@@ -1,40 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT7_BG_ss">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="per_fmol" name="per_fmol"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
+    <units units_ref="per_fmol4_sec7" name="per_fmol4_sec7"/>
+    <units units_ref="per_fmol2_sec7" name="per_fmol2_sec7"/>
+    <units units_ref="per_fmol4_sec8" name="per_fmol4_sec8"/>
+    <units units_ref="per_fmol_sec7" name="per_fmol_sec7"/>
+    <units units_ref="per_fmol6_sec7" name="per_fmol6_sec7"/>
     <units units_ref="C_per_mol" name="C_per_mol"/>
     <units units_ref="fmol" name="fmol"/>
-    <units units_ref="per_fmol" name="per_fmol"/>
-    <units units_ref="per_sec7_fmol8" name="per_sec7_fmol8"/>
-    <units units_ref="per_sec7_fmol5" name="per_sec7_fmol5"/>
-    <units units_ref="per_sec8_fmol8" name="per_sec8_fmol8"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
-    <units units_ref="per_sec7_fmol4" name="per_sec7_fmol4"/>
     <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
-    <units units_ref="per_sec7_fmol7" name="per_sec7_fmol7"/>
-    <units units_ref="per_sec8_fmol5" name="per_sec8_fmol5"/>
-    <units units_ref="per_sec7_fmol2" name="per_sec7_fmol2"/>
   </import>
   <component name="SLCT7_BG_ss">
-    <variable name="P_0" units="per_sec8_fmol5" interface="public"/>
-    <variable name="P_1" units="per_sec8_fmol8" interface="public"/>
-    <variable name="P_2" units="per_sec7_fmol4" interface="public"/>
-    <variable name="P_3" units="per_sec7_fmol4" interface="public"/>
-    <variable name="P_4" units="per_sec7_fmol2" interface="public"/>
-    <variable name="P_5" units="per_sec7_fmol4" interface="public"/>
-    <variable name="P_6" units="per_sec7_fmol7" interface="public"/>
-    <variable name="P_7" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_8" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_9" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_10" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_11" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_12" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_13" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_14" units="per_sec7_fmol7" interface="public"/>
-    <variable name="P_15" units="per_sec7_fmol7" interface="public"/>
-    <variable name="P_16" units="per_sec7_fmol8" interface="public"/>
-    <variable name="P_17" units="per_sec7_fmol8" interface="public"/>
-    <variable name="P_18" units="per_sec7_fmol8" interface="public"/>
-    <variable name="P_19" units="per_sec7_fmol8" interface="public"/>
+    <variable name="P_0" units="per_fmol4_sec8" interface="public"/>
+    <variable name="P_1" units="per_fmol4_sec8" interface="public"/>
+    <variable name="P_2" units="per_fmol_sec7" interface="public"/>
+    <variable name="P_3" units="per_fmol_sec7" interface="public"/>
+    <variable name="P_4" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_5" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_6" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_7" units="per_fmol2_sec7" interface="public"/>
+    <variable name="P_8" units="per_fmol2_sec7" interface="public"/>
+    <variable name="P_9" units="per_fmol2_sec7" interface="public"/>
+    <variable name="P_10" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_11" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_12" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_13" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_14" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_15" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_16" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_17" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_18" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_19" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_20" units="per_fmol4_sec7" interface="public"/>
+    <variable name="P_21" units="per_fmol6_sec7" interface="public"/>
+    <variable name="P_22" units="per_fmol6_sec7" interface="public"/>
+    <variable name="P_23" units="per_fmol6_sec7" interface="public"/>
     <variable name="E" units="fmol" interface="public"/>
     <variable name="K_Nao" units="per_fmol" interface="public"/>
     <variable name="K_Nai" units="per_fmol" interface="public"/>
@@ -83,13 +86,13 @@
           <ci>K_7</ci>
           <ci>K_8</ci>
           <ci>K_9</ci>
-          <ci>K_Clo</ci>
+          <ci>K_Cli</ci>
           <apply>
             <power/>
-            <ci>K_HCO3i</ci>
+            <ci>K_HCO3o</ci>
             <cn cellml:units="dimensionless">2</cn>
           </apply>
-          <ci>K_Nai</ci>
+          <ci>K_Nao</ci>
           <ci>kappa_re1</ci>
           <ci>kappa_re2</ci>
           <ci>kappa_re3</ci>
@@ -113,18 +116,13 @@
           <ci>K_7</ci>
           <ci>K_8</ci>
           <ci>K_9</ci>
-          <ci>K_Cli</ci>
+          <ci>K_Clo</ci>
           <apply>
             <power/>
             <ci>K_HCO3i</ci>
             <cn cellml:units="dimensionless">2</cn>
           </apply>
-          <apply>
-            <power/>
-            <ci>K_HCO3o</ci>
-            <cn cellml:units="dimensionless">2</cn>
-          </apply>
-          <ci>K_Nao</ci>
+          <ci>K_Nai</ci>
           <ci>kappa_re1</ci>
           <ci>kappa_re2</ci>
           <ci>kappa_re3</ci>
@@ -150,11 +148,6 @@
             <ci>K_7</ci>
             <ci>K_8</ci>
             <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
@@ -173,11 +166,6 @@
             <ci>K_7</ci>
             <ci>K_8</ci>
             <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
@@ -196,38 +184,10 @@
             <ci>K_7</ci>
             <ci>K_8</ci>
             <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
             <ci>kappa_re4</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re5</ci>
             <ci>kappa_re6</ci>
             <ci>kappa_re7</ci>
             <ci>kappa_re8</ci>
@@ -241,129 +201,50 @@
           <plus/>
           <apply>
             <times/>
-            <ci>K_10</ci>
             <ci>K_11</ci>
             <ci>K_12</ci>
             <ci>K_13</ci>
             <ci>K_14</ci>
             <ci>K_7</ci>
             <ci>K_8</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
+            <ci>K_9</ci>
+            <ci>K_Clo</ci>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
             <ci>kappa_re4</ci>
             <ci>kappa_re5</ci>
             <ci>kappa_re6</ci>
-            <ci>kappa_re8</ci>
+            <ci>kappa_re7</ci>
           </apply>
           <apply>
             <times/>
-            <ci>K_10</ci>
             <ci>K_11</ci>
             <ci>K_12</ci>
             <ci>K_13</ci>
             <ci>K_14</ci>
             <ci>K_7</ci>
             <ci>K_8</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
+            <ci>K_9</ci>
+            <ci>K_Clo</ci>
             <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
             <ci>kappa_re4</ci>
             <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
             <ci>kappa_re7</ci>
             <ci>kappa_re8</ci>
           </apply>
           <apply>
             <times/>
-            <ci>K_10</ci>
             <ci>K_11</ci>
             <ci>K_12</ci>
             <ci>K_13</ci>
             <ci>K_14</ci>
             <ci>K_7</ci>
             <ci>K_8</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_4</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
             <ci>K_9</ci>
             <ci>K_Clo</ci>
-            <ci>K_Nai</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <ci>K_Nai</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <ci>K_Nai</ci>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
@@ -376,106 +257,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_5</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_6</ci>
+        <ci>P_4</ci>
         <apply>
           <times/>
           <ci>K_10</ci>
@@ -491,6 +273,28 @@
             <ci>K_HCO3i</ci>
             <cn cellml:units="dimensionless">2</cn>
           </apply>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_5</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_Cli</ci>
           <apply>
             <power/>
             <ci>K_HCO3o</ci>
@@ -503,6 +307,82 @@
           <ci>kappa_re6</ci>
           <ci>kappa_re7</ci>
           <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_6</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
         </apply>
       </apply>
       <apply>
@@ -521,11 +401,6 @@
             <ci>K_9</ci>
             <ci>K_Cli</ci>
             <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
@@ -545,11 +420,6 @@
             <ci>K_9</ci>
             <ci>K_Cli</ci>
             <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
@@ -569,11 +439,6 @@
             <ci>K_9</ci>
             <ci>K_Cli</ci>
             <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
@@ -582,6 +447,328 @@
             <ci>kappa_re7</ci>
             <ci>kappa_re8</ci>
           </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Clo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Clo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Clo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_8</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Clo</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Clo</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Clo</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_9</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_10</ci>
+        <apply>
+          <times/>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_Clo</ci>
+          <apply>
+            <power/>
+            <ci>K_HCO3i</ci>
+            <cn cellml:units="dimensionless">2</cn>
+          </apply>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_11</ci>
+        <apply>
+          <times/>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_Clo</ci>
+          <apply>
+            <power/>
+            <ci>K_HCO3o</ci>
+            <cn cellml:units="dimensionless">2</cn>
+          </apply>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re4</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_12</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_13</ci>
+        <apply>
+          <plus/>
           <apply>
             <times/>
             <ci>K_10</ci>
@@ -602,78 +789,6 @@
             <ci>kappa_re2</ci>
             <ci>kappa_re3</ci>
             <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
             <ci>kappa_re6</ci>
             <ci>kappa_re7</ci>
             <ci>kappa_re8</ci>
@@ -706,7 +821,237 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_8</ci>
+        <ci>P_14</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Clo</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <ci>K_Clo</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_15</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_16</ci>
         <apply>
           <plus/>
           <apply>
@@ -881,35 +1226,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_9</ci>
-        <apply>
-          <times/>
-          <ci>K_10</ci>
-          <ci>K_11</ci>
-          <ci>K_13</ci>
-          <ci>K_14</ci>
-          <ci>K_7</ci>
-          <ci>K_8</ci>
-          <ci>K_9</ci>
-          <ci>K_Cli</ci>
-          <apply>
-            <power/>
-            <ci>K_HCO3o</ci>
-            <cn cellml:units="dimensionless">2</cn>
-          </apply>
-          <ci>K_Nao</ci>
-          <ci>kappa_re1</ci>
-          <ci>kappa_re2</ci>
-          <ci>kappa_re3</ci>
-          <ci>kappa_re5</ci>
-          <ci>kappa_re6</ci>
-          <ci>kappa_re7</ci>
-          <ci>kappa_re8</ci>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_10</ci>
+        <ci>P_17</ci>
         <apply>
           <times/>
           <ci>K_10</ci>
@@ -937,694 +1254,6 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_11</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
-            <ci>K_Nao</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_12</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_13</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nai</ci>
-            <ci>K_Nao</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_14</ci>
-        <apply>
-          <times/>
-          <ci>K_11</ci>
-          <ci>K_12</ci>
-          <ci>K_13</ci>
-          <ci>K_14</ci>
-          <ci>K_7</ci>
-          <ci>K_8</ci>
-          <ci>K_9</ci>
-          <ci>K_Clo</ci>
-          <apply>
-            <power/>
-            <ci>K_HCO3i</ci>
-            <cn cellml:units="dimensionless">2</cn>
-          </apply>
-          <apply>
-            <power/>
-            <ci>K_HCO3o</ci>
-            <cn cellml:units="dimensionless">2</cn>
-          </apply>
-          <ci>kappa_re1</ci>
-          <ci>kappa_re2</ci>
-          <ci>kappa_re4</ci>
-          <ci>kappa_re5</ci>
-          <ci>kappa_re6</ci>
-          <ci>kappa_re7</ci>
-          <ci>kappa_re8</ci>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_15</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_16</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
-        <ci>P_17</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_14</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_13</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re4</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-          <apply>
-            <times/>
-            <ci>K_10</ci>
-            <ci>K_11</ci>
-            <ci>K_12</ci>
-            <ci>K_14</ci>
-            <ci>K_7</ci>
-            <ci>K_8</ci>
-            <ci>K_9</ci>
-            <ci>K_Cli</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <apply>
-              <power/>
-              <ci>K_HCO3o</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>K_Nao</ci>
-            <ci>kappa_re1</ci>
-            <ci>kappa_re2</ci>
-            <ci>kappa_re3</ci>
-            <ci>kappa_re5</ci>
-            <ci>kappa_re6</ci>
-            <ci>kappa_re7</ci>
-            <ci>kappa_re8</ci>
-          </apply>
-        </apply>
-      </apply>
-      <apply>
-        <eq/>
         <ci>P_18</ci>
         <apply>
           <plus/>
@@ -1632,25 +1261,44 @@
             <times/>
             <ci>K_10</ci>
             <ci>K_11</ci>
-            <ci>K_12</ci>
             <ci>K_13</ci>
+            <ci>K_14</ci>
             <ci>K_7</ci>
             <ci>K_8</ci>
             <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <apply>
               <power/>
               <ci>K_HCO3o</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
             <ci>kappa_re1</ci>
             <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
             <ci>kappa_re4</ci>
             <ci>kappa_re5</ci>
             <ci>kappa_re6</ci>
@@ -1661,25 +1309,20 @@
             <times/>
             <ci>K_10</ci>
             <ci>K_11</ci>
-            <ci>K_12</ci>
+            <ci>K_13</ci>
             <ci>K_14</ci>
             <ci>K_7</ci>
             <ci>K_8</ci>
             <ci>K_9</ci>
-            <ci>K_Clo</ci>
-            <apply>
-              <power/>
-              <ci>K_HCO3i</ci>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
             <apply>
               <power/>
               <ci>K_HCO3o</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>K_Nai</ci>
-            <ci>kappa_re1</ci>
+            <ci>K_Nao</ci>
             <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
             <ci>kappa_re4</ci>
             <ci>kappa_re5</ci>
             <ci>kappa_re6</ci>
@@ -1691,6 +1334,243 @@
       <apply>
         <eq/>
         <ci>P_19</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_Cli</ci>
+          <apply>
+            <power/>
+            <ci>K_HCO3i</ci>
+            <cn cellml:units="dimensionless">2</cn>
+          </apply>
+          <ci>K_Nao</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_20</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_21</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Cli</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_22</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Clo</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Clo</ci>
+            <apply>
+              <power/>
+              <ci>K_HCO3i</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <apply>
+              <power/>
+              <ci>K_HCO3o</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_23</ci>
         <apply>
           <plus/>
           <apply>

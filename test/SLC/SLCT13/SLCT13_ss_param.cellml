@@ -2,65 +2,63 @@
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT13_ss_param">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
     <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
-    <units units_ref="fmol" name="fmol"/>
-    <units units_ref="per_fmol9_sec7" name="per_fmol9_sec7"/>
-    <units units_ref="per_fmol8_sec7" name="per_fmol8_sec7"/>
-    <units units_ref="per_fmol10_sec7" name="per_fmol10_sec7"/>
-    <units units_ref="per_sec7" name="per_sec7"/>
     <units units_ref="per_fmol2_sec7" name="per_fmol2_sec7"/>
-    <units units_ref="per_fmol4_sec7" name="per_fmol4_sec7"/>
-    <units units_ref="per_fmol5_sec7" name="per_fmol5_sec7"/>
-    <units units_ref="per_fmol6_sec7" name="per_fmol6_sec7"/>
-    <units units_ref="per_fmol_sec7" name="per_fmol_sec7"/>
+    <units units_ref="per_fmol4_sec8" name="per_fmol4_sec8"/>
     <units units_ref="per_fmol7_sec7" name="per_fmol7_sec7"/>
-    <units units_ref="per_fmol5_sec8" name="per_fmol5_sec8"/>
+    <units units_ref="per_fmol_sec7" name="per_fmol_sec7"/>
+    <units units_ref="per_sec7" name="per_sec7"/>
+    <units units_ref="per_fmol4_sec7" name="per_fmol4_sec7"/>
+    <units units_ref="per_fmol8_sec7" name="per_fmol8_sec7"/>
+    <units units_ref="per_fmol6_sec7" name="per_fmol6_sec7"/>
+    <units units_ref="per_fmol5_sec7" name="per_fmol5_sec7"/>
+    <units units_ref="fmol" name="fmol"/>
   </import>
   <component name="SLCT13_ss_param">
-    <variable name="P_0" units="per_fmol5_sec8" initial_value="1" interface="public"/>
-    <variable name="P_1" units="per_fmol5_sec8" initial_value="1" interface="public"/>
+    <variable name="P_0" units="per_fmol4_sec8" initial_value="1" interface="public"/>
+    <variable name="P_1" units="per_fmol4_sec8" initial_value="1" interface="public"/>
     <variable name="P_2" units="per_sec7" initial_value="1" interface="public"/>
-    <variable name="P_3" units="per_fmol3_sec7" initial_value="1" interface="public"/>
-    <variable name="P_4" units="per_fmol3_sec7" initial_value="1" interface="public"/>
-    <variable name="P_5" units="per_fmol3_sec7" initial_value="1" interface="public"/>
-    <variable name="P_6" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_3" units="per_fmol2_sec7" initial_value="1" interface="public"/>
+    <variable name="P_4" units="per_fmol2_sec7" initial_value="1" interface="public"/>
+    <variable name="P_5" units="per_fmol2_sec7" initial_value="1" interface="public"/>
+    <variable name="P_6" units="per_fmol2_sec7" initial_value="1" interface="public"/>
     <variable name="P_7" units="per_fmol_sec7" initial_value="1" interface="public"/>
     <variable name="P_8" units="per_fmol_sec7" initial_value="1" interface="public"/>
-    <variable name="P_9" units="per_fmol4_sec7" initial_value="1" interface="public"/>
-    <variable name="P_10" units="per_fmol4_sec7" initial_value="1" interface="public"/>
-    <variable name="P_11" units="per_fmol4_sec7" initial_value="1" interface="public"/>
-    <variable name="P_12" units="per_fmol4_sec7" initial_value="1" interface="public"/>
-    <variable name="P_13" units="per_fmol4_sec7" initial_value="1" interface="public"/>
-    <variable name="P_14" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_9" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_10" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_11" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_12" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_13" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_14" units="per_fmol3_sec7" initial_value="1" interface="public"/>
     <variable name="P_15" units="per_fmol2_sec7" initial_value="1" interface="public"/>
     <variable name="P_16" units="per_fmol2_sec7" initial_value="1" interface="public"/>
-    <variable name="P_17" units="per_fmol4_sec7" initial_value="1" interface="public"/>
-    <variable name="P_18" units="per_fmol4_sec7" initial_value="1" interface="public"/>
-    <variable name="P_19" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_20" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_21" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_22" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_23" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_24" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_25" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_26" units="per_fmol5_sec7" initial_value="1" interface="public"/>
-    <variable name="P_27" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_28" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_29" units="per_fmol8_sec7" initial_value="1" interface="public"/>
-    <variable name="P_30" units="per_fmol8_sec7" initial_value="1" interface="public"/>
-    <variable name="P_31" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_32" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_33" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_34" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_35" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_36" units="per_fmol6_sec7" initial_value="1" interface="public"/>
-    <variable name="P_37" units="per_fmol9_sec7" initial_value="1" interface="public"/>
-    <variable name="P_38" units="per_fmol7_sec7" initial_value="1" interface="public"/>
-    <variable name="P_39" units="per_fmol7_sec7" initial_value="1" interface="public"/>
-    <variable name="P_40" units="per_fmol7_sec7" initial_value="1" interface="public"/>
-    <variable name="P_41" units="per_fmol7_sec7" initial_value="1" interface="public"/>
-    <variable name="P_42" units="per_fmol9_sec7" initial_value="1" interface="public"/>
-    <variable name="P_43" units="per_fmol10_sec7" initial_value="1" interface="public"/>
-    <variable name="P_44" units="per_fmol10_sec7" initial_value="1" interface="public"/>
+    <variable name="P_17" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_18" units="per_fmol3_sec7" initial_value="1" interface="public"/>
+    <variable name="P_19" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_20" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_21" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_22" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_23" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_24" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_25" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_26" units="per_fmol4_sec7" initial_value="1" interface="public"/>
+    <variable name="P_27" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_28" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_29" units="per_fmol6_sec7" initial_value="1" interface="public"/>
+    <variable name="P_30" units="per_fmol6_sec7" initial_value="1" interface="public"/>
+    <variable name="P_31" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_32" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_33" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_34" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_35" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_36" units="per_fmol5_sec7" initial_value="1" interface="public"/>
+    <variable name="P_37" units="per_fmol7_sec7" initial_value="1" interface="public"/>
+    <variable name="P_38" units="per_fmol6_sec7" initial_value="1" interface="public"/>
+    <variable name="P_39" units="per_fmol6_sec7" initial_value="1" interface="public"/>
+    <variable name="P_40" units="per_fmol6_sec7" initial_value="1" interface="public"/>
+    <variable name="P_41" units="per_fmol6_sec7" initial_value="1" interface="public"/>
+    <variable name="P_42" units="per_fmol7_sec7" initial_value="1" interface="public"/>
+    <variable name="P_43" units="per_fmol8_sec7" initial_value="1" interface="public"/>
+    <variable name="P_44" units="per_fmol8_sec7" initial_value="1" interface="public"/>
     <variable name="P_45" units="per_sec7" initial_value="1" interface="public"/>
     <variable name="E" units="fmol" initial_value="1" interface="public"/>
   </component>

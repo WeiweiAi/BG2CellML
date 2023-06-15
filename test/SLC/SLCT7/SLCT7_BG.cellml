@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT7_BG">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="C_per_mol" name="C_per_mol"/>
-    <units units_ref="fmol" name="fmol"/>
-    <units units_ref="per_fmol" name="per_fmol"/>
-    <units units_ref="J_per_mol" name="J_per_mol"/>
     <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="J_per_mol" name="J_per_mol"/>
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="per_fmol" name="per_fmol"/>
     <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
   </import>
   <component name="SLCT7_BG">
@@ -745,20 +745,9 @@
         <eq/>
         <ci>v_HCO3i</ci>
         <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <apply>
-              <minus/>
-              <cn cellml:units="dimensionless">2</cn>
-            </apply>
-            <ci>v_re4</ci>
-          </apply>
-          <apply>
-            <times/>
-            <cn cellml:units="dimensionless">2</cn>
-            <ci>v_re6</ci>
-          </apply>
+          <times/>
+          <cn cellml:units="dimensionless">2</cn>
+          <ci>v_re6</ci>
         </apply>
       </apply>
       <apply>
@@ -915,15 +904,7 @@
       <apply>
         <eq/>
         <ci>mu_re4_in</ci>
-        <apply>
-          <plus/>
-          <apply>
-            <times/>
-            <cn cellml:units="dimensionless">2</cn>
-            <ci>mu_HCO3i</ci>
-          </apply>
-          <ci>mu_12</ci>
-        </apply>
+        <ci>mu_12</ci>
       </apply>
       <apply>
         <eq/>

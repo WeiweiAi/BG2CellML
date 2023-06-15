@@ -1,148 +1,2091 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT14_BG_ss_test" id="b4da55">
-  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT14_ss.cellml" id="b4da56">
-    <component component_ref="SLCT14_ss" name="SLCT14_ss" id="b4da5f"/>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da56">
+    <units units_ref="fmol" name="fmol" id="b4da58"/>
+    <units units_ref="per_fmol2_sec7" name="per_fmol2_sec7" id="b4da59"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7" id="b4da5a"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol" id="b4da5b"/>
+    <units units_ref="C_per_mol" name="C_per_mol" id="b4da5c"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5d"/>
+    <units units_ref="per_fmol4_sec7" name="per_fmol4_sec7" id="b4da5e"/>
+    <units units_ref="per_fmol3_sec8" name="per_fmol3_sec8" id="b4da5f"/>
+    <units units_ref="per_fmol_sec7" name="per_fmol_sec7" id="b4da60"/>
   </import>
-  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT14_BG_param.cellml" id="b4da57">
-    <component component_ref="SLCT14_BG_param" name="SLCT14_BG_param" id="b4da60"/>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da57">
+    <units units_ref="fF" name="fF" id="b4da61"/>
+    <units units_ref="per_fmol" name="per_fmol" id="b4da62"/>
   </import>
-  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT14_BG_ss.cellml" id="b4da58">
-    <component component_ref="SLCT14_BG_ss" name="SLCT14_BG_ss" id="b4da61"/>
-  </import>
-  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da59">
-    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5a"/>
-    <units units_ref="fmol" name="fmol" id="b4da5b"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol" id="b4da5c"/>
-    <units units_ref="C_per_mol" name="C_per_mol" id="b4da5d"/>
-  </import>
-  <component name="SLCT14_BG_ss_test" id="b4da5e">
-    <variable name="v_ss" units="fmol_per_sec" interface="private" id="b4da62"/>
-    <variable name="q_InAAi" units="fmol" interface="public_and_private" id="b4da63"/>
-    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da64"/>
-    <variable name="q_cAAo" units="fmol" interface="public_and_private" id="b4da65"/>
-    <variable name="q_InAAo" units="fmol" interface="public_and_private" id="b4da66"/>
-    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da67"/>
-    <variable name="q_cAAi" units="fmol" interface="public_and_private" id="b4da68"/>
-    <variable name="V_m" units="volt" interface="public_and_private" id="b4da69"/>
-    <variable name="F" units="C_per_mol" interface="public_and_private" id="b4da6a"/>
-    <variable name="R" units="J_per_K_per_mol" interface="public_and_private" id="b4da6b"/>
-    <variable name="T" units="kelvin" interface="public_and_private" id="b4da6c"/>
-    <variable name="E" units="fmol" interface="private" id="b4da6d"/>
+  <component name="SLCT14_BG_ss_test" id="b4da63">
+    <variable name="v_ss" units="fmol_per_sec" interface="public_and_private" id="b4da65"/>
+    <variable name="q_InAAi" units="fmol" interface="public_and_private" id="b4da66"/>
+    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da67"/>
+    <variable name="q_cAAo" units="fmol" interface="public_and_private" id="b4da68"/>
+    <variable name="q_InAAo" units="fmol" interface="public_and_private" id="b4da69"/>
+    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da6a"/>
+    <variable name="q_cAAi" units="fmol" interface="public_and_private" id="b4da6b"/>
+    <variable name="V_m" units="volt" interface="public_and_private" id="b4da6c"/>
+    <variable name="F" units="C_per_mol" interface="private" id="b4da6d"/>
+    <variable name="R" units="J_per_K_per_mol" interface="private" id="b4da6e"/>
+    <variable name="T" units="kelvin" interface="private" id="b4da6f"/>
   </component>
-  <component name="SLCT14_BG_ss_input" id="b4db4f">
-    <variable name="q_InAAi" units="fmol" initial_value="1" interface="public" id="b4db50"/>
-    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4db51"/>
-    <variable name="q_cAAo" units="fmol" initial_value="1" interface="public" id="b4db52"/>
-    <variable name="q_InAAo" units="fmol" initial_value="1" interface="public" id="b4db53"/>
-    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4db54"/>
-    <variable name="q_cAAi" units="fmol" initial_value="1" interface="public" id="b4db55"/>
-    <variable name="V_m" units="volt" initial_value="1" interface="public" id="b4db56"/>
-    <variable name="F" units="C_per_mol" initial_value="96485" interface="public" id="b4db57"/>
-    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public" id="b4db58"/>
-    <variable name="T" units="kelvin" initial_value="293" interface="public" id="b4db59"/>
+  <component name="SLCT14_ss" id="b4da85">
+    <variable name="P_0" units="per_fmol3_sec8" interface="public" id="b4da87"/>
+    <variable name="P_1" units="per_fmol3_sec8" interface="public" id="b4da88"/>
+    <variable name="P_2" units="per_fmol_sec7" interface="public" id="b4da89"/>
+    <variable name="P_3" units="per_fmol_sec7" interface="public" id="b4da8a"/>
+    <variable name="P_4" units="per_fmol2_sec7" interface="public" id="b4da8b"/>
+    <variable name="P_5" units="per_fmol2_sec7" interface="public" id="b4da8c"/>
+    <variable name="P_6" units="per_fmol2_sec7" interface="public" id="b4da8d"/>
+    <variable name="P_7" units="per_fmol2_sec7" interface="public" id="b4da8e"/>
+    <variable name="P_8" units="per_fmol2_sec7" interface="public" id="b4da8f"/>
+    <variable name="P_9" units="per_fmol2_sec7" interface="public" id="b4da90"/>
+    <variable name="P_10" units="per_fmol2_sec7" interface="public" id="b4da91"/>
+    <variable name="P_11" units="per_fmol2_sec7" interface="public" id="b4da92"/>
+    <variable name="P_12" units="per_fmol2_sec7" interface="public" id="b4da93"/>
+    <variable name="P_13" units="per_fmol3_sec7" interface="public" id="b4da94"/>
+    <variable name="P_14" units="per_fmol3_sec7" interface="public" id="b4da95"/>
+    <variable name="P_15" units="per_fmol3_sec7" interface="public" id="b4da96"/>
+    <variable name="P_16" units="per_fmol3_sec7" interface="public" id="b4da97"/>
+    <variable name="P_17" units="per_fmol3_sec7" interface="public" id="b4da98"/>
+    <variable name="P_18" units="per_fmol3_sec7" interface="public" id="b4da99"/>
+    <variable name="P_19" units="per_fmol3_sec7" interface="public" id="b4da9a"/>
+    <variable name="P_20" units="per_fmol3_sec7" interface="public" id="b4da9b"/>
+    <variable name="P_21" units="per_fmol4_sec7" interface="public" id="b4da9c"/>
+    <variable name="P_22" units="per_fmol4_sec7" interface="public" id="b4da9d"/>
+    <variable name="P_23" units="per_fmol4_sec7" interface="public" id="b4da9e"/>
+    <variable name="E" units="fmol" interface="public" id="b4da9f"/>
+    <variable name="q_InAAi" units="fmol" interface="public" id="b4daa0"/>
+    <variable name="q_Nai" units="fmol" interface="public" id="b4daa1"/>
+    <variable name="q_cAAo" units="fmol" interface="public" id="b4daa2"/>
+    <variable name="q_InAAo" units="fmol" interface="public" id="b4daa3"/>
+    <variable name="q_Nao" units="fmol" interface="public" id="b4daa4"/>
+    <variable name="q_cAAi" units="fmol" interface="public" id="b4daa5"/>
+    <variable name="F" units="C_per_mol" interface="public" id="b4daa6"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4daa7"/>
+    <variable name="T" units="kelvin" interface="public" id="b4daa8"/>
+    <variable name="V_m" units="volt" interface="public" id="b4daa9"/>
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4daaa"/>
+    <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
+      <apply>
+        <eq/>
+        <ci>v_ss</ci>
+        <apply>
+          <divide/>
+          <apply>
+            <times/>
+            <ci>E</ci>
+            <apply>
+              <minus/>
+              <apply>
+                <times/>
+                <ci>P_0</ci>
+                <ci>q_InAAo</ci>
+                <ci>q_Nao</ci>
+                <ci>q_cAAi</ci>
+                <apply>
+                  <exp/>
+                  <apply>
+                    <divide/>
+                    <apply>
+                      <times/>
+                      <ci>F</ci>
+                      <ci>V_m</ci>
+                    </apply>
+                    <apply>
+                      <times/>
+                      <ci>R</ci>
+                      <ci>T</ci>
+                    </apply>
+                  </apply>
+                </apply>
+              </apply>
+              <apply>
+                <times/>
+                <ci>P_1</ci>
+                <ci>q_InAAi</ci>
+                <ci>q_Nai</ci>
+                <ci>q_cAAo</ci>
+              </apply>
+            </apply>
+          </apply>
+          <apply>
+            <plus/>
+            <apply>
+              <times/>
+              <ci>P_10</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_Nao</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_11</ci>
+              <ci>q_Nai</ci>
+              <ci>q_cAAo</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_12</ci>
+              <ci>q_Nao</ci>
+              <ci>q_cAAo</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_13</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_Nai</ci>
+              <ci>q_cAAo</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_14</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_Nao</ci>
+              <ci>q_cAAi</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_15</ci>
+              <ci>q_Nai</ci>
+              <ci>q_cAAi</ci>
+              <ci>q_cAAo</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_16</ci>
+              <ci>q_Nao</ci>
+              <ci>q_cAAi</ci>
+              <ci>q_cAAo</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_17</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_Nao</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_18</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_Nao</ci>
+              <ci>q_cAAo</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_19</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_2</ci>
+              <ci>q_cAAi</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_20</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_Nai</ci>
+              <ci>q_cAAi</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_21</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_22</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <ci>q_cAAo</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_23</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <ci>q_cAAi</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_3</ci>
+              <ci>q_cAAo</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_4</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_5</ci>
+              <ci>q_Nai</ci>
+              <ci>q_cAAi</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_6</ci>
+              <ci>q_Nao</ci>
+              <ci>q_cAAi</ci>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_7</ci>
+              <ci>q_cAAi</ci>
+              <ci>q_cAAo</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_8</ci>
+              <ci>q_InAAi</ci>
+              <ci>q_cAAo</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_9</ci>
+              <ci>q_InAAo</ci>
+              <ci>q_cAAi</ci>
+            </apply>
+          </apply>
+        </apply>
+      </apply>
+    </math>
   </component>
-  <connection component_1="SLCT14_BG_ss_test" component_2="SLCT14_ss" id="b4daef">
-    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4daf4"/>
-    <map_variables variable_1="q_InAAi" variable_2="q_InAAi" id="b4daf5"/>
-    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4daf7"/>
-    <map_variables variable_1="q_cAAo" variable_2="q_cAAo" id="b4daf9"/>
-    <map_variables variable_1="q_InAAo" variable_2="q_InAAo" id="b4dafb"/>
-    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4dafd"/>
-    <map_variables variable_1="q_cAAi" variable_2="q_cAAi" id="b4daff"/>
-    <map_variables variable_1="V_m" variable_2="V_m" id="b4db01"/>
-    <map_variables variable_1="F" variable_2="F" id="b4db03"/>
-    <map_variables variable_1="R" variable_2="R" id="b4db05"/>
-    <map_variables variable_1="T" variable_2="T" id="b4db07"/>
-    <map_variables variable_1="E" variable_2="E" id="b4db09"/>
+  <component name="SLCT14_BG_param" id="b4dacc">
+    <variable name="K_cAAo" units="per_fmol" initial_value="1" interface="public" id="b4dace"/>
+    <variable name="K_cAAi" units="per_fmol" initial_value="1" interface="public" id="b4dacf"/>
+    <variable name="K_InAAo" units="per_fmol" initial_value="1" interface="public" id="b4dad0"/>
+    <variable name="K_InAAi" units="per_fmol" initial_value="1" interface="public" id="b4dad1"/>
+    <variable name="K_Nai" units="per_fmol" initial_value="1" interface="public" id="b4dad2"/>
+    <variable name="K_Nao" units="per_fmol" initial_value="1" interface="public" id="b4dad3"/>
+    <variable name="K_7" units="per_fmol" initial_value="1" interface="public" id="b4dad4"/>
+    <variable name="q_7_init" units="fmol" initial_value="1" interface="public" id="b4dad5"/>
+    <variable name="K_8" units="per_fmol" initial_value="1" interface="public" id="b4dad6"/>
+    <variable name="q_8_init" units="fmol" initial_value="1" interface="public" id="b4dad7"/>
+    <variable name="K_9" units="per_fmol" initial_value="1" interface="public" id="b4dad8"/>
+    <variable name="q_9_init" units="fmol" initial_value="1" interface="public" id="b4dad9"/>
+    <variable name="K_10" units="per_fmol" initial_value="1" interface="public" id="b4dada"/>
+    <variable name="q_10_init" units="fmol" initial_value="1" interface="public" id="b4dadb"/>
+    <variable name="K_11" units="per_fmol" initial_value="1" interface="public" id="b4dadc"/>
+    <variable name="q_11_init" units="fmol" initial_value="1" interface="public" id="b4dadd"/>
+    <variable name="K_12" units="per_fmol" initial_value="1" interface="public" id="b4dade"/>
+    <variable name="q_12_init" units="fmol" initial_value="1" interface="public" id="b4dadf"/>
+    <variable name="K_13" units="per_fmol" initial_value="1" interface="public" id="b4dae0"/>
+    <variable name="q_13_init" units="fmol" initial_value="1" interface="public" id="b4dae1"/>
+    <variable name="K_14" units="per_fmol" initial_value="1" interface="public" id="b4dae2"/>
+    <variable name="q_14_init" units="fmol" initial_value="1" interface="public" id="b4dae3"/>
+    <variable name="C_m" units="fF" initial_value="1" interface="public" id="b4dae4"/>
+    <variable name="kappa_re1" units="fmol_per_sec" initial_value="1" interface="public" id="b4dae5"/>
+    <variable name="kappa_re2" units="fmol_per_sec" initial_value="1" interface="public" id="b4dae6"/>
+    <variable name="kappa_re3" units="fmol_per_sec" initial_value="1" interface="public" id="b4dae7"/>
+    <variable name="kappa_re4" units="fmol_per_sec" initial_value="1" interface="public" id="b4dae8"/>
+    <variable name="kappa_re5" units="fmol_per_sec" initial_value="1" interface="public" id="b4dae9"/>
+    <variable name="kappa_re6" units="fmol_per_sec" initial_value="1" interface="public" id="b4daea"/>
+    <variable name="kappa_re7" units="fmol_per_sec" initial_value="1" interface="public" id="b4daeb"/>
+    <variable name="kappa_re8" units="fmol_per_sec" initial_value="1" interface="public" id="b4daec"/>
+    <variable name="F" units="C_per_mol" initial_value="96485" interface="public" id="b4daed"/>
+    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public" id="b4daee"/>
+    <variable name="T" units="kelvin" initial_value="293" interface="public" id="b4daef"/>
+  </component>
+  <component name="SLCT14_BG_ss" id="b4db13">
+    <variable name="P_0" units="per_fmol3_sec8" interface="public" id="b4db15"/>
+    <variable name="P_1" units="per_fmol3_sec8" interface="public" id="b4db16"/>
+    <variable name="P_2" units="per_fmol_sec7" interface="public" id="b4db17"/>
+    <variable name="P_3" units="per_fmol_sec7" interface="public" id="b4db18"/>
+    <variable name="P_4" units="per_fmol2_sec7" interface="public" id="b4db19"/>
+    <variable name="P_5" units="per_fmol2_sec7" interface="public" id="b4db1a"/>
+    <variable name="P_6" units="per_fmol2_sec7" interface="public" id="b4db1b"/>
+    <variable name="P_7" units="per_fmol2_sec7" interface="public" id="b4db1c"/>
+    <variable name="P_8" units="per_fmol2_sec7" interface="public" id="b4db1d"/>
+    <variable name="P_9" units="per_fmol2_sec7" interface="public" id="b4db1e"/>
+    <variable name="P_10" units="per_fmol2_sec7" interface="public" id="b4db1f"/>
+    <variable name="P_11" units="per_fmol2_sec7" interface="public" id="b4db20"/>
+    <variable name="P_12" units="per_fmol2_sec7" interface="public" id="b4db21"/>
+    <variable name="P_13" units="per_fmol3_sec7" interface="public" id="b4db22"/>
+    <variable name="P_14" units="per_fmol3_sec7" interface="public" id="b4db23"/>
+    <variable name="P_15" units="per_fmol3_sec7" interface="public" id="b4db24"/>
+    <variable name="P_16" units="per_fmol3_sec7" interface="public" id="b4db25"/>
+    <variable name="P_17" units="per_fmol3_sec7" interface="public" id="b4db26"/>
+    <variable name="P_18" units="per_fmol3_sec7" interface="public" id="b4db27"/>
+    <variable name="P_19" units="per_fmol3_sec7" interface="public" id="b4db28"/>
+    <variable name="P_20" units="per_fmol3_sec7" interface="public" id="b4db29"/>
+    <variable name="P_21" units="per_fmol4_sec7" interface="public" id="b4db2a"/>
+    <variable name="P_22" units="per_fmol4_sec7" interface="public" id="b4db2b"/>
+    <variable name="P_23" units="per_fmol4_sec7" interface="public" id="b4db2c"/>
+    <variable name="E" units="fmol" interface="public" id="b4db2d"/>
+    <variable name="K_cAAo" units="per_fmol" interface="public" id="b4db2e"/>
+    <variable name="K_cAAi" units="per_fmol" interface="public" id="b4db2f"/>
+    <variable name="K_InAAo" units="per_fmol" interface="public" id="b4db30"/>
+    <variable name="K_InAAi" units="per_fmol" interface="public" id="b4db31"/>
+    <variable name="K_Nai" units="per_fmol" interface="public" id="b4db32"/>
+    <variable name="K_Nao" units="per_fmol" interface="public" id="b4db33"/>
+    <variable name="K_7" units="per_fmol" interface="public" id="b4db34"/>
+    <variable name="q_7_init" units="fmol" interface="public" id="b4db35"/>
+    <variable name="K_8" units="per_fmol" interface="public" id="b4db36"/>
+    <variable name="q_8_init" units="fmol" interface="public" id="b4db37"/>
+    <variable name="K_9" units="per_fmol" interface="public" id="b4db38"/>
+    <variable name="q_9_init" units="fmol" interface="public" id="b4db39"/>
+    <variable name="K_10" units="per_fmol" interface="public" id="b4db3a"/>
+    <variable name="q_10_init" units="fmol" interface="public" id="b4db3b"/>
+    <variable name="K_11" units="per_fmol" interface="public" id="b4db3c"/>
+    <variable name="q_11_init" units="fmol" interface="public" id="b4db3d"/>
+    <variable name="K_12" units="per_fmol" interface="public" id="b4db3e"/>
+    <variable name="q_12_init" units="fmol" interface="public" id="b4db3f"/>
+    <variable name="K_13" units="per_fmol" interface="public" id="b4db40"/>
+    <variable name="q_13_init" units="fmol" interface="public" id="b4db41"/>
+    <variable name="K_14" units="per_fmol" interface="public" id="b4db42"/>
+    <variable name="q_14_init" units="fmol" interface="public" id="b4db43"/>
+    <variable name="C_m" units="fF" interface="public" id="b4db44"/>
+    <variable name="kappa_re1" units="fmol_per_sec" interface="public" id="b4db45"/>
+    <variable name="kappa_re2" units="fmol_per_sec" interface="public" id="b4db46"/>
+    <variable name="kappa_re3" units="fmol_per_sec" interface="public" id="b4db47"/>
+    <variable name="kappa_re4" units="fmol_per_sec" interface="public" id="b4db48"/>
+    <variable name="kappa_re5" units="fmol_per_sec" interface="public" id="b4db49"/>
+    <variable name="kappa_re6" units="fmol_per_sec" interface="public" id="b4db4a"/>
+    <variable name="kappa_re7" units="fmol_per_sec" interface="public" id="b4db4b"/>
+    <variable name="kappa_re8" units="fmol_per_sec" interface="public" id="b4db4c"/>
+    <variable name="F" units="C_per_mol" interface="public" id="b4db4d"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4db4e"/>
+    <variable name="T" units="kelvin" interface="public" id="b4db4f"/>
+    <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
+      <apply>
+        <eq/>
+        <ci>P_0</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_InAAo</ci>
+          <ci>K_Nao</ci>
+          <ci>K_cAAi</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re4</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_1</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_InAAi</ci>
+          <ci>K_Nai</ci>
+          <ci>K_cAAo</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re4</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_2</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_3</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_4</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_5</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_Nai</ci>
+          <ci>K_cAAi</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_6</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_Nao</ci>
+          <ci>K_cAAi</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re4</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_7</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_8</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_9</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_10</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_11</ci>
+        <apply>
+          <times/>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_Nai</ci>
+          <ci>K_cAAo</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_12</ci>
+        <apply>
+          <times/>
+          <ci>K_11</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_Nao</ci>
+          <ci>K_cAAo</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re4</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_13</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_14</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_15</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Nai</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_16</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_9</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_17</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_18</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_11</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_InAAi</ci>
+          <ci>K_Nao</ci>
+          <ci>K_cAAo</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re4</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_19</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_20</ci>
+        <apply>
+          <times/>
+          <ci>K_10</ci>
+          <ci>K_12</ci>
+          <ci>K_13</ci>
+          <ci>K_14</ci>
+          <ci>K_7</ci>
+          <ci>K_8</ci>
+          <ci>K_9</ci>
+          <ci>K_InAAo</ci>
+          <ci>K_Nai</ci>
+          <ci>K_cAAi</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re5</ci>
+          <ci>kappa_re6</ci>
+          <ci>kappa_re7</ci>
+          <ci>kappa_re8</ci>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_21</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_22</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAi</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAo</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_23</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_13</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_11</ci>
+            <ci>K_12</ci>
+            <ci>K_14</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <ci>K_InAAo</ci>
+            <ci>K_Nai</ci>
+            <ci>K_Nao</ci>
+            <ci>K_cAAi</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+            <ci>kappa_re8</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>E</ci>
+        <apply>
+          <plus/>
+          <ci>q_10_init</ci>
+          <ci>q_11_init</ci>
+          <ci>q_12_init</ci>
+          <ci>q_13_init</ci>
+          <ci>q_14_init</ci>
+          <ci>q_7_init</ci>
+          <ci>q_8_init</ci>
+          <ci>q_9_init</ci>
+        </apply>
+      </apply>
+    </math>
+  </component>
+  <component name="SLCT14_BG_ss_io" id="b4db50">
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4db51"/>
+    <variable name="q_InAAi" units="fmol" initial_value="1" interface="public" id="b4db52"/>
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4db53"/>
+    <variable name="q_cAAo" units="fmol" initial_value="1" interface="public" id="b4db54"/>
+    <variable name="q_InAAo" units="fmol" initial_value="1" interface="public" id="b4db55"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4db56"/>
+    <variable name="q_cAAi" units="fmol" initial_value="1" interface="public" id="b4db57"/>
+    <variable name="V_m" units="volt" initial_value="1" interface="public" id="b4db58"/>
+  </component>
+  <connection component_1="SLCT14_BG_ss_test" component_2="SLCT14_ss" id="b4da70">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da71"/>
+    <map_variables variable_1="q_InAAi" variable_2="q_InAAi" id="b4da74"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da76"/>
+    <map_variables variable_1="q_cAAo" variable_2="q_cAAo" id="b4da78"/>
+    <map_variables variable_1="q_InAAo" variable_2="q_InAAo" id="b4da7a"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4da7c"/>
+    <map_variables variable_1="q_cAAi" variable_2="q_cAAi" id="b4da7e"/>
+    <map_variables variable_1="V_m" variable_2="V_m" id="b4da80"/>
+    <map_variables variable_1="F" variable_2="F" id="b4da82"/>
+    <map_variables variable_1="R" variable_2="R" id="b4da83"/>
+    <map_variables variable_1="T" variable_2="T" id="b4da84"/>
   </connection>
-  <connection component_1="SLCT14_BG_ss_test" component_2="SLCT14_BG_ss_input" id="b4daf0">
-    <map_variables variable_1="q_InAAi" variable_2="q_InAAi" id="b4daf6"/>
-    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4daf8"/>
-    <map_variables variable_1="q_cAAo" variable_2="q_cAAo" id="b4dafa"/>
-    <map_variables variable_1="q_InAAo" variable_2="q_InAAo" id="b4dafc"/>
-    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4dafe"/>
-    <map_variables variable_1="q_cAAi" variable_2="q_cAAi" id="b4db00"/>
-    <map_variables variable_1="V_m" variable_2="V_m" id="b4db02"/>
-    <map_variables variable_1="F" variable_2="F" id="b4db04"/>
-    <map_variables variable_1="R" variable_2="R" id="b4db06"/>
-    <map_variables variable_1="T" variable_2="T" id="b4db08"/>
+  <connection component_1="SLCT14_BG_ss_test" component_2="SLCT14_BG_ss_io" id="b4da72">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da73"/>
+    <map_variables variable_1="q_InAAi" variable_2="q_InAAi" id="b4da75"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da77"/>
+    <map_variables variable_1="q_cAAo" variable_2="q_cAAo" id="b4da79"/>
+    <map_variables variable_1="q_InAAo" variable_2="q_InAAo" id="b4da7b"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4da7d"/>
+    <map_variables variable_1="q_cAAi" variable_2="q_cAAi" id="b4da7f"/>
+    <map_variables variable_1="V_m" variable_2="V_m" id="b4da81"/>
   </connection>
-  <connection component_1="SLCT14_ss" component_2="SLCT14_BG_ss" id="b4daf1">
-    <map_variables variable_1="P_0" variable_2="P_0" id="b4db0a"/>
-    <map_variables variable_1="P_1" variable_2="P_1" id="b4db0b"/>
-    <map_variables variable_1="P_2" variable_2="P_2" id="b4db0c"/>
-    <map_variables variable_1="P_3" variable_2="P_3" id="b4db0d"/>
-    <map_variables variable_1="P_4" variable_2="P_4" id="b4db0e"/>
-    <map_variables variable_1="P_5" variable_2="P_5" id="b4db0f"/>
-    <map_variables variable_1="P_6" variable_2="P_6" id="b4db10"/>
-    <map_variables variable_1="P_7" variable_2="P_7" id="b4db11"/>
-    <map_variables variable_1="P_8" variable_2="P_8" id="b4db12"/>
-    <map_variables variable_1="P_9" variable_2="P_9" id="b4db13"/>
-    <map_variables variable_1="P_10" variable_2="P_10" id="b4db14"/>
-    <map_variables variable_1="P_11" variable_2="P_11" id="b4db15"/>
-    <map_variables variable_1="P_12" variable_2="P_12" id="b4db16"/>
-    <map_variables variable_1="P_13" variable_2="P_13" id="b4db17"/>
-    <map_variables variable_1="P_14" variable_2="P_14" id="b4db18"/>
-    <map_variables variable_1="P_15" variable_2="P_15" id="b4db19"/>
-    <map_variables variable_1="P_16" variable_2="P_16" id="b4db1a"/>
-    <map_variables variable_1="P_17" variable_2="P_17" id="b4db1b"/>
-    <map_variables variable_1="P_18" variable_2="P_18" id="b4db1c"/>
-    <map_variables variable_1="P_19" variable_2="P_19" id="b4db1d"/>
-    <map_variables variable_1="P_20" variable_2="P_20" id="b4db1e"/>
-    <map_variables variable_1="P_21" variable_2="P_21" id="b4db1f"/>
-    <map_variables variable_1="P_22" variable_2="P_22" id="b4db20"/>
-    <map_variables variable_1="P_23" variable_2="P_23" id="b4db21"/>
-    <map_variables variable_1="E" variable_2="E" id="b4db22"/>
-    <map_variables variable_1="F" variable_2="F" id="b4db23"/>
-    <map_variables variable_1="R" variable_2="R" id="b4db25"/>
-    <map_variables variable_1="T" variable_2="T" id="b4db27"/>
+  <connection component_1="SLCT14_ss" component_2="SLCT14_BG_ss" id="b4daab">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4daac"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4daad"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4daae"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4daaf"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4dab0"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4dab1"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4dab2"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4dab3"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4dab4"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4dab5"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4dab6"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4dab7"/>
+    <map_variables variable_1="P_12" variable_2="P_12" id="b4dab8"/>
+    <map_variables variable_1="P_13" variable_2="P_13" id="b4dab9"/>
+    <map_variables variable_1="P_14" variable_2="P_14" id="b4daba"/>
+    <map_variables variable_1="P_15" variable_2="P_15" id="b4dabb"/>
+    <map_variables variable_1="P_16" variable_2="P_16" id="b4dabc"/>
+    <map_variables variable_1="P_17" variable_2="P_17" id="b4dabd"/>
+    <map_variables variable_1="P_18" variable_2="P_18" id="b4dabe"/>
+    <map_variables variable_1="P_19" variable_2="P_19" id="b4dabf"/>
+    <map_variables variable_1="P_20" variable_2="P_20" id="b4dac0"/>
+    <map_variables variable_1="P_21" variable_2="P_21" id="b4dac1"/>
+    <map_variables variable_1="P_22" variable_2="P_22" id="b4dac2"/>
+    <map_variables variable_1="P_23" variable_2="P_23" id="b4dac3"/>
+    <map_variables variable_1="E" variable_2="E" id="b4dac4"/>
+    <map_variables variable_1="F" variable_2="F" id="b4dac5"/>
+    <map_variables variable_1="R" variable_2="R" id="b4dac8"/>
+    <map_variables variable_1="T" variable_2="T" id="b4daca"/>
   </connection>
-  <connection component_1="SLCT14_ss" component_2="SLCT14_BG_param" id="b4daf2">
-    <map_variables variable_1="F" variable_2="F" id="b4db24"/>
-    <map_variables variable_1="R" variable_2="R" id="b4db26"/>
-    <map_variables variable_1="T" variable_2="T" id="b4db28"/>
+  <connection component_1="SLCT14_ss" component_2="SLCT14_BG_param" id="b4dac6">
+    <map_variables variable_1="F" variable_2="F" id="b4dac7"/>
+    <map_variables variable_1="R" variable_2="R" id="b4dac9"/>
+    <map_variables variable_1="T" variable_2="T" id="b4dacb"/>
   </connection>
-  <connection component_1="SLCT14_BG_param" component_2="SLCT14_BG_ss" id="b4daf3">
-    <map_variables variable_1="K_cAAo" variable_2="K_cAAo" id="b4db29"/>
-    <map_variables variable_1="K_cAAi" variable_2="K_cAAi" id="b4db2a"/>
-    <map_variables variable_1="K_InAAo" variable_2="K_InAAo" id="b4db2b"/>
-    <map_variables variable_1="K_InAAi" variable_2="K_InAAi" id="b4db2c"/>
-    <map_variables variable_1="K_Nai" variable_2="K_Nai" id="b4db2d"/>
-    <map_variables variable_1="K_Nao" variable_2="K_Nao" id="b4db2e"/>
-    <map_variables variable_1="K_7" variable_2="K_7" id="b4db2f"/>
-    <map_variables variable_1="q_7_init" variable_2="q_7_init" id="b4db30"/>
-    <map_variables variable_1="K_8" variable_2="K_8" id="b4db31"/>
-    <map_variables variable_1="q_8_init" variable_2="q_8_init" id="b4db32"/>
-    <map_variables variable_1="K_9" variable_2="K_9" id="b4db33"/>
-    <map_variables variable_1="q_9_init" variable_2="q_9_init" id="b4db34"/>
-    <map_variables variable_1="K_10" variable_2="K_10" id="b4db35"/>
-    <map_variables variable_1="q_10_init" variable_2="q_10_init" id="b4db36"/>
-    <map_variables variable_1="K_11" variable_2="K_11" id="b4db37"/>
-    <map_variables variable_1="q_11_init" variable_2="q_11_init" id="b4db38"/>
-    <map_variables variable_1="K_12" variable_2="K_12" id="b4db39"/>
-    <map_variables variable_1="q_12_init" variable_2="q_12_init" id="b4db3a"/>
-    <map_variables variable_1="K_13" variable_2="K_13" id="b4db3b"/>
-    <map_variables variable_1="q_13_init" variable_2="q_13_init" id="b4db3c"/>
-    <map_variables variable_1="K_14" variable_2="K_14" id="b4db3d"/>
-    <map_variables variable_1="q_14_init" variable_2="q_14_init" id="b4db3e"/>
-    <map_variables variable_1="C_m" variable_2="C_m" id="b4db3f"/>
-    <map_variables variable_1="kappa_re1" variable_2="kappa_re1" id="b4db40"/>
-    <map_variables variable_1="kappa_re2" variable_2="kappa_re2" id="b4db41"/>
-    <map_variables variable_1="kappa_re3" variable_2="kappa_re3" id="b4db42"/>
-    <map_variables variable_1="kappa_re4" variable_2="kappa_re4" id="b4db43"/>
-    <map_variables variable_1="kappa_re5" variable_2="kappa_re5" id="b4db44"/>
-    <map_variables variable_1="kappa_re6" variable_2="kappa_re6" id="b4db45"/>
-    <map_variables variable_1="kappa_re7" variable_2="kappa_re7" id="b4db46"/>
-    <map_variables variable_1="kappa_re8" variable_2="kappa_re8" id="b4db47"/>
-    <map_variables variable_1="F" variable_2="F" id="b4db48"/>
-    <map_variables variable_1="R" variable_2="R" id="b4db49"/>
-    <map_variables variable_1="T" variable_2="T" id="b4db4a"/>
+  <connection component_1="SLCT14_BG_param" component_2="SLCT14_BG_ss" id="b4daf0">
+    <map_variables variable_1="K_cAAo" variable_2="K_cAAo" id="b4daf1"/>
+    <map_variables variable_1="K_cAAi" variable_2="K_cAAi" id="b4daf2"/>
+    <map_variables variable_1="K_InAAo" variable_2="K_InAAo" id="b4daf3"/>
+    <map_variables variable_1="K_InAAi" variable_2="K_InAAi" id="b4daf4"/>
+    <map_variables variable_1="K_Nai" variable_2="K_Nai" id="b4daf5"/>
+    <map_variables variable_1="K_Nao" variable_2="K_Nao" id="b4daf6"/>
+    <map_variables variable_1="K_7" variable_2="K_7" id="b4daf7"/>
+    <map_variables variable_1="q_7_init" variable_2="q_7_init" id="b4daf8"/>
+    <map_variables variable_1="K_8" variable_2="K_8" id="b4daf9"/>
+    <map_variables variable_1="q_8_init" variable_2="q_8_init" id="b4dafa"/>
+    <map_variables variable_1="K_9" variable_2="K_9" id="b4dafb"/>
+    <map_variables variable_1="q_9_init" variable_2="q_9_init" id="b4dafc"/>
+    <map_variables variable_1="K_10" variable_2="K_10" id="b4dafd"/>
+    <map_variables variable_1="q_10_init" variable_2="q_10_init" id="b4dafe"/>
+    <map_variables variable_1="K_11" variable_2="K_11" id="b4daff"/>
+    <map_variables variable_1="q_11_init" variable_2="q_11_init" id="b4db00"/>
+    <map_variables variable_1="K_12" variable_2="K_12" id="b4db01"/>
+    <map_variables variable_1="q_12_init" variable_2="q_12_init" id="b4db02"/>
+    <map_variables variable_1="K_13" variable_2="K_13" id="b4db03"/>
+    <map_variables variable_1="q_13_init" variable_2="q_13_init" id="b4db04"/>
+    <map_variables variable_1="K_14" variable_2="K_14" id="b4db05"/>
+    <map_variables variable_1="q_14_init" variable_2="q_14_init" id="b4db06"/>
+    <map_variables variable_1="C_m" variable_2="C_m" id="b4db07"/>
+    <map_variables variable_1="kappa_re1" variable_2="kappa_re1" id="b4db08"/>
+    <map_variables variable_1="kappa_re2" variable_2="kappa_re2" id="b4db09"/>
+    <map_variables variable_1="kappa_re3" variable_2="kappa_re3" id="b4db0a"/>
+    <map_variables variable_1="kappa_re4" variable_2="kappa_re4" id="b4db0b"/>
+    <map_variables variable_1="kappa_re5" variable_2="kappa_re5" id="b4db0c"/>
+    <map_variables variable_1="kappa_re6" variable_2="kappa_re6" id="b4db0d"/>
+    <map_variables variable_1="kappa_re7" variable_2="kappa_re7" id="b4db0e"/>
+    <map_variables variable_1="kappa_re8" variable_2="kappa_re8" id="b4db0f"/>
+    <map_variables variable_1="F" variable_2="F" id="b4db10"/>
+    <map_variables variable_1="R" variable_2="R" id="b4db11"/>
+    <map_variables variable_1="T" variable_2="T" id="b4db12"/>
   </connection>
-  <encapsulation id="b4db5a">
-    <component_ref component="SLCT14_BG_ss_test" id="b4db4b">
-      <component_ref component="SLCT14_ss" id="b4db4c"/>
-      <component_ref component="SLCT14_BG_param" id="b4db4d"/>
-      <component_ref component="SLCT14_BG_ss" id="b4db4e"/>
+  <encapsulation id="b4db59">
+    <component_ref component="SLCT14_BG_ss_test" id="b4da64">
+      <component_ref component="SLCT14_ss" id="b4da86"/>
+      <component_ref component="SLCT14_BG_param" id="b4dacd"/>
+      <component_ref component="SLCT14_BG_ss" id="b4db14"/>
     </component_ref>
   </encapsulation>
 </model>

@@ -1,6 +1,6 @@
-# Downloaded from the user tutorials of libCellML on 2023-03-29
-# Added more functions to this file as needed
-from libcellml import Issue, cellmlElementTypeAsString
+# Downloaded from the user tutorials of libCellML on 2023-03-29 and https://github.com/nickerso/libcellml-python-utils/blob/main/cellml/__init__.py
+# Modify and add more functions to this file as needed
+from libcellml import Issue, cellmlElementTypeAsString,Parser, Validator, Analyser, Importer
 import tkinter as tk
 from tkinter import filedialog
 import inquirer
@@ -9,6 +9,9 @@ import csv
 import numpy as np
 import libsbml
 from pathlib import PurePath
+import json
+from lxml import etree
+import re
 
 """An interactive utility to ask the user to select a file or folder."""
 def ask_for_file_or_folder(message, is_folder=False):
@@ -62,7 +65,8 @@ def ask_for_input(message, type ='Confirm', choices = []):
         return inquirer.prompt(questions)['List']
     else:
         sys.exit(f'Input type {type} is not defined!')
-# Define a function to convert a infix expression to a MathML string (temporary solution with limitations 1. no support for units 2. some MathML elements defined in CellML2.0 are not supported)
+""" Define a function to convert a infix expression to a MathML string.
+    Temporary solution with limitations 1. no support for units 2. some MathML elements defined in CellML2.0 are not supported"""
 def infix_to_mathml(infix, ode_var, voi=''):
     if voi!='':
         preforumla = '<apply> \n <eq/> <apply> <diff/> <bvar> <ci>'+ voi + '</ci> </bvar> <ci>' + ode_var + '</ci> </apply> \n'
@@ -71,7 +75,7 @@ def infix_to_mathml(infix, ode_var, voi=''):
     postformula = '\n </apply> \n'
     p = libsbml.parseL3Formula (infix)
     mathstr = libsbml.writeMathMLToString (p)
-    # remove the <math> tags in the mathML string
+    # remove the <math> tags in the mathML string, and the namespace declaration will be added later according to the CellML specification
     mathstr = mathstr.replace ('<math xmlns="http://www.w3.org/1998/Math/MathML">', '')
     mathstr = mathstr.replace ('</math>', '')
     mathstr = mathstr.replace ('<?xml version="1.0" encoding="UTF-8"?>', '')
@@ -80,7 +84,52 @@ def infix_to_mathml(infix, ode_var, voi=''):
     # add left side of the equation       
     mathstr = preforumla + mathstr + postformula
     return mathstr
-# Read stoichiometric matrices
+
+def getEquations(model):
+    # input: the CellML model object
+    # output: a dictionary of the equations in the model: {component_name:equation}
+    equations = {}
+    def _getEquations(component):
+        if component.math()!='':
+            equations.update({component.name():component.math()})
+        if component.componentCount()>0:
+            for c in range(component.componentCount()):                   
+                   _getEquations(component.component(c))
+    
+    for c in range(model.componentCount()):
+            _getEquations(model.component(c))
+    return equations
+
+def getEquations_present(model):
+    equations = getEquations(model)
+    math_json = []
+    xslt = etree.parse("ctopff.xsl")
+    tran_c2p = etree.XSLT(xslt)
+    def m_c2p(math_c):
+        #preff = '{http://www.w3.org/1998/Math/MathML}'
+        if '<math ' not in math_c:
+            math_c = '<math xmlns="http://www.w3.org/1998/Math/MathML">' + math_c + '</math>'
+        # separate the math_c according to <math> and </math>
+        math_c_reg=math_c.replace('\n','')
+        regex = r'(<math[^>]*>)(.*?)(</math>)'
+        math_match = re.findall(regex, math_c_reg)
+        math_present = []
+        for tuple in math_match:
+            submath_c = ''.join(tuple)
+            if '<math ' not in submath_c:
+                submath_c = '<math xmlns="http://www.w3.org/1998/Math/MathML">' + submath_c + '</math>'
+
+            mml_dom = etree.fromstring(submath_c)
+            mmldom = tran_c2p(mml_dom)
+            math_present.append(str(mmldom).replace('·', '&#xB7;').replace('−', '-').replace('<?xml version="1.0"?>', '<?xml version="1.0" encoding="UTF-8"?>'))  
+                    
+        return math_present
+    
+    for key,value in equations.items():
+        math_json.append((key,m_c2p(value)))
+    return math_json
+
+""" Read stoichiometric matrices from csv files, and return the component names, component types, reaction names, reaction types, and stoichiometric matrices."""
 def load_matrix(fmatrix,rmatrix):
     # * * ReType ReType
     # * * ReName ReName
@@ -122,16 +171,82 @@ def load_matrix(fmatrix,rmatrix):
         sys.exit('There are duplicate components or empty stoichiometry') 
     else:
         return CompName,CompType,ReName,ReType,np.array(N_f),np.array(N_r)
-def getCompinfo(nodes,id):
-    for node in nodes:
-        if node['id']==id and node['shape']=='box':
-            comp_name = id
-            return ({"comp":comp_name,"var":''})
-        if node['id']==id and node['shape']=='ellipse':
-            var_name = node['label']
-            comp_name = id.strip(var_name)
-            return ({"comp":comp_name,"var":var_name})
-    return ({"comp":'',"var":''})
+
+""" Validate and analyse the model using libCellML, and return the issues to print to html. """
+def _dump_issues(source_method_name, logger):
+    issues = ''
+    issue_details = []
+    if logger.issueCount() > 0:
+        issue_sum = 'The method "{}" found {} issues:'.format(source_method_name, logger.issueCount())
+        issues=issues+issue_sum+'<br>'
+        for i in range(0, logger.issueCount()):
+            issuei=logger.issue(i).description()
+            issues=issues+issuei+'<br>'
+            issue_details.append((logger.issue(i).item(),logger.issue(i).referenceRule()))
+    return issues, issue_details
+
+def parse_model(filename, strict_mode=True):
+    cellml_file = open(filename)
+    parser = Parser(strict_mode)
+    model = parser.parseModel(cellml_file.read())
+    cellml_file.close() 
+    issues,issue_details=_dump_issues("parse_model", parser)
+    if issues !='':
+        return False, issues,issue_details
+    else:
+        issues="parse_model: No issues found!"
+        return model, issues,issue_details
+
+def validate_model(model):
+    validator = Validator()
+    validator.validateModel(model)
+    issues, issue_details=_dump_issues("validate_model", validator)
+    if issues=='':
+        issues="validate_model: No issues found!"
+        return True, issues,issue_details
+    else:
+        return False, issues,issue_details
+
+def resolve_imports(model, base_dir,strict_mode=True):
+    importer = Importer(strict_mode)
+    importer.resolveImports(model, base_dir)
+    issues,issue_details=_dump_issues("resolve_imports", importer)
+    if issues=='' and (not model.hasUnresolvedImports()):
+        issues="resolve_imports: No issues found!"
+        return importer, issues,issue_details
+    else:
+        return False, issues,issue_details
+
+def analyse_model(model):
+    analyser = Analyser()
+    analyser.analyseModel(model)
+    issues,issue_details=_dump_issues("analyse_model", analyser)
+    if issues=='':
+        issues="analyse_model: No issues found!"
+        return analyser, issues,issue_details
+    else:
+        return False, issues,issue_details
+
+def validate_model_full(model, base_dir,strict_mode=True):
+    modelIsValid,issues_validate,issue_details_validate=validate_model(model)
+    if modelIsValid:
+        importer,issues_import,issue_details_import=resolve_imports(model, base_dir,strict_mode=True)
+        if importer:
+            flat_model=importer.flattenModel(model)
+            analyser,issues_analyse,issue_details_analyse=analyse_model(flat_model)
+            issues=issues_validate+'<br>'+issues_import+'<br>'+issues_analyse
+            issue_details=issue_details_validate+issue_details_import+issue_details_analyse
+            if analyser:
+                return True, json.dumps(issues),issue_details
+        else:
+            issues=issues_validate+'<br>'+issues_import
+            issue_details=issue_details_validate+issue_details_import   
+    else:
+        issues=issues_validate
+        issue_details=issue_details_validate
+    
+    return False, json.dumps(issues),issue_details
+
 
 def print_model(model, include_maths=False):
 

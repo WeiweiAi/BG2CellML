@@ -2,8 +2,9 @@ import importlib
 from scipy.integrate import ode
 from pathlib import PurePath
 import matplotlib.pyplot as graph
-from matplotlib import cm
+import matplotlib
 import math
+import csv
 
 # Modified from https://github.com/hsorby/cellsolver.git
 # https://github.com/hsorby/cellsolver.git is licensed under Apache License 2.0
@@ -15,8 +16,7 @@ def initialize_system(system):
     states = system.create_states_array()
     variables = system.create_variables_array()
 
-    system.initialise_variables(states, variables)
-    system.compute_computed_constants(variables)
+    system.initialise_variables(states, rates, variables)
 
     return states, rates, variables
 
@@ -24,11 +24,19 @@ def algebraic_compute(system,simulation_parameters):
     variable_indices = apply_config(simulation_parameters['result']['config'], system.VARIABLE_INFO)
     variables = system.create_variables_array()
     system.initialise_variables(variables)
+    param_indices = apply_config(simulation_parameters['parameterization']['config'], system.VARIABLE_INFO)
+    param_values = simulation_parameters['parameterization']['config']['values']
+    # modify the parameters
+    for index, param_index in enumerate(param_indices):
+        variables[param_index] = param_values[index]
+
+    system.compute_computed_constants(variables)
     system.compute_computed_constants(variables)
     results = [[] for _ in range( len(variable_indices))]
+    x = [0]
     for index, variable_index in enumerate(variable_indices):
         results[index].append(variables[variable_index])
-    return results
+    return x, results
 
 def update(voi, states, system, rates, variables):
     system.compute_rates(voi, states, rates, variables)
@@ -72,6 +80,9 @@ def apply_config(config, y_info):
     elif 'parameter_excludes' in config and len(config['parameter_excludes']):
         info_items = info_items_list(config['parameter_excludes'])
         indices = [x for x, z in enumerate(y_info) if not_matching_info_items(z, info_items)]
+    elif 'parameter_modifies' in config and len(config['parameter_modifies']):
+        info_items = info_items_list(config['parameter_modifies'])
+        indices = [x for x, z in enumerate(y_info) if matching_info_items(z, info_items)]
 
     return indices
 
@@ -101,7 +112,7 @@ def plot_solution(x, y_n, x_info, y_n_info, title):
 
 def _get_colours(num_colours):
     colours = []
-    colour_map = cm.get_cmap('hsv')
+    colour_map = matplotlib.colormaps['viridis']
     for i in range(num_colours):
         colour = colour_map(1. * i / num_colours)  # color will now be an RGBA tuple
         colours.append(colour)
@@ -137,8 +148,13 @@ def module_type(module):
 def scipy_based_solver(system, method, simulation_parameters):
     state_indices = apply_config(simulation_parameters['result']['config'], system.STATE_INFO)
     variable_indices = apply_config(simulation_parameters['result']['config'], system.VARIABLE_INFO)
+    param_indices = apply_config(simulation_parameters['parameterization']['config'], system.VARIABLE_INFO)
+    param_values = simulation_parameters['parameterization']['config']['values']
     states, rates, variables = initialize_system(system)
-
+    # modify the parameters
+    for index, param_index in enumerate(param_indices):
+        variables[param_index] = param_values[index]
+    system.compute_computed_constants(variables)
     # step_size = simulation_parameters['integration']['step_size']
     interval = simulation_parameters['integration']['interval']
     output_step_size = simulation_parameters['result']['step_size']
@@ -174,33 +190,45 @@ def scipy_based_solver(system, method, simulation_parameters):
 
 def main():
 
-    full_path = '../test/cellml/SLC_SS/SLCT3V_ss_test_inOne.py'
+    full_path = '../test/SLCV2/SLCT1/SLCT1_BG_test.py'
     module_name = PurePath(full_path).stem
     loaded_module = module_from_file(module_name, full_path)
     step_size = 0.0001
-    interval = [0, 1]
+    interval = [0, 50]
     result_step_size = 0.1
-    config = {'show_plot': True, 'parameter_includes': ['SLCT3V_ss.v_ss'], 'parameter_excludes': []}
+    config = {'show_plot': True, 'parameter_includes': ['SLCT1_BG.v_Ao'], 'parameter_excludes': []}
+    config_param = {'parameter_modifies': ['SLCT1_BG_io.q_Ai','SLCT1_BG_io.q_Ao'],'values':[10,50]}
     
     simulation_parameters = {
         'integration': {'step_size': step_size, 'interval': interval},
         'result': {'step_size': result_step_size, 'config': config},
+        'parameterization': { 'config': config_param},
     }
 
+    csv_file = full_path.replace('.py', '.csv')
     if module_type(loaded_module) == 'ode':
         [x, y_n] = scipy_based_solver(loaded_module, 'lsoda', simulation_parameters)
-        plot_title = loaded_module.__name__
+        plot_title = loaded_module.__name__  
         parameter_info = [*loaded_module.STATE_INFO, *loaded_module.VARIABLE_INFO]
         indices = apply_config(config, parameter_info)
-        y_n_info = [parameter_info[i] for i in indices]
+        y_n_info = [parameter_info[i] for i in indices]    
 
         if config['show_plot']:
             plot_solution(x, y_n, loaded_module.VOI_INFO, y_n_info, plot_title)
 
     elif module_type(loaded_module) == 'algebraic':
-        y_n=algebraic_compute(loaded_module,simulation_parameters)
-
+        x, y_n = algebraic_compute(loaded_module,simulation_parameters)
+        parameter_info = [*loaded_module.VARIABLE_INFO]
+        indices = apply_config(config, parameter_info)
+        y_n_info = [parameter_info[i] for i in indices]
     
+    # save results to csv file with the same name as the module; 
+    # the header is the name of the variables and the first column is the time; 
+    # the header is from the config file
+    with open(csv_file, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(['time'] + [y_n_info[i]['name'] for i in range(len(y_n_info))])
+        writer.writerows(zip(x, *y_n))  
 
 if __name__ == "__main__":
     main()

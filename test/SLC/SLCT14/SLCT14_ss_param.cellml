@@ -2,10 +2,10 @@
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT14_ss_param">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
     <units units_ref="fmol" name="fmol"/>
+    <units units_ref="per_fmol2_sec7" name="per_fmol2_sec7"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
     <units units_ref="per_fmol4_sec7" name="per_fmol4_sec7"/>
     <units units_ref="per_fmol3_sec8" name="per_fmol3_sec8"/>
-    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
-    <units units_ref="per_fmol2_sec7" name="per_fmol2_sec7"/>
     <units units_ref="per_fmol_sec7" name="per_fmol_sec7"/>
   </import>
   <component name="SLCT14_ss_param">

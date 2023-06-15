@@ -1,6 +1,6 @@
 from libcellml import Component, Generator, GeneratorProfile, Model, Units,  Variable, ImportSource, Printer, Annotator
 import pandas as pd
-from utilities import print_model, ask_for_file_or_folder, ask_for_input, infix_to_mathml
+from utilities import print_model, ask_for_file_or_folder, ask_for_input, infix_to_mathml,getEquations
 import cellml
 from pathlib import PurePath
 import os
@@ -19,7 +19,7 @@ def getEntityList(model, comp_name=None):
     # input: model, the CellML model object
     #        comp_name, the CellML component name
     # output: a list of the entity names.
-    # if the component name is not provided, the list of the component names is returned;
+    # if the component name is not provided, the list of the component names is returned (excluding the encapsulated children components);
     # if the component name is provided, the list of the variable names is returned
     if comp_name is None:
         return [model.component(comp_numb).name() for comp_numb in range(model.componentCount())]
@@ -739,21 +739,6 @@ def addEquations(component, equations):
         component. appendMath(infix_to_mathml(infix, ode_var, voi))
     component. appendMath(MATH_FOOTER)
 
-def getEquations(model):
-    # input: model: the model object
-    # output: equations: a dictionary of the equations in the model: {component_name:equation}
-    equations = {}
-    def _getEquations(component):
-        if component.math()!='':
-            equations.update({component.name():component.math()})
-        if component.componentCount()>0:
-            for c in range(component.componentCount()):                   
-                   _getEquations(component.component(c))
-    
-    for c in range(model.componentCount()):
-            _getEquations(model.component(c))
-    return equations
-
 def writeCellML_UI(model_path, model):
     message = f'If you want to change the default filename {model.name()}.cellml, please type the new name. Otherwise, just press Enter.'
     file_name = ask_for_input(message, 'Text')
@@ -846,7 +831,8 @@ def editModel_default(model_path,model,importSource_units,import_units_model,imp
     # Assume that the new components have been added to the model
     # import the existing components from other CellML files
     for i, importSource in enumerate(importSources_comp):
-        importComponents(model,importSource,import_models[i],import_components_dicts[i])
+        #importComponents(model,importSource,import_models[i],import_components_dicts[i])
+        importComponents_clone(model,import_models[i],import_components_dicts[i])
     
     # Clone variables from import components to the new components when needed
     compPair4CloneVars_UI(model)
@@ -854,7 +840,7 @@ def editModel_default(model_path,model,importSource_units,import_units_model,imp
     if importSource_units:
         if importSource_units.model() is None:
             print('Warning: the units file is not a valid CellML file.')
-        copyUnits(model,importSource_units,import_units_model)
+        importUnits(model,importSource_units,import_units_model)
     cellml.resolve_imports(model, model_path, True)
     # Encapsulate the components when needed
     component_list = getEntityList(model)

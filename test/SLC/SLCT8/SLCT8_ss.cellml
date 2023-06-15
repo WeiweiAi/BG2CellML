@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT8_ss">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="per_sec6_fmol3" name="per_sec6_fmol3"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
     <units units_ref="fmol" name="fmol"/>
-    <units units_ref="per_sec6_fmol2" name="per_sec6_fmol2"/>
-    <units units_ref="per_sec6_fmol4" name="per_sec6_fmol4"/>
-    <units units_ref="per_sec6_fmol7" name="per_sec6_fmol7"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
-    <units units_ref="per_sec7_fmol5" name="per_sec7_fmol5"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
     <units units_ref="C_per_mol" name="C_per_mol"/>
-    <units units_ref="per_sec6_fmol5" name="per_sec6_fmol5"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="per_fmol5_sec6" name="per_fmol5_sec6"/>
+    <units units_ref="per_fmol3_sec6" name="per_fmol3_sec6"/>
+    <units units_ref="per_fmol_sec6" name="per_fmol_sec6"/>
+    <units units_ref="per_fmol2_sec6" name="per_fmol2_sec6"/>
   </import>
   <component name="SLCT8_ss">
-    <variable name="P_0" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_1" units="per_sec7_fmol5" interface="public"/>
-    <variable name="P_2" units="per_sec6_fmol2" interface="public"/>
-    <variable name="P_3" units="per_sec6_fmol2" interface="public"/>
-    <variable name="P_4" units="per_sec6_fmol5" interface="public"/>
-    <variable name="P_5" units="per_sec6_fmol5" interface="public"/>
-    <variable name="P_6" units="per_sec6_fmol5" interface="public"/>
-    <variable name="P_7" units="per_sec6_fmol5" interface="public"/>
-    <variable name="P_8" units="per_sec6_fmol3" interface="public"/>
-    <variable name="P_9" units="per_sec6_fmol4" interface="public"/>
-    <variable name="P_10" units="per_sec6_fmol7" interface="public"/>
+    <variable name="P_0" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_1" units="per_fmol3_sec7" interface="public"/>
+    <variable name="P_2" units="per_fmol_sec6" interface="public"/>
+    <variable name="P_3" units="per_fmol_sec6" interface="public"/>
+    <variable name="P_4" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_5" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_6" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_7" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_8" units="per_fmol2_sec6" interface="public"/>
+    <variable name="P_9" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_10" units="per_fmol5_sec6" interface="public"/>
     <variable name="E" units="fmol" interface="public"/>
     <variable name="q_Gluo" units="fmol" interface="public"/>
     <variable name="q_Nao" units="fmol" interface="public"/>
-    <variable name="F" units="C_per_mol"/>
-    <variable name="R" units="J_per_K_per_mol"/>
-    <variable name="T" units="kelvin"/>
+    <variable name="F" units="C_per_mol" interface="public"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public"/>
+    <variable name="T" units="kelvin" interface="public"/>
     <variable name="V_m" units="volt" interface="public"/>
     <variable name="q_Glui" units="fmol" interface="public"/>
     <variable name="q_Nai" units="fmol" interface="public"/>

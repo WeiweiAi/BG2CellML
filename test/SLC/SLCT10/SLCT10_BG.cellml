@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT10_BG">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="fA" name="fA"/>
     <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
-    <units units_ref="fF" name="fF"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
     <units units_ref="fC" name="fC"/>
-    <units units_ref="J_per_mol" name="J_per_mol"/>
-    <units units_ref="fmol" name="fmol"/>
-    <units units_ref="C_per_mol" name="C_per_mol"/>
     <units units_ref="per_fmol" name="per_fmol"/>
+    <units units_ref="fF" name="fF"/>
+    <units units_ref="fA" name="fA"/>
+    <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="J_per_mol" name="J_per_mol"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
   </import>
   <component name="SLCT10_BG">
     <variable name="t" units="second"/>
@@ -448,7 +448,7 @@
         <ci>V_m</ci>
         <apply>
           <divide/>
-          <ci>I_m</ci>
+          <ci>q_m</ci>
           <ci>C_m</ci>
         </apply>
       </apply>
@@ -879,7 +879,11 @@
         <eq/>
         <ci>I_m</ci>
         <apply>
-          <minus/>
+          <times/>
+          <apply>
+            <minus/>
+            <ci>F</ci>
+          </apply>
           <ci>v_re1</ci>
         </apply>
       </apply>
@@ -894,7 +898,11 @@
             <ci>mu_Nao</ci>
           </apply>
           <ci>mu_13</ci>
-          <ci>V_m</ci>
+          <apply>
+            <times/>
+            <ci>F</ci>
+            <ci>V_m</ci>
+          </apply>
         </apply>
       </apply>
       <apply>

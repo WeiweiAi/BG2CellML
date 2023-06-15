@@ -1,112 +1,587 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT11_ss_test" id="b4da55">
-  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT11_ss.cellml" id="b4da56">
-    <component component_ref="SLCT11_ss" name="SLCT11_ss" id="b4da5c"/>
-  </import>
-  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="SLCT11_ss_param.cellml" id="b4da57">
-    <component component_ref="SLCT11_ss_param" name="SLCT11_ss_param" id="b4da5d"/>
-  </import>
-  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da58">
-    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da59"/>
+  <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da56">
+    <units units_ref="per_fmol6_sec9" name="per_fmol6_sec9" id="b4da57"/>
+    <units units_ref="per_fmol_sec9" name="per_fmol_sec9" id="b4da58"/>
+    <units units_ref="per_fmol5_sec9" name="per_fmol5_sec9" id="b4da59"/>
     <units units_ref="fmol" name="fmol" id="b4da5a"/>
+    <units units_ref="per_fmol3_sec9" name="per_fmol3_sec9" id="b4da5b"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5c"/>
+    <units units_ref="per_fmol4_sec9" name="per_fmol4_sec9" id="b4da5d"/>
+    <units units_ref="per_fmol4_sec10" name="per_fmol4_sec10" id="b4da5e"/>
+    <units units_ref="per_fmol2_sec9" name="per_fmol2_sec9" id="b4da5f"/>
   </import>
-  <component name="SLCT11_ss_test" id="b4da5b">
-    <variable name="v_ss" units="fmol_per_sec" interface="private" id="b4da5e"/>
-    <variable name="q_Clo" units="fmol" interface="public_and_private" id="b4da5f"/>
-    <variable name="q_Ki" units="fmol" interface="public_and_private" id="b4da60"/>
-    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da61"/>
-    <variable name="q_So" units="fmol" interface="public_and_private" id="b4da62"/>
-    <variable name="q_Cli" units="fmol" interface="public_and_private" id="b4da63"/>
-    <variable name="q_Ko" units="fmol" interface="public_and_private" id="b4da64"/>
-    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da65"/>
-    <variable name="q_Si" units="fmol" interface="public_and_private" id="b4da66"/>
-    <variable name="E" units="fmol" interface="private" id="b4da67"/>
+  <component name="SLCT11_ss_test" id="b4da60">
+    <variable name="v_ss" units="fmol_per_sec" interface="public_and_private" id="b4da62"/>
+    <variable name="q_Clo" units="fmol" interface="public_and_private" id="b4da63"/>
+    <variable name="q_Ki" units="fmol" interface="public_and_private" id="b4da64"/>
+    <variable name="q_Nao" units="fmol" interface="public_and_private" id="b4da65"/>
+    <variable name="q_So" units="fmol" interface="public_and_private" id="b4da66"/>
+    <variable name="q_Cli" units="fmol" interface="public_and_private" id="b4da67"/>
+    <variable name="q_Ko" units="fmol" interface="public_and_private" id="b4da68"/>
+    <variable name="q_Nai" units="fmol" interface="public_and_private" id="b4da69"/>
+    <variable name="q_Si" units="fmol" interface="public_and_private" id="b4da6a"/>
   </component>
-  <component name="SLCT11_ss_input" id="b4db16">
-    <variable name="q_Clo" units="fmol" initial_value="1" interface="public" id="b4db17"/>
-    <variable name="q_Ki" units="fmol" initial_value="1" interface="public" id="b4db18"/>
-    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4db19"/>
-    <variable name="q_So" units="fmol" initial_value="1" interface="public" id="b4db1a"/>
-    <variable name="q_Cli" units="fmol" initial_value="1" interface="public" id="b4db1b"/>
-    <variable name="q_Ko" units="fmol" initial_value="1" interface="public" id="b4db1c"/>
-    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4db1d"/>
-    <variable name="q_Si" units="fmol" initial_value="1" interface="public" id="b4db1e"/>
+  <component name="SLCT11_ss" id="b4da7f">
+    <variable name="P_0" units="per_fmol4_sec10" interface="public" id="b4da81"/>
+    <variable name="P_1" units="per_fmol4_sec10" interface="public" id="b4da82"/>
+    <variable name="P_2" units="per_fmol_sec9" interface="public" id="b4da83"/>
+    <variable name="P_3" units="per_fmol_sec9" interface="public" id="b4da84"/>
+    <variable name="P_4" units="per_fmol2_sec9" interface="public" id="b4da85"/>
+    <variable name="P_5" units="per_fmol2_sec9" interface="public" id="b4da86"/>
+    <variable name="P_6" units="per_fmol2_sec9" interface="public" id="b4da87"/>
+    <variable name="P_7" units="per_fmol2_sec9" interface="public" id="b4da88"/>
+    <variable name="P_8" units="per_fmol2_sec9" interface="public" id="b4da89"/>
+    <variable name="P_9" units="per_fmol2_sec9" interface="public" id="b4da8a"/>
+    <variable name="P_10" units="per_fmol2_sec9" interface="public" id="b4da8b"/>
+    <variable name="P_11" units="per_fmol3_sec9" interface="public" id="b4da8c"/>
+    <variable name="P_12" units="per_fmol3_sec9" interface="public" id="b4da8d"/>
+    <variable name="P_13" units="per_fmol3_sec9" interface="public" id="b4da8e"/>
+    <variable name="P_14" units="per_fmol3_sec9" interface="public" id="b4da8f"/>
+    <variable name="P_15" units="per_fmol3_sec9" interface="public" id="b4da90"/>
+    <variable name="P_16" units="per_fmol3_sec9" interface="public" id="b4da91"/>
+    <variable name="P_17" units="per_fmol3_sec9" interface="public" id="b4da92"/>
+    <variable name="P_18" units="per_fmol3_sec9" interface="public" id="b4da93"/>
+    <variable name="P_19" units="per_fmol3_sec9" interface="public" id="b4da94"/>
+    <variable name="P_20" units="per_fmol3_sec9" interface="public" id="b4da95"/>
+    <variable name="P_21" units="per_fmol3_sec9" interface="public" id="b4da96"/>
+    <variable name="P_22" units="per_fmol3_sec9" interface="public" id="b4da97"/>
+    <variable name="P_23" units="per_fmol3_sec9" interface="public" id="b4da98"/>
+    <variable name="P_24" units="per_fmol3_sec9" interface="public" id="b4da99"/>
+    <variable name="P_25" units="per_fmol4_sec9" interface="public" id="b4da9a"/>
+    <variable name="P_26" units="per_fmol4_sec9" interface="public" id="b4da9b"/>
+    <variable name="P_27" units="per_fmol4_sec9" interface="public" id="b4da9c"/>
+    <variable name="P_28" units="per_fmol4_sec9" interface="public" id="b4da9d"/>
+    <variable name="P_29" units="per_fmol4_sec9" interface="public" id="b4da9e"/>
+    <variable name="P_30" units="per_fmol4_sec9" interface="public" id="b4da9f"/>
+    <variable name="P_31" units="per_fmol4_sec9" interface="public" id="b4daa0"/>
+    <variable name="P_32" units="per_fmol4_sec9" interface="public" id="b4daa1"/>
+    <variable name="P_33" units="per_fmol4_sec9" interface="public" id="b4daa2"/>
+    <variable name="P_34" units="per_fmol4_sec9" interface="public" id="b4daa3"/>
+    <variable name="P_35" units="per_fmol5_sec9" interface="public" id="b4daa4"/>
+    <variable name="P_36" units="per_fmol5_sec9" interface="public" id="b4daa5"/>
+    <variable name="P_37" units="per_fmol5_sec9" interface="public" id="b4daa6"/>
+    <variable name="P_38" units="per_fmol5_sec9" interface="public" id="b4daa7"/>
+    <variable name="P_39" units="per_fmol5_sec9" interface="public" id="b4daa8"/>
+    <variable name="P_40" units="per_fmol5_sec9" interface="public" id="b4daa9"/>
+    <variable name="P_41" units="per_fmol5_sec9" interface="public" id="b4daaa"/>
+    <variable name="P_42" units="per_fmol5_sec9" interface="public" id="b4daab"/>
+    <variable name="P_43" units="per_fmol6_sec9" interface="public" id="b4daac"/>
+    <variable name="P_44" units="per_fmol6_sec9" interface="public" id="b4daad"/>
+    <variable name="P_45" units="per_fmol6_sec9" interface="public" id="b4daae"/>
+    <variable name="E" units="fmol" interface="public" id="b4daaf"/>
+    <variable name="q_Clo" units="fmol" interface="public" id="b4dab0"/>
+    <variable name="q_Ki" units="fmol" interface="public" id="b4dab1"/>
+    <variable name="q_Nao" units="fmol" interface="public" id="b4dab2"/>
+    <variable name="q_So" units="fmol" interface="public" id="b4dab3"/>
+    <variable name="q_Cli" units="fmol" interface="public" id="b4dab4"/>
+    <variable name="q_Ko" units="fmol" interface="public" id="b4dab5"/>
+    <variable name="q_Nai" units="fmol" interface="public" id="b4dab6"/>
+    <variable name="q_Si" units="fmol" interface="public" id="b4dab7"/>
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4dab8"/>
+    <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
+      <apply>
+        <eq/>
+        <ci>v_ss</ci>
+        <apply>
+          <divide/>
+          <apply>
+            <times/>
+            <ci>E</ci>
+            <apply>
+              <minus/>
+              <apply>
+                <times/>
+                <ci>P_0</ci>
+                <ci>q_Clo</ci>
+                <ci>q_Ki</ci>
+                <ci>q_Nao</ci>
+                <ci>q_So</ci>
+              </apply>
+              <apply>
+                <times/>
+                <ci>P_1</ci>
+                <ci>q_Cli</ci>
+                <ci>q_Ko</ci>
+                <ci>q_Nai</ci>
+                <ci>q_Si</ci>
+              </apply>
+            </apply>
+          </apply>
+          <apply>
+            <plus/>
+            <apply>
+              <times/>
+              <ci>P_10</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_11</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_12</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_13</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_14</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_15</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_16</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_17</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Nao</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_18</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_19</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_2</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_20</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_21</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_22</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_23</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_24</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_25</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_26</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_27</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_28</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_29</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_3</ci>
+              <ci>q_Ki</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_30</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_31</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_32</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_33</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_34</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_35</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_36</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_37</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_38</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_39</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_4</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_40</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_41</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_42</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_43</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_44</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_45</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Nai</ci>
+              <ci>q_Nao</ci>
+              <ci>q_Si</ci>
+              <ci>q_So</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_5</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_6</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_7</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_8</ci>
+              <ci>q_Cli</ci>
+              <ci>q_Ki</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_9</ci>
+              <ci>q_Clo</ci>
+              <ci>q_Ki</ci>
+            </apply>
+          </apply>
+        </apply>
+      </apply>
+    </math>
   </component>
-  <connection component_1="SLCT11_ss_test" component_2="SLCT11_ss" id="b4dacf">
-    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4dad2"/>
-    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4dad3"/>
-    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4dad5"/>
-    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4dad7"/>
-    <map_variables variable_1="q_So" variable_2="q_So" id="b4dad9"/>
-    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4dadb"/>
-    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4dadd"/>
-    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4dadf"/>
-    <map_variables variable_1="q_Si" variable_2="q_Si" id="b4dae1"/>
-    <map_variables variable_1="E" variable_2="E" id="b4dae3"/>
+  <component name="SLCT11_ss_param" id="b4dae9">
+    <variable name="P_0" units="per_fmol4_sec10" initial_value="1" interface="public" id="b4daeb"/>
+    <variable name="P_1" units="per_fmol4_sec10" initial_value="1" interface="public" id="b4daec"/>
+    <variable name="P_2" units="per_fmol_sec9" initial_value="1" interface="public" id="b4daed"/>
+    <variable name="P_3" units="per_fmol_sec9" initial_value="1" interface="public" id="b4daee"/>
+    <variable name="P_4" units="per_fmol2_sec9" initial_value="1" interface="public" id="b4daef"/>
+    <variable name="P_5" units="per_fmol2_sec9" initial_value="1" interface="public" id="b4daf0"/>
+    <variable name="P_6" units="per_fmol2_sec9" initial_value="1" interface="public" id="b4daf1"/>
+    <variable name="P_7" units="per_fmol2_sec9" initial_value="1" interface="public" id="b4daf2"/>
+    <variable name="P_8" units="per_fmol2_sec9" initial_value="1" interface="public" id="b4daf3"/>
+    <variable name="P_9" units="per_fmol2_sec9" initial_value="1" interface="public" id="b4daf4"/>
+    <variable name="P_10" units="per_fmol2_sec9" initial_value="1" interface="public" id="b4daf5"/>
+    <variable name="P_11" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4daf6"/>
+    <variable name="P_12" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4daf7"/>
+    <variable name="P_13" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4daf8"/>
+    <variable name="P_14" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4daf9"/>
+    <variable name="P_15" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4dafa"/>
+    <variable name="P_16" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4dafb"/>
+    <variable name="P_17" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4dafc"/>
+    <variable name="P_18" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4dafd"/>
+    <variable name="P_19" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4dafe"/>
+    <variable name="P_20" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4daff"/>
+    <variable name="P_21" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4db00"/>
+    <variable name="P_22" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4db01"/>
+    <variable name="P_23" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4db02"/>
+    <variable name="P_24" units="per_fmol3_sec9" initial_value="1" interface="public" id="b4db03"/>
+    <variable name="P_25" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db04"/>
+    <variable name="P_26" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db05"/>
+    <variable name="P_27" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db06"/>
+    <variable name="P_28" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db07"/>
+    <variable name="P_29" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db08"/>
+    <variable name="P_30" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db09"/>
+    <variable name="P_31" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db0a"/>
+    <variable name="P_32" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db0b"/>
+    <variable name="P_33" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db0c"/>
+    <variable name="P_34" units="per_fmol4_sec9" initial_value="1" interface="public" id="b4db0d"/>
+    <variable name="P_35" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db0e"/>
+    <variable name="P_36" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db0f"/>
+    <variable name="P_37" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db10"/>
+    <variable name="P_38" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db11"/>
+    <variable name="P_39" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db12"/>
+    <variable name="P_40" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db13"/>
+    <variable name="P_41" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db14"/>
+    <variable name="P_42" units="per_fmol5_sec9" initial_value="1" interface="public" id="b4db15"/>
+    <variable name="P_43" units="per_fmol6_sec9" initial_value="1" interface="public" id="b4db16"/>
+    <variable name="P_44" units="per_fmol6_sec9" initial_value="1" interface="public" id="b4db17"/>
+    <variable name="P_45" units="per_fmol6_sec9" initial_value="1" interface="public" id="b4db18"/>
+    <variable name="E" units="fmol" initial_value="1" interface="public" id="b4db19"/>
+  </component>
+  <component name="SLCT11_ss_io" id="b4db1a">
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4db1b"/>
+    <variable name="q_Clo" units="fmol" initial_value="1" interface="public" id="b4db1c"/>
+    <variable name="q_Ki" units="fmol" initial_value="1" interface="public" id="b4db1d"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4db1e"/>
+    <variable name="q_So" units="fmol" initial_value="1" interface="public" id="b4db1f"/>
+    <variable name="q_Cli" units="fmol" initial_value="1" interface="public" id="b4db20"/>
+    <variable name="q_Ko" units="fmol" initial_value="1" interface="public" id="b4db21"/>
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4db22"/>
+    <variable name="q_Si" units="fmol" initial_value="1" interface="public" id="b4db23"/>
+  </component>
+  <connection component_1="SLCT11_ss_test" component_2="SLCT11_ss" id="b4da6b">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da6c"/>
+    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4da6f"/>
+    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4da71"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4da73"/>
+    <map_variables variable_1="q_So" variable_2="q_So" id="b4da75"/>
+    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4da77"/>
+    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4da79"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da7b"/>
+    <map_variables variable_1="q_Si" variable_2="q_Si" id="b4da7d"/>
   </connection>
-  <connection component_1="SLCT11_ss_test" component_2="SLCT11_ss_input" id="b4dad0">
-    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4dad4"/>
-    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4dad6"/>
-    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4dad8"/>
-    <map_variables variable_1="q_So" variable_2="q_So" id="b4dada"/>
-    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4dadc"/>
-    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4dade"/>
-    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4dae0"/>
-    <map_variables variable_1="q_Si" variable_2="q_Si" id="b4dae2"/>
+  <connection component_1="SLCT11_ss_test" component_2="SLCT11_ss_io" id="b4da6d">
+    <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da6e"/>
+    <map_variables variable_1="q_Clo" variable_2="q_Clo" id="b4da70"/>
+    <map_variables variable_1="q_Ki" variable_2="q_Ki" id="b4da72"/>
+    <map_variables variable_1="q_Nao" variable_2="q_Nao" id="b4da74"/>
+    <map_variables variable_1="q_So" variable_2="q_So" id="b4da76"/>
+    <map_variables variable_1="q_Cli" variable_2="q_Cli" id="b4da78"/>
+    <map_variables variable_1="q_Ko" variable_2="q_Ko" id="b4da7a"/>
+    <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da7c"/>
+    <map_variables variable_1="q_Si" variable_2="q_Si" id="b4da7e"/>
   </connection>
-  <connection component_1="SLCT11_ss" component_2="SLCT11_ss_param" id="b4dad1">
-    <map_variables variable_1="P_0" variable_2="P_0" id="b4dae4"/>
-    <map_variables variable_1="P_1" variable_2="P_1" id="b4dae5"/>
-    <map_variables variable_1="P_2" variable_2="P_2" id="b4dae6"/>
-    <map_variables variable_1="P_3" variable_2="P_3" id="b4dae7"/>
-    <map_variables variable_1="P_4" variable_2="P_4" id="b4dae8"/>
-    <map_variables variable_1="P_5" variable_2="P_5" id="b4dae9"/>
-    <map_variables variable_1="P_6" variable_2="P_6" id="b4daea"/>
-    <map_variables variable_1="P_7" variable_2="P_7" id="b4daeb"/>
-    <map_variables variable_1="P_8" variable_2="P_8" id="b4daec"/>
-    <map_variables variable_1="P_9" variable_2="P_9" id="b4daed"/>
-    <map_variables variable_1="P_10" variable_2="P_10" id="b4daee"/>
-    <map_variables variable_1="P_11" variable_2="P_11" id="b4daef"/>
-    <map_variables variable_1="P_12" variable_2="P_12" id="b4daf0"/>
-    <map_variables variable_1="P_13" variable_2="P_13" id="b4daf1"/>
-    <map_variables variable_1="P_14" variable_2="P_14" id="b4daf2"/>
-    <map_variables variable_1="P_15" variable_2="P_15" id="b4daf3"/>
-    <map_variables variable_1="P_16" variable_2="P_16" id="b4daf4"/>
-    <map_variables variable_1="P_17" variable_2="P_17" id="b4daf5"/>
-    <map_variables variable_1="P_18" variable_2="P_18" id="b4daf6"/>
-    <map_variables variable_1="P_19" variable_2="P_19" id="b4daf7"/>
-    <map_variables variable_1="P_20" variable_2="P_20" id="b4daf8"/>
-    <map_variables variable_1="P_21" variable_2="P_21" id="b4daf9"/>
-    <map_variables variable_1="P_22" variable_2="P_22" id="b4dafa"/>
-    <map_variables variable_1="P_23" variable_2="P_23" id="b4dafb"/>
-    <map_variables variable_1="P_24" variable_2="P_24" id="b4dafc"/>
-    <map_variables variable_1="P_25" variable_2="P_25" id="b4dafd"/>
-    <map_variables variable_1="P_26" variable_2="P_26" id="b4dafe"/>
-    <map_variables variable_1="P_27" variable_2="P_27" id="b4daff"/>
-    <map_variables variable_1="P_28" variable_2="P_28" id="b4db00"/>
-    <map_variables variable_1="P_29" variable_2="P_29" id="b4db01"/>
-    <map_variables variable_1="P_30" variable_2="P_30" id="b4db02"/>
-    <map_variables variable_1="P_31" variable_2="P_31" id="b4db03"/>
-    <map_variables variable_1="P_32" variable_2="P_32" id="b4db04"/>
-    <map_variables variable_1="P_33" variable_2="P_33" id="b4db05"/>
-    <map_variables variable_1="P_34" variable_2="P_34" id="b4db06"/>
-    <map_variables variable_1="P_35" variable_2="P_35" id="b4db07"/>
-    <map_variables variable_1="P_36" variable_2="P_36" id="b4db08"/>
-    <map_variables variable_1="P_37" variable_2="P_37" id="b4db09"/>
-    <map_variables variable_1="P_38" variable_2="P_38" id="b4db0a"/>
-    <map_variables variable_1="P_39" variable_2="P_39" id="b4db0b"/>
-    <map_variables variable_1="P_40" variable_2="P_40" id="b4db0c"/>
-    <map_variables variable_1="P_41" variable_2="P_41" id="b4db0d"/>
-    <map_variables variable_1="P_42" variable_2="P_42" id="b4db0e"/>
-    <map_variables variable_1="P_43" variable_2="P_43" id="b4db0f"/>
-    <map_variables variable_1="P_44" variable_2="P_44" id="b4db10"/>
-    <map_variables variable_1="P_45" variable_2="P_45" id="b4db11"/>
-    <map_variables variable_1="E" variable_2="E" id="b4db12"/>
+  <connection component_1="SLCT11_ss" component_2="SLCT11_ss_param" id="b4dab9">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4daba"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4dabb"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4dabc"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4dabd"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4dabe"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4dabf"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4dac0"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4dac1"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4dac2"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4dac3"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4dac4"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4dac5"/>
+    <map_variables variable_1="P_12" variable_2="P_12" id="b4dac6"/>
+    <map_variables variable_1="P_13" variable_2="P_13" id="b4dac7"/>
+    <map_variables variable_1="P_14" variable_2="P_14" id="b4dac8"/>
+    <map_variables variable_1="P_15" variable_2="P_15" id="b4dac9"/>
+    <map_variables variable_1="P_16" variable_2="P_16" id="b4daca"/>
+    <map_variables variable_1="P_17" variable_2="P_17" id="b4dacb"/>
+    <map_variables variable_1="P_18" variable_2="P_18" id="b4dacc"/>
+    <map_variables variable_1="P_19" variable_2="P_19" id="b4dacd"/>
+    <map_variables variable_1="P_20" variable_2="P_20" id="b4dace"/>
+    <map_variables variable_1="P_21" variable_2="P_21" id="b4dacf"/>
+    <map_variables variable_1="P_22" variable_2="P_22" id="b4dad0"/>
+    <map_variables variable_1="P_23" variable_2="P_23" id="b4dad1"/>
+    <map_variables variable_1="P_24" variable_2="P_24" id="b4dad2"/>
+    <map_variables variable_1="P_25" variable_2="P_25" id="b4dad3"/>
+    <map_variables variable_1="P_26" variable_2="P_26" id="b4dad4"/>
+    <map_variables variable_1="P_27" variable_2="P_27" id="b4dad5"/>
+    <map_variables variable_1="P_28" variable_2="P_28" id="b4dad6"/>
+    <map_variables variable_1="P_29" variable_2="P_29" id="b4dad7"/>
+    <map_variables variable_1="P_30" variable_2="P_30" id="b4dad8"/>
+    <map_variables variable_1="P_31" variable_2="P_31" id="b4dad9"/>
+    <map_variables variable_1="P_32" variable_2="P_32" id="b4dada"/>
+    <map_variables variable_1="P_33" variable_2="P_33" id="b4dadb"/>
+    <map_variables variable_1="P_34" variable_2="P_34" id="b4dadc"/>
+    <map_variables variable_1="P_35" variable_2="P_35" id="b4dadd"/>
+    <map_variables variable_1="P_36" variable_2="P_36" id="b4dade"/>
+    <map_variables variable_1="P_37" variable_2="P_37" id="b4dadf"/>
+    <map_variables variable_1="P_38" variable_2="P_38" id="b4dae0"/>
+    <map_variables variable_1="P_39" variable_2="P_39" id="b4dae1"/>
+    <map_variables variable_1="P_40" variable_2="P_40" id="b4dae2"/>
+    <map_variables variable_1="P_41" variable_2="P_41" id="b4dae3"/>
+    <map_variables variable_1="P_42" variable_2="P_42" id="b4dae4"/>
+    <map_variables variable_1="P_43" variable_2="P_43" id="b4dae5"/>
+    <map_variables variable_1="P_44" variable_2="P_44" id="b4dae6"/>
+    <map_variables variable_1="P_45" variable_2="P_45" id="b4dae7"/>
+    <map_variables variable_1="E" variable_2="E" id="b4dae8"/>
   </connection>
-  <encapsulation id="b4db1f">
-    <component_ref component="SLCT11_ss_test" id="b4db13">
-      <component_ref component="SLCT11_ss" id="b4db14"/>
-      <component_ref component="SLCT11_ss_param" id="b4db15"/>
+  <encapsulation id="b4db24">
+    <component_ref component="SLCT11_ss_test" id="b4da61">
+      <component_ref component="SLCT11_ss" id="b4da80"/>
+      <component_ref component="SLCT11_ss_param" id="b4daea"/>
     </component_ref>
   </encapsulation>
 </model>

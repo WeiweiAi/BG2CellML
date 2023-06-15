@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT3_BG">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
-    <units units_ref="fmol" name="fmol"/>
     <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
-    <units units_ref="J_per_mol" name="J_per_mol"/>
     <units units_ref="per_fmol" name="per_fmol"/>
     <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="J_per_mol" name="J_per_mol"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="fmol" name="fmol"/>
   </import>
   <component name="SLCT3_BG">
     <variable name="t" units="second"/>
@@ -38,22 +38,22 @@
     <variable name="q_6_init" units="fmol" interface="public"/>
     <variable name="q_6" units="fmol" initial_value="q_6_init"/>
     <variable name="mu_6" units="J_per_mol"/>
-    <variable name="kappa_r1" units="fmol_per_sec" interface="public"/>
-    <variable name="v_r1" units="fmol_per_sec"/>
-    <variable name="mu_r1_in" units="J_per_mol"/>
-    <variable name="mu_r1_out" units="J_per_mol"/>
-    <variable name="kappa_r2" units="fmol_per_sec" interface="public"/>
-    <variable name="v_r2" units="fmol_per_sec"/>
-    <variable name="mu_r2_in" units="J_per_mol"/>
-    <variable name="mu_r2_out" units="J_per_mol"/>
-    <variable name="kappa_r3" units="fmol_per_sec" interface="public"/>
-    <variable name="v_r3" units="fmol_per_sec"/>
-    <variable name="mu_r3_in" units="J_per_mol"/>
-    <variable name="mu_r3_out" units="J_per_mol"/>
-    <variable name="kappa_r4" units="fmol_per_sec" interface="public"/>
-    <variable name="v_r4" units="fmol_per_sec"/>
-    <variable name="mu_r4_in" units="J_per_mol"/>
-    <variable name="mu_r4_out" units="J_per_mol"/>
+    <variable name="kappa_re1" units="fmol_per_sec" interface="public"/>
+    <variable name="v_re1" units="fmol_per_sec"/>
+    <variable name="mu_re1_in" units="J_per_mol"/>
+    <variable name="mu_re1_out" units="J_per_mol"/>
+    <variable name="kappa_re2" units="fmol_per_sec" interface="public"/>
+    <variable name="v_re2" units="fmol_per_sec"/>
+    <variable name="mu_re2_in" units="J_per_mol"/>
+    <variable name="mu_re2_out" units="J_per_mol"/>
+    <variable name="kappa_re3" units="fmol_per_sec" interface="public"/>
+    <variable name="v_re3" units="fmol_per_sec"/>
+    <variable name="mu_re3_in" units="J_per_mol"/>
+    <variable name="mu_re3_out" units="J_per_mol"/>
+    <variable name="kappa_re4" units="fmol_per_sec" interface="public"/>
+    <variable name="v_re4" units="fmol_per_sec"/>
+    <variable name="mu_re4_in" units="J_per_mol"/>
+    <variable name="mu_re4_out" units="J_per_mol"/>
     <variable name="F" units="C_per_mol" interface="public"/>
     <variable name="R" units="J_per_K_per_mol" interface="public"/>
     <variable name="T" units="kelvin" interface="public"/>
@@ -206,17 +206,17 @@
       </apply>
       <apply>
         <eq/>
-        <ci>v_r1</ci>
+        <ci>v_re1</ci>
         <apply>
           <times/>
-          <ci>kappa_r1</ci>
+          <ci>kappa_re1</ci>
           <apply>
             <minus/>
             <apply>
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r1_in</ci>
+                <ci>mu_re1_in</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -228,7 +228,7 @@
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r1_out</ci>
+                <ci>mu_re1_out</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -241,17 +241,17 @@
       </apply>
       <apply>
         <eq/>
-        <ci>v_r2</ci>
+        <ci>v_re2</ci>
         <apply>
           <times/>
-          <ci>kappa_r2</ci>
+          <ci>kappa_re2</ci>
           <apply>
             <minus/>
             <apply>
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r2_in</ci>
+                <ci>mu_re2_in</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -263,7 +263,7 @@
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r2_out</ci>
+                <ci>mu_re2_out</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -276,17 +276,17 @@
       </apply>
       <apply>
         <eq/>
-        <ci>v_r3</ci>
+        <ci>v_re3</ci>
         <apply>
           <times/>
-          <ci>kappa_r3</ci>
+          <ci>kappa_re3</ci>
           <apply>
             <minus/>
             <apply>
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r3_in</ci>
+                <ci>mu_re3_in</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -298,7 +298,7 @@
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r3_out</ci>
+                <ci>mu_re3_out</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -311,17 +311,17 @@
       </apply>
       <apply>
         <eq/>
-        <ci>v_r4</ci>
+        <ci>v_re4</ci>
         <apply>
           <times/>
-          <ci>kappa_r4</ci>
+          <ci>kappa_re4</ci>
           <apply>
             <minus/>
             <apply>
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r4_in</ci>
+                <ci>mu_re4_in</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -333,7 +333,7 @@
               <exp/>
               <apply>
                 <divide/>
-                <ci>mu_r4_out</ci>
+                <ci>mu_re4_out</ci>
                 <apply>
                   <times/>
                   <ci>R</ci>
@@ -347,14 +347,14 @@
       <apply>
         <eq/>
         <ci>v_Ai</ci>
-        <ci>v_r1</ci>
+        <ci>v_re1</ci>
       </apply>
       <apply>
         <eq/>
         <ci>v_Ao</ci>
         <apply>
           <minus/>
-          <ci>v_r2</ci>
+          <ci>v_re2</ci>
         </apply>
       </apply>
       <apply>
@@ -364,9 +364,9 @@
           <plus/>
           <apply>
             <minus/>
-            <ci>v_r3</ci>
+            <ci>v_re3</ci>
           </apply>
-          <ci>v_r1</ci>
+          <ci>v_re1</ci>
         </apply>
       </apply>
       <apply>
@@ -376,9 +376,9 @@
           <plus/>
           <apply>
             <minus/>
-            <ci>v_r2</ci>
+            <ci>v_re2</ci>
           </apply>
-          <ci>v_r3</ci>
+          <ci>v_re3</ci>
         </apply>
       </apply>
       <apply>
@@ -388,9 +388,9 @@
           <plus/>
           <apply>
             <minus/>
-            <ci>v_r1</ci>
+            <ci>v_re1</ci>
           </apply>
-          <ci>v_r4</ci>
+          <ci>v_re4</ci>
         </apply>
       </apply>
       <apply>
@@ -400,19 +400,19 @@
           <plus/>
           <apply>
             <minus/>
-            <ci>v_r4</ci>
+            <ci>v_re4</ci>
           </apply>
-          <ci>v_r2</ci>
+          <ci>v_re2</ci>
         </apply>
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r1_in</ci>
+        <ci>mu_re1_in</ci>
         <ci>mu_5</ci>
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r1_out</ci>
+        <ci>mu_re1_out</ci>
         <apply>
           <plus/>
           <ci>mu_Ai</ci>
@@ -421,7 +421,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r2_in</ci>
+        <ci>mu_re2_in</ci>
         <apply>
           <plus/>
           <ci>mu_Ao</ci>
@@ -430,27 +430,27 @@
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r2_out</ci>
+        <ci>mu_re2_out</ci>
         <ci>mu_6</ci>
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r3_in</ci>
+        <ci>mu_re3_in</ci>
         <ci>mu_3</ci>
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r3_out</ci>
+        <ci>mu_re3_out</ci>
         <ci>mu_4</ci>
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r4_in</ci>
+        <ci>mu_re4_in</ci>
         <ci>mu_6</ci>
       </apply>
       <apply>
         <eq/>
-        <ci>mu_r4_out</ci>
+        <ci>mu_re4_out</ci>
         <ci>mu_5</ci>
       </apply>
     </math>

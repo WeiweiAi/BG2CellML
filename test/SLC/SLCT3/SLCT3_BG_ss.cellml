@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT3_BG_ss">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="per_fmol2_sec3" name="per_fmol2_sec3"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
-    <units units_ref="fmol" name="fmol"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
-    <units units_ref="per_fmol_sec3" name="per_fmol_sec3"/>
     <units units_ref="per_fmol_sec4" name="per_fmol_sec4"/>
-    <units units_ref="per_sec3" name="per_sec3"/>
+    <units units_ref="per_fmol_sec3" name="per_fmol_sec3"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
     <units units_ref="per_fmol" name="per_fmol"/>
     <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="per_fmol2_sec3" name="per_fmol2_sec3"/>
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="per_sec3" name="per_sec3"/>
   </import>
   <component name="SLCT3_BG_ss">
     <variable name="P_0" units="per_fmol_sec4" interface="public"/>
@@ -29,10 +29,10 @@
     <variable name="q_5_init" units="fmol" interface="public"/>
     <variable name="K_6" units="per_fmol" interface="public"/>
     <variable name="q_6_init" units="fmol" interface="public"/>
-    <variable name="kappa_r1" units="fmol_per_sec" interface="public"/>
-    <variable name="kappa_r2" units="fmol_per_sec" interface="public"/>
-    <variable name="kappa_r3" units="fmol_per_sec" interface="public"/>
-    <variable name="kappa_r4" units="fmol_per_sec" interface="public"/>
+    <variable name="kappa_re1" units="fmol_per_sec" interface="public"/>
+    <variable name="kappa_re2" units="fmol_per_sec" interface="public"/>
+    <variable name="kappa_re3" units="fmol_per_sec" interface="public"/>
+    <variable name="kappa_re4" units="fmol_per_sec" interface="public"/>
     <variable name="F" units="C_per_mol" interface="public"/>
     <variable name="R" units="J_per_K_per_mol" interface="public"/>
     <variable name="T" units="kelvin" interface="public"/>
@@ -47,10 +47,10 @@
           <ci>K_5</ci>
           <ci>K_6</ci>
           <ci>K_Ao</ci>
-          <ci>kappa_r1</ci>
-          <ci>kappa_r2</ci>
-          <ci>kappa_r3</ci>
-          <ci>kappa_r4</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re4</ci>
         </apply>
       </apply>
       <apply>
@@ -63,10 +63,10 @@
           <ci>K_5</ci>
           <ci>K_6</ci>
           <ci>K_Ai</ci>
-          <ci>kappa_r1</ci>
-          <ci>kappa_r2</ci>
-          <ci>kappa_r3</ci>
-          <ci>kappa_r4</ci>
+          <ci>kappa_re1</ci>
+          <ci>kappa_re2</ci>
+          <ci>kappa_re3</ci>
+          <ci>kappa_re4</ci>
         </apply>
       </apply>
       <apply>
@@ -80,9 +80,9 @@
             <ci>K_4</ci>
             <ci>K_5</ci>
             <ci>K_Ai</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
@@ -90,9 +90,9 @@
             <ci>K_4</ci>
             <ci>K_6</ci>
             <ci>K_Ai</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
           </apply>
           <apply>
             <times/>
@@ -100,9 +100,9 @@
             <ci>K_4</ci>
             <ci>K_6</ci>
             <ci>K_Ai</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
@@ -110,9 +110,9 @@
             <ci>K_5</ci>
             <ci>K_6</ci>
             <ci>K_Ai</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
           </apply>
         </apply>
       </apply>
@@ -127,9 +127,9 @@
             <ci>K_4</ci>
             <ci>K_5</ci>
             <ci>K_Ao</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
           </apply>
           <apply>
             <times/>
@@ -137,9 +137,9 @@
             <ci>K_4</ci>
             <ci>K_5</ci>
             <ci>K_Ao</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
@@ -147,9 +147,9 @@
             <ci>K_4</ci>
             <ci>K_6</ci>
             <ci>K_Ao</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
@@ -157,9 +157,9 @@
             <ci>K_5</ci>
             <ci>K_6</ci>
             <ci>K_Ao</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
           </apply>
         </apply>
       </apply>
@@ -175,9 +175,9 @@
             <ci>K_5</ci>
             <ci>K_Ai</ci>
             <ci>K_Ao</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
@@ -186,9 +186,9 @@
             <ci>K_6</ci>
             <ci>K_Ai</ci>
             <ci>K_Ao</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
           </apply>
         </apply>
       </apply>
@@ -202,54 +202,54 @@
             <ci>K_3</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
           </apply>
           <apply>
             <times/>
             <ci>K_3</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
             <ci>K_3</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
             <ci>K_4</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
           </apply>
           <apply>
             <times/>
             <ci>K_4</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
-            <ci>kappa_r1</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
           <apply>
             <times/>
             <ci>K_4</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
-            <ci>kappa_r2</ci>
-            <ci>kappa_r3</ci>
-            <ci>kappa_r4</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
           </apply>
         </apply>
       </apply>

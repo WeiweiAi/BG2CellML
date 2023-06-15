@@ -1,46 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT1_ss">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="per_sec9_fmol11" name="per_sec9_fmol11"/>
+    <units units_ref="per_fmol3_sec9" name="per_fmol3_sec9"/>
+    <units units_ref="per_fmol_sec9" name="per_fmol_sec9"/>
+    <units units_ref="per_fmol6_sec10" name="per_fmol6_sec10"/>
+    <units units_ref="per_fmol4_sec9" name="per_fmol4_sec9"/>
+    <units units_ref="per_fmol9_sec9" name="per_fmol9_sec9"/>
+    <units units_ref="per_fmol2_sec9" name="per_fmol2_sec9"/>
     <units units_ref="fmol" name="fmol"/>
-    <units units_ref="per_sec9_fmol8" name="per_sec9_fmol8"/>
     <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
-    <units units_ref="per_sec9_fmol6" name="per_sec9_fmol6"/>
-    <units units_ref="per_sec9_fmol9" name="per_sec9_fmol9"/>
-    <units units_ref="per_sec9_fmol12" name="per_sec9_fmol12"/>
-    <units units_ref="per_sec10_fmol9" name="per_sec10_fmol9"/>
-    <units units_ref="per_sec9_fmol5" name="per_sec9_fmol5"/>
+    <units units_ref="per_fmol8_sec9" name="per_fmol8_sec9"/>
+    <units units_ref="per_fmol6_sec9" name="per_fmol6_sec9"/>
+    <units units_ref="per_fmol7_sec9" name="per_fmol7_sec9"/>
+    <units units_ref="per_fmol10_sec9" name="per_fmol10_sec9"/>
+    <units units_ref="per_fmol5_sec9" name="per_fmol5_sec9"/>
   </import>
   <component name="SLCT1_ss">
-    <variable name="P_0" units="per_sec10_fmol9" interface="public"/>
-    <variable name="P_1" units="per_sec10_fmol9" interface="public"/>
-    <variable name="P_2" units="per_sec9_fmol5" interface="public"/>
-    <variable name="P_3" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_4" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_5" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_6" units="per_sec9_fmol11" interface="public"/>
-    <variable name="P_7" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_8" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_9" units="per_sec9_fmol11" interface="public"/>
-    <variable name="P_10" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_11" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_12" units="per_sec9_fmol11" interface="public"/>
-    <variable name="P_13" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_14" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_15" units="per_sec9_fmol11" interface="public"/>
-    <variable name="P_16" units="per_sec9_fmol5" interface="public"/>
-    <variable name="P_17" units="per_sec9_fmol8" interface="public"/>
-    <variable name="P_18" units="per_sec9_fmol6" interface="public"/>
-    <variable name="P_19" units="per_sec9_fmol9" interface="public"/>
-    <variable name="P_20" units="per_sec9_fmol9" interface="public"/>
-    <variable name="P_21" units="per_sec9_fmol12" interface="public"/>
+    <variable name="P_0" units="per_fmol6_sec10" interface="public"/>
+    <variable name="P_1" units="per_fmol6_sec10" interface="public"/>
+    <variable name="P_2" units="per_fmol_sec9" interface="public"/>
+    <variable name="P_3" units="per_fmol_sec9" interface="public"/>
+    <variable name="P_4" units="per_fmol2_sec9" interface="public"/>
+    <variable name="P_5" units="per_fmol2_sec9" interface="public"/>
+    <variable name="P_6" units="per_fmol2_sec9" interface="public"/>
+    <variable name="P_7" units="per_fmol4_sec9" interface="public"/>
+    <variable name="P_8" units="per_fmol4_sec9" interface="public"/>
+    <variable name="P_9" units="per_fmol2_sec9" interface="public"/>
+    <variable name="P_10" units="per_fmol2_sec9" interface="public"/>
+    <variable name="P_11" units="per_fmol3_sec9" interface="public"/>
+    <variable name="P_12" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_13" units="per_fmol3_sec9" interface="public"/>
+    <variable name="P_14" units="per_fmol3_sec9" interface="public"/>
+    <variable name="P_15" units="per_fmol3_sec9" interface="public"/>
+    <variable name="P_16" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_17" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_18" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_19" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_20" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_21" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_22" units="per_fmol3_sec9" interface="public"/>
+    <variable name="P_23" units="per_fmol3_sec9" interface="public"/>
+    <variable name="P_24" units="per_fmol5_sec9" interface="public"/>
+    <variable name="P_25" units="per_fmol4_sec9" interface="public"/>
+    <variable name="P_26" units="per_fmol6_sec9" interface="public"/>
+    <variable name="P_27" units="per_fmol4_sec9" interface="public"/>
+    <variable name="P_28" units="per_fmol6_sec9" interface="public"/>
+    <variable name="P_29" units="per_fmol6_sec9" interface="public"/>
+    <variable name="P_30" units="per_fmol6_sec9" interface="public"/>
+    <variable name="P_31" units="per_fmol6_sec9" interface="public"/>
+    <variable name="P_32" units="per_fmol8_sec9" interface="public"/>
+    <variable name="P_33" units="per_fmol6_sec9" interface="public"/>
+    <variable name="P_34" units="per_fmol8_sec9" interface="public"/>
+    <variable name="P_35" units="per_fmol7_sec9" interface="public"/>
+    <variable name="P_36" units="per_fmol7_sec9" interface="public"/>
+    <variable name="P_37" units="per_fmol7_sec9" interface="public"/>
+    <variable name="P_38" units="per_fmol7_sec9" interface="public"/>
+    <variable name="P_39" units="per_fmol9_sec9" interface="public"/>
+    <variable name="P_40" units="per_fmol7_sec9" interface="public"/>
+    <variable name="P_41" units="per_fmol7_sec9" interface="public"/>
+    <variable name="P_42" units="per_fmol9_sec9" interface="public"/>
+    <variable name="P_43" units="per_fmol8_sec9" interface="public"/>
+    <variable name="P_44" units="per_fmol8_sec9" interface="public"/>
+    <variable name="P_45" units="per_fmol10_sec9" interface="public"/>
     <variable name="E" units="fmol" interface="public"/>
-    <variable name="q_Ai" units="fmol" interface="public"/>
     <variable name="q_Ao" units="fmol" interface="public"/>
-    <variable name="q_Hi" units="fmol" interface="public"/>
     <variable name="q_Ho" units="fmol" interface="public"/>
     <variable name="q_Ki" units="fmol" interface="public"/>
     <variable name="q_Nao" units="fmol" interface="public"/>
+    <variable name="q_Ai" units="fmol" interface="public"/>
+    <variable name="q_Hi" units="fmol" interface="public"/>
     <variable name="q_Ko" units="fmol" interface="public"/>
     <variable name="q_Nai" units="fmol" interface="public"/>
     <variable name="v_ss" units="fmol_per_sec" interface="public"/>
@@ -53,15 +81,13 @@
           <apply>
             <times/>
             <ci>E</ci>
-            <ci>q_Ai</ci>
-            <ci>q_Ao</ci>
-            <ci>q_Hi</ci>
-            <ci>q_Ho</ci>
             <apply>
               <minus/>
               <apply>
                 <times/>
                 <ci>P_0</ci>
+                <ci>q_Ao</ci>
+                <ci>q_Ho</ci>
                 <ci>q_Ki</ci>
                 <apply>
                   <power/>
@@ -72,6 +98,8 @@
               <apply>
                 <times/>
                 <ci>P_1</ci>
+                <ci>q_Ai</ci>
+                <ci>q_Hi</ci>
                 <ci>q_Ko</ci>
                 <apply>
                   <power/>
@@ -86,105 +114,64 @@
             <apply>
               <times/>
               <ci>P_10</ci>
-              <ci>q_Ai</ci>
               <ci>q_Ao</ci>
-              <ci>q_Ho</ci>
-              <ci>q_Ki</ci>
-              <apply>
-                <power/>
-                <ci>q_Nao</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
+              <ci>q_Ko</ci>
             </apply>
             <apply>
               <times/>
               <ci>P_11</ci>
               <ci>q_Ai</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Ho</ci>
-              <ci>q_Ko</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
+              <ci>q_Hi</ci>
+              <ci>q_Ki</ci>
             </apply>
             <apply>
               <times/>
               <ci>P_12</ci>
               <ci>q_Ai</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Ho</ci>
+              <ci>q_Hi</ci>
               <apply>
                 <power/>
                 <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
-              <apply>
-                <power/>
-                <ci>q_Nao</ci>
                 <cn cellml:units="dimensionless">3</cn>
               </apply>
             </apply>
             <apply>
               <times/>
               <ci>P_13</ci>
-              <ci>q_Ai</ci>
               <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
               <ci>q_Ki</ci>
-              <apply>
-                <power/>
-                <ci>q_Nao</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
             </apply>
             <apply>
               <times/>
               <ci>P_14</ci>
               <ci>q_Ai</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
+              <ci>q_Ki</ci>
               <ci>q_Ko</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
             </apply>
             <apply>
               <times/>
               <ci>P_15</ci>
-              <ci>q_Ai</ci>
               <ci>q_Ao</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_16</ci>
               <ci>q_Hi</ci>
+              <ci>q_Ko</ci>
               <apply>
                 <power/>
                 <ci>q_Nai</ci>
                 <cn cellml:units="dimensionless">3</cn>
               </apply>
-              <apply>
-                <power/>
-                <ci>q_Nao</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
-            </apply>
-            <apply>
-              <times/>
-              <ci>P_16</ci>
-              <ci>q_Ai</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
-              <ci>q_Ko</ci>
             </apply>
             <apply>
               <times/>
               <ci>P_17</ci>
-              <ci>q_Ai</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
               <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
               <apply>
                 <power/>
                 <ci>q_Nao</ci>
@@ -195,39 +182,243 @@
               <times/>
               <ci>P_18</ci>
               <ci>q_Ai</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
-              <ci>q_Ki</ci>
               <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
             </apply>
             <apply>
               <times/>
               <ci>P_19</ci>
-              <ci>q_Ai</ci>
               <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
-              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
               <apply>
                 <power/>
-                <ci>q_Nao</ci>
+                <ci>q_Nai</ci>
                 <cn cellml:units="dimensionless">3</cn>
               </apply>
             </apply>
             <apply>
               <times/>
               <ci>P_2</ci>
-              <ci>q_Ai</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
               <ci>q_Ki</ci>
             </apply>
             <apply>
               <times/>
               <ci>P_20</ci>
               <ci>q_Ai</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_21</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_22</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_23</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_24</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_25</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_26</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_27</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_28</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_29</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_3</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_30</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_31</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_32</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_33</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_34</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_35</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_36</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_37</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_38</ci>
               <ci>q_Ao</ci>
               <ci>q_Hi</ci>
               <ci>q_Ho</ci>
@@ -240,8 +431,7 @@
             </apply>
             <apply>
               <times/>
-              <ci>P_21</ci>
-              <ci>q_Ai</ci>
+              <ci>P_39</ci>
               <ci>q_Ao</ci>
               <ci>q_Hi</ci>
               <ci>q_Ho</ci>
@@ -258,7 +448,84 @@
             </apply>
             <apply>
               <times/>
-              <ci>P_3</ci>
+              <ci>P_4</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ki</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_40</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_41</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_42</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_43</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_44</ci>
+              <ci>q_Ai</ci>
+              <ci>q_Ao</ci>
+              <ci>q_Hi</ci>
+              <ci>q_Ho</ci>
+              <ci>q_Ko</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">3</cn>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_45</ci>
               <ci>q_Ai</ci>
               <ci>q_Ao</ci>
               <ci>q_Hi</ci>
@@ -268,14 +535,6 @@
                 <ci>q_Nai</ci>
                 <cn cellml:units="dimensionless">3</cn>
               </apply>
-            </apply>
-            <apply>
-              <times/>
-              <ci>P_4</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
-              <ci>q_Ki</ci>
               <apply>
                 <power/>
                 <ci>q_Nao</ci>
@@ -286,8 +545,17 @@
               <times/>
               <ci>P_5</ci>
               <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
+              <ci>q_Ki</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_6</ci>
+              <ci>q_Ki</ci>
+              <ci>q_Ko</ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_7</ci>
               <ci>q_Ko</ci>
               <apply>
                 <power/>
@@ -297,27 +565,7 @@
             </apply>
             <apply>
               <times/>
-              <ci>P_6</ci>
-              <ci>q_Ao</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
-              <apply>
-                <power/>
-                <ci>q_Nao</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
-            </apply>
-            <apply>
-              <times/>
-              <ci>P_7</ci>
-              <ci>q_Ai</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
+              <ci>P_8</ci>
               <ci>q_Ki</ci>
               <apply>
                 <power/>
@@ -327,33 +575,9 @@
             </apply>
             <apply>
               <times/>
-              <ci>P_8</ci>
-              <ci>q_Ai</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
-              <ci>q_Ko</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
-            </apply>
-            <apply>
-              <times/>
               <ci>P_9</ci>
               <ci>q_Ai</ci>
-              <ci>q_Hi</ci>
-              <ci>q_Ho</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
-              <apply>
-                <power/>
-                <ci>q_Nao</ci>
-                <cn cellml:units="dimensionless">3</cn>
-              </apply>
+              <ci>q_Ko</ci>
             </apply>
           </apply>
         </apply>
