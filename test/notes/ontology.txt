@@ -1,0 +1,109 @@
+fma:
+https://www.ebi.ac.uk/ols/ontologies/fma
+FMA:70022 Extracellular space
+FMA: 260693 Cytosol of neural cell
+
+opb:
+https://bioportal.bioontology.org/ontologies/OPB?p=classes
+OPB_00592 Chemical amount flow rate
+OPB_00135 amount A dynamical state property that is the temporal integral of a flow rate property
+OPB_00425  Absolute amount of chemical that is the mass a portion of a chemical within a spatial region normalized to the molecular weight of the chemical.     
+OPB_00340 Concentration of chemical, hasPhysicalDomain exactly 1 'Chemical kinetic domain' The molar amount of a portion of molecules normalized to the spatial amount of the spatial region occupied by the molecules
+
+
+
+
+CHEBI:
+https://www.ebi.ac.uk/ols/ontologies/chebi
+CHEBI:17634 D-glucose
+CHEBI:24430 group transfer coenzymes
+CHEBI:29101 sodium(1+)
+CHEBI_29103 potassium ion 
+
+https://www.ebi.ac.uk/ols/ontologies/go
+GO:0004022 alcohol dehydrogenase (NAD+) activity
+GO:0005829 cytosol The part of the cytoplasm that does not contain organelles but which does contain other particulate matter, such as protein complexes.
+GO:0005615 'extracellular space ; '.That part of a multicellular organism outside the cells proper, usually taken to be outside the plasma membranes, and occupied by fluid.
+GO:0015758 The process in which glucose is transported across a membrane.
+GO:1990350 A protein complex facilitating glucose transport into, out of or within a cell, or between cells.
+GO:0005886 plasma membrane The membrane surrounding a cell that separates the cell from its external environment. It consists of a phospholipid bilayer and associated proteins.
+
+
+1.Entity: participant
+
+1.1 Dynamical entity: A physics continuant that is a bearer or conduit of energy and/or information.
+1.1.1 Immaterial dynamical entity,
+1.1.1.1 Portion of electrical charge, OPB:OPB_00443, A portion of electrical charge represents the immaterial electrical charge itself and not the electron which is the material entity that bears the charge. Thus, electrical charges and electrical current flows can be calculated with out consideration for flow of the material entities that bear the charge.
+
+1.1.2 Material dynamical entity, A dynamical entity that is composed of elements or subatomic paraticles
+1.1.2.1 Portion of material, A material dynamical entity that occupies a spatial region, has no inherent shape and consists of innumerable energy-bearing material parts.
+1.1.2.1.1 Portion of chemical, OPB:OPB_01005
+1.1.2.1.2 Portion of particles, A portion of material that is comprised of an uncountably large set of particles that have diffusion kinetic properties and participate in diffusion processes.
+1.1.2.1.2.1 Portion of charged particles, OPB:OPB_01304, A portion of particles that bear a net electrical charge.
+
+1.2 Thermodynamical entity, A physics real entity that is a portion of energy or of entropy. OPB strongly distinguishes the terms "dynamical" and "thermodynamical": "Dynamical" is used as an adjective applied to continuant entities, processes, attributes, etc. that possess thermodynamic energy whereas "thermodynamical" is applied to portions, fluxes, etc. of energy (a conserved primitive) that inher in continuants and are exchanged during dynamical processes.
+1.2.1 Portion of energy, A Thermodynamical entity that is the capacity of a physical entity to do work
+1.2.1.1 Portion of kinetic energy, A portion of energy attributed to the motion of a dynamical entity.
+1.2.1.2 Portion of potential energy, A portion of energy proportional to the product of an amount and displacement in a potential energy field.
+1.2.1.2.1 Chemical potential energy, OPB:OPB_00026, Ce
+1.2.1.2.2 Diffusion potential energy, OPB:OPB_00028, 
+1.2.1.2.3 Electrical potential energy, OPB:OPB_00029, Se
+
+2. process
+2.1 Dynamical process, A physics process that is the flow or exchange of matter, charge, or energy amongst dynamical entities that are partcipants in the process.
+2.1.1 Capacitive force process
+2.1.2 Constitutive flow process
+2.1.3 Inductive process
+2.1.4 Transducer process : TF
+2.1.5 Transformer process
+
+3. Property:
+3.1 Constitutive property, A physics property whose value depends on the material composition and spatial properties of a physical process or process participant. The dependence of heat energy flow rate on values of a spatial gradient of temperature and a thlermal conductance of the material that composes the thermal flow pathway.
+3.1.1 Constitutive proportionality, A constitutive property that is a proportionality between values of dynamical property players.
+3.1.1.1 Constitutive flow proportionality
+3.1.1.1.1 Reaction rate constant,OPB:OPB_01296, kappa
+3.1.1.1.2 Transducer modulus, OPB:OPB_01338, TF
+3.1.1.1.3 Electrical conductance, OPB:OPB_00015, 
+3.1.1.1.4 Electrical resistance, OPB:OPB_00151, R
+3.1.1.2 Constitutive storage proportionality
+3.1.1.2.1 Electrical capacitance, OPB:OPB_00446, C
+3.1.1.2.2 Electrical inertance, OPB:OPB_01486, L
+
+3.2 Dynamical property, A physics property that is an attribute of a dynamical entity, a dynamical process or a constitutive dynamical dependency whose value determines the amount or rate of change of thermodynamic energy inhering in the entity or the rate of energy transfer during a dynamical process.
+3.2.1 Dynamical rate property, A dynamical property that is the temporal differential of a dynamical state property.
+
+3.2.1.1 Flow rate property, Dynamical rate property that is the temporal differential of an amount property
+3.2.1.1.1 Charge flow rate, OPB:OPB_00318, Flow rate property that is the temporal derivative of an amount of portion of electrical charge. current I
+3.2.1.1.2 Chemical amount flow rate, OPB:OPB_00592
+
+3.2.1.2 Force property, A dynamical rate property that is a temporal differential of a momentum or amount property
+3.2.1.2.1 Chemical potential, OPB:OPB_00378, A flow-driving potential that drives the chemical transformation of one kind of chemical species into another.
+3.2.1.2.2 Membrane potential, OPB:OPB_01058, An electrical potential that exists across an electrodiffusion barrier such as a cell membrane.
+
+3.2.2 Dynamical state property, A dynamical property that is the temporal integral of a dynamical rate property
+3.2.2.1 Ionic charge, OPB:OPB_01624, An amount property that is the diifference between the number of protons and the number of electrons composing a material dynamic entity
+3.2.2.2 Molar amount of chemical, OPB:OPB_00425, Absolute amount of chemical that is the mass a portion of a chemical within a spatial region normalized to the molecular weight of the chemical.
+
+3.3 Thermodynamic property, A physics property that is an attribute of a portion, flow or distribution of thermodynamic energy or entropy.
+
+3.3.1 Thermodynamic state property, A thermodynamical property that is the amount of energy or entropy of a dynamical entity.
+3.3.1.1 Thermodynamic potential, Energy amount that is a portion of energy defined as algebraic sums or differences of portions of energy defined according to constraints on the values of physical properties.
+3.3.1.1.1 Gibbs energy, OPB:OPB_01578, A thermodynamic potential that is the amount work that may be performed by a dynamical entity at a constant temperature and pressure.
+
+
+model-component annotations include those that are about (a) physical
+properties (such as those that might be encoded by CellML variables), (b) physical entities (such as
+“species” in SBML), and (c) processes, such as biochemical reactions.
+
+For annotations on model components, composite annotations
+have two primary elements: the physical property represented by the annotated item (e.g., chemical
+concentration, fluid volume) and the physical entity, process, energy differential, or dependency that bears the property (e.g., a pool of ATP in the cytoplasm, blood in a cardiac cavity, the glucokinase
+reaction).
+
+For the physical property portions, we recommend using terms from
+the Ontology of Physics for Biology (OPB [14]) because the OPB provides a comprehensive, formally structured hierarchy of physical properties.
+
+It is critical to
+note that reactions are processes, whereas reaction flow rates are properties of those processes. Thus,
+regardless of modeling language, our annotations include the process, its participants, and its properties.
+

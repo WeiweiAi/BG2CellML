@@ -1,0 +1,11 @@
+﻿component,variable,units,initial_value,param
+SLC_template3_ss,v,fmol_per_sec,,
+,E,fmol,1.1,param
+,q_Ai,fmol,2,param
+,q_Ao,fmol,150,param
+,P_1,per_sec,21262500,param
+,P_2,per_sec,3402000,param
+,P_3,fmol,795375,param
+,P_4,dimensionless,2902500,param
+,P_5,dimensionless,247140,param
+,P_6,per_fmol,810000,param
