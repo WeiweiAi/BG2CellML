@@ -188,16 +188,12 @@ def scipy_based_solver(system, method, simulation_parameters):
 
     return x, results
 
-def main():
-
-    full_path = '../test/SLCV2/SLCT1/SLCT1_BG_test.py'
-    module_name = PurePath(full_path).stem
-    loaded_module = module_from_file(module_name, full_path)
-    step_size = 0.0001
-    interval = [0, 50]
-    result_step_size = 0.1
-    config = {'show_plot': True, 'parameter_includes': ['SLCT1_BG.v_Ao'], 'parameter_excludes': []}
-    config_param = {'parameter_modifies': ['SLCT1_BG_io.q_Ai','SLCT1_BG_io.q_Ao'],'values':[10,50]}
+def simCellML(py_fullpath, csv_fullpath, method, interval, step_size, result_step_size, parameter_modifies, parameter_values, outputs):
+    
+    module_name = PurePath(py_fullpath).stem
+    loaded_module = module_from_file(module_name, py_fullpath)
+    config = {'show_plot': True, 'parameter_includes': outputs, 'parameter_excludes': []}
+    config_param = {'parameter_modifies': parameter_modifies,'values':parameter_values}
     
     simulation_parameters = {
         'integration': {'step_size': step_size, 'interval': interval},
@@ -205,9 +201,8 @@ def main():
         'parameterization': { 'config': config_param},
     }
 
-    csv_file = full_path.replace('.py', '.csv')
     if module_type(loaded_module) == 'ode':
-        [x, y_n] = scipy_based_solver(loaded_module, 'lsoda', simulation_parameters)
+        [x, y_n] = scipy_based_solver(loaded_module, method, simulation_parameters)
         plot_title = loaded_module.__name__  
         parameter_info = [*loaded_module.STATE_INFO, *loaded_module.VARIABLE_INFO]
         indices = apply_config(config, parameter_info)
@@ -225,10 +220,24 @@ def main():
     # save results to csv file with the same name as the module; 
     # the header is the name of the variables and the first column is the time; 
     # the header is from the config file
-    with open(csv_file, 'w') as f:
+    with open(csv_fullpath, 'w',newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['time'] + [y_n_info[i]['name'] for i in range(len(y_n_info))])
-        writer.writerows(zip(x, *y_n))  
+        writer.writerows(zip(x, *y_n)) 
+
+def main():
+
+    py_fullpath = '../test/SLC/SLCT1/SLCT1_BG_test.py'
+    csv_fullpath = '../test/SLC/SLCT1/SLCT1_BG_test.csv'
+    method = 'lsoda'
+    step_size = 0.0001
+    interval = [0, 50]
+    result_step_size = 0.1
+    parameter_modifies = ['SLCT1_BG_io.q_Ai','SLCT1_BG_io.q_Ao']
+    parameter_values = [10,50]
+    outputs = ['SLCT1_BG.v_Ao',*parameter_modifies]
+    simCellML(py_fullpath, csv_fullpath, method, interval, step_size, result_step_size, parameter_modifies, parameter_values, outputs)
+    
 
 if __name__ == "__main__":
     main()
