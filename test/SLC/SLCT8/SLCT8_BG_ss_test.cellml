@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT8_BG_ss_test" id="b4da55">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da56">
-    <units units_ref="fmol" name="fmol" id="b4da58"/>
-    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7" id="b4da59"/>
-    <units units_ref="C_per_mol" name="C_per_mol" id="b4da5a"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol" id="b4da5b"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5c"/>
-    <units units_ref="per_fmol5_sec6" name="per_fmol5_sec6" id="b4da5d"/>
-    <units units_ref="per_fmol3_sec6" name="per_fmol3_sec6" id="b4da5e"/>
-    <units units_ref="per_fmol_sec6" name="per_fmol_sec6" id="b4da5f"/>
-    <units units_ref="per_fmol2_sec6" name="per_fmol2_sec6" id="b4da60"/>
+    <units units_ref="per_fmol5_sec6" name="per_fmol5_sec6" id="b4da58"/>
+    <units units_ref="per_fmol_sec6" name="per_fmol_sec6" id="b4da59"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol" id="b4da5a"/>
+    <units units_ref="per_fmol3_sec6" name="per_fmol3_sec6" id="b4da5b"/>
+    <units units_ref="fmol" name="fmol" id="b4da5c"/>
+    <units units_ref="C_per_mol" name="C_per_mol" id="b4da5d"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7" id="b4da5e"/>
+    <units units_ref="per_fmol2_sec6" name="per_fmol2_sec6" id="b4da5f"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da60"/>
   </import>
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da57">
-    <units units_ref="fF" name="fF" id="b4da61"/>
-    <units units_ref="per_fmol" name="per_fmol" id="b4da62"/>
+    <units units_ref="per_fmol" name="per_fmol" id="b4da61"/>
+    <units units_ref="fF" name="fF" id="b4da62"/>
   </import>
   <component name="SLCT8_BG_ss_test" id="b4da63">
     <variable name="v_ss" units="fmol_per_sec" interface="public_and_private" id="b4da65"/>
@@ -31,23 +31,24 @@
     <variable name="P_1" units="per_fmol3_sec7" interface="public" id="b4da82"/>
     <variable name="P_2" units="per_fmol_sec6" interface="public" id="b4da83"/>
     <variable name="P_3" units="per_fmol_sec6" interface="public" id="b4da84"/>
-    <variable name="P_4" units="per_fmol3_sec6" interface="public" id="b4da85"/>
+    <variable name="P_4" units="per_fmol2_sec6" interface="public" id="b4da85"/>
     <variable name="P_5" units="per_fmol3_sec6" interface="public" id="b4da86"/>
     <variable name="P_6" units="per_fmol3_sec6" interface="public" id="b4da87"/>
     <variable name="P_7" units="per_fmol3_sec6" interface="public" id="b4da88"/>
-    <variable name="P_8" units="per_fmol2_sec6" interface="public" id="b4da89"/>
-    <variable name="P_9" units="per_fmol3_sec6" interface="public" id="b4da8a"/>
-    <variable name="P_10" units="per_fmol5_sec6" interface="public" id="b4da8b"/>
-    <variable name="E" units="fmol" interface="public" id="b4da8c"/>
-    <variable name="q_Gluo" units="fmol" interface="public" id="b4da8d"/>
-    <variable name="q_Nao" units="fmol" interface="public" id="b4da8e"/>
-    <variable name="F" units="C_per_mol" interface="public" id="b4da8f"/>
-    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4da90"/>
-    <variable name="T" units="kelvin" interface="public" id="b4da91"/>
-    <variable name="V_m" units="volt" interface="public" id="b4da92"/>
-    <variable name="q_Glui" units="fmol" interface="public" id="b4da93"/>
-    <variable name="q_Nai" units="fmol" interface="public" id="b4da94"/>
-    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4da95"/>
+    <variable name="P_8" units="per_fmol3_sec6" interface="public" id="b4da89"/>
+    <variable name="P_9" units="per_fmol2_sec6" interface="public" id="b4da8a"/>
+    <variable name="P_10" units="per_fmol3_sec6" interface="public" id="b4da8b"/>
+    <variable name="P_11" units="per_fmol5_sec6" interface="public" id="b4da8c"/>
+    <variable name="E" units="fmol" interface="public" id="b4da8d"/>
+    <variable name="q_Gluo" units="fmol" interface="public" id="b4da8e"/>
+    <variable name="q_Nao" units="fmol" interface="public" id="b4da8f"/>
+    <variable name="F" units="C_per_mol" interface="public" id="b4da90"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4da91"/>
+    <variable name="T" units="kelvin" interface="public" id="b4da92"/>
+    <variable name="V_m" units="volt" interface="public" id="b4da93"/>
+    <variable name="q_Glui" units="fmol" interface="public" id="b4da94"/>
+    <variable name="q_Nai" units="fmol" interface="public" id="b4da95"/>
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4da96"/>
     <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
       <apply>
         <eq/>
@@ -103,6 +104,33 @@
             <apply>
               <times/>
               <ci>P_10</ci>
+              <ci>q_Glui</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <cn cellml:units="dimensionless">2</cn>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_11</ci>
               <ci>q_Glui</ci>
               <apply>
                 <power/>
@@ -177,10 +205,9 @@
             <apply>
               <times/>
               <ci>P_4</ci>
-              <ci>q_Glui</ci>
               <apply>
                 <power/>
-                <ci>q_Nai</ci>
+                <ci>q_Nao</ci>
                 <cn cellml:units="dimensionless">2</cn>
               </apply>
               <apply>
@@ -204,7 +231,7 @@
             <apply>
               <times/>
               <ci>P_5</ci>
-              <ci>q_Gluo</ci>
+              <ci>q_Glui</ci>
               <apply>
                 <power/>
                 <ci>q_Nai</ci>
@@ -231,61 +258,10 @@
             <apply>
               <times/>
               <ci>P_6</ci>
-              <ci>q_Glui</ci>
+              <ci>q_Gluo</ci>
               <apply>
                 <power/>
                 <ci>q_Nao</ci>
-                <cn cellml:units="dimensionless">2</cn>
-              </apply>
-              <apply>
-                <exp/>
-                <apply>
-                  <divide/>
-                  <apply>
-                    <times/>
-                    <ci>F</ci>
-                    <ci>V_m</ci>
-                  </apply>
-                  <apply>
-                    <times/>
-                    <ci>R</ci>
-                    <ci>T</ci>
-                  </apply>
-                </apply>
-              </apply>
-            </apply>
-            <apply>
-              <times/>
-              <ci>P_7</ci>
-              <ci>q_Glui</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">2</cn>
-              </apply>
-              <apply>
-                <exp/>
-                <apply>
-                  <divide/>
-                  <apply>
-                    <times/>
-                    <ci>F</ci>
-                    <ci>V_m</ci>
-                  </apply>
-                  <apply>
-                    <times/>
-                    <ci>R</ci>
-                    <ci>T</ci>
-                  </apply>
-                </apply>
-              </apply>
-            </apply>
-            <apply>
-              <times/>
-              <ci>P_8</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
                 <cn cellml:units="dimensionless">2</cn>
               </apply>
               <apply>
@@ -308,11 +284,62 @@
             </apply>
             <apply>
               <times/>
-              <ci>P_9</ci>
+              <ci>P_7</ci>
               <ci>q_Glui</ci>
               <apply>
                 <power/>
                 <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_8</ci>
+              <ci>q_Glui</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_9</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
                 <cn cellml:units="dimensionless">2</cn>
               </apply>
               <apply>
@@ -338,75 +365,76 @@
       </apply>
     </math>
   </component>
-  <component name="SLCT8_BG_param" id="b4daaa">
-    <variable name="K_Nao" units="per_fmol" initial_value="1" interface="public" id="b4daac"/>
-    <variable name="K_Nai" units="per_fmol" initial_value="1" interface="public" id="b4daad"/>
-    <variable name="K_Gluo" units="per_fmol" initial_value="1" interface="public" id="b4daae"/>
-    <variable name="K_Glui" units="per_fmol" initial_value="1" interface="public" id="b4daaf"/>
-    <variable name="K_5" units="per_fmol" initial_value="1" interface="public" id="b4dab0"/>
-    <variable name="q_5_init" units="fmol" initial_value="1" interface="public" id="b4dab1"/>
-    <variable name="K_6" units="per_fmol" initial_value="1" interface="public" id="b4dab2"/>
-    <variable name="q_6_init" units="fmol" initial_value="1" interface="public" id="b4dab3"/>
-    <variable name="K_7" units="per_fmol" initial_value="1" interface="public" id="b4dab4"/>
-    <variable name="q_7_init" units="fmol" initial_value="1" interface="public" id="b4dab5"/>
-    <variable name="K_8" units="per_fmol" initial_value="1" interface="public" id="b4dab6"/>
-    <variable name="q_8_init" units="fmol" initial_value="1" interface="public" id="b4dab7"/>
-    <variable name="K_9" units="per_fmol" initial_value="1" interface="public" id="b4dab8"/>
-    <variable name="q_9_init" units="fmol" initial_value="1" interface="public" id="b4dab9"/>
-    <variable name="K_10" units="per_fmol" initial_value="1" interface="public" id="b4daba"/>
-    <variable name="q_10_init" units="fmol" initial_value="1" interface="public" id="b4dabb"/>
-    <variable name="C_m" units="fF" initial_value="1" interface="public" id="b4dabc"/>
-    <variable name="kappa_re1" units="fmol_per_sec" initial_value="1" interface="public" id="b4dabd"/>
-    <variable name="kappa_re2" units="fmol_per_sec" initial_value="1" interface="public" id="b4dabe"/>
-    <variable name="kappa_re3" units="fmol_per_sec" initial_value="1" interface="public" id="b4dabf"/>
-    <variable name="kappa_re4" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac0"/>
-    <variable name="kappa_re5" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac1"/>
-    <variable name="kappa_re6" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac2"/>
-    <variable name="kappa_re7" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac3"/>
-    <variable name="F" units="C_per_mol" initial_value="96485" interface="public" id="b4dac4"/>
-    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public" id="b4dac5"/>
-    <variable name="T" units="kelvin" initial_value="293" interface="public" id="b4dac6"/>
+  <component name="SLCT8_BG_param" id="b4daac">
+    <variable name="K_Nao" units="per_fmol" initial_value="1" interface="public" id="b4daae"/>
+    <variable name="K_Nai" units="per_fmol" initial_value="1" interface="public" id="b4daaf"/>
+    <variable name="K_Gluo" units="per_fmol" initial_value="1" interface="public" id="b4dab0"/>
+    <variable name="K_Glui" units="per_fmol" initial_value="1" interface="public" id="b4dab1"/>
+    <variable name="K_5" units="per_fmol" initial_value="1" interface="public" id="b4dab2"/>
+    <variable name="q_5_init" units="fmol" initial_value="1" interface="public" id="b4dab3"/>
+    <variable name="K_6" units="per_fmol" initial_value="1" interface="public" id="b4dab4"/>
+    <variable name="q_6_init" units="fmol" initial_value="1" interface="public" id="b4dab5"/>
+    <variable name="K_7" units="per_fmol" initial_value="1" interface="public" id="b4dab6"/>
+    <variable name="q_7_init" units="fmol" initial_value="1" interface="public" id="b4dab7"/>
+    <variable name="K_8" units="per_fmol" initial_value="1" interface="public" id="b4dab8"/>
+    <variable name="q_8_init" units="fmol" initial_value="1" interface="public" id="b4dab9"/>
+    <variable name="K_9" units="per_fmol" initial_value="1" interface="public" id="b4daba"/>
+    <variable name="q_9_init" units="fmol" initial_value="1" interface="public" id="b4dabb"/>
+    <variable name="K_10" units="per_fmol" initial_value="1" interface="public" id="b4dabc"/>
+    <variable name="q_10_init" units="fmol" initial_value="1" interface="public" id="b4dabd"/>
+    <variable name="C_m" units="fF" initial_value="1" interface="public" id="b4dabe"/>
+    <variable name="kappa_re1" units="fmol_per_sec" initial_value="1" interface="public" id="b4dabf"/>
+    <variable name="kappa_re2" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac0"/>
+    <variable name="kappa_re3" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac1"/>
+    <variable name="kappa_re4" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac2"/>
+    <variable name="kappa_re5" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac3"/>
+    <variable name="kappa_re6" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac4"/>
+    <variable name="kappa_re7" units="fmol_per_sec" initial_value="1" interface="public" id="b4dac5"/>
+    <variable name="F" units="C_per_mol" initial_value="96485" interface="public" id="b4dac6"/>
+    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public" id="b4dac7"/>
+    <variable name="T" units="kelvin" initial_value="293" interface="public" id="b4dac8"/>
   </component>
-  <component name="SLCT8_BG_ss" id="b4dae3">
-    <variable name="P_0" units="per_fmol3_sec7" interface="public" id="b4dae5"/>
-    <variable name="P_1" units="per_fmol3_sec7" interface="public" id="b4dae6"/>
-    <variable name="P_2" units="per_fmol_sec6" interface="public" id="b4dae7"/>
-    <variable name="P_3" units="per_fmol_sec6" interface="public" id="b4dae8"/>
-    <variable name="P_4" units="per_fmol3_sec6" interface="public" id="b4dae9"/>
-    <variable name="P_5" units="per_fmol3_sec6" interface="public" id="b4daea"/>
-    <variable name="P_6" units="per_fmol3_sec6" interface="public" id="b4daeb"/>
-    <variable name="P_7" units="per_fmol3_sec6" interface="public" id="b4daec"/>
-    <variable name="P_8" units="per_fmol2_sec6" interface="public" id="b4daed"/>
-    <variable name="P_9" units="per_fmol3_sec6" interface="public" id="b4daee"/>
-    <variable name="P_10" units="per_fmol5_sec6" interface="public" id="b4daef"/>
-    <variable name="E" units="fmol" interface="public" id="b4daf0"/>
-    <variable name="K_Nao" units="per_fmol" interface="public" id="b4daf1"/>
-    <variable name="K_Nai" units="per_fmol" interface="public" id="b4daf2"/>
-    <variable name="K_Gluo" units="per_fmol" interface="public" id="b4daf3"/>
-    <variable name="K_Glui" units="per_fmol" interface="public" id="b4daf4"/>
-    <variable name="K_5" units="per_fmol" interface="public" id="b4daf5"/>
-    <variable name="q_5_init" units="fmol" interface="public" id="b4daf6"/>
-    <variable name="K_6" units="per_fmol" interface="public" id="b4daf7"/>
-    <variable name="q_6_init" units="fmol" interface="public" id="b4daf8"/>
-    <variable name="K_7" units="per_fmol" interface="public" id="b4daf9"/>
-    <variable name="q_7_init" units="fmol" interface="public" id="b4dafa"/>
-    <variable name="K_8" units="per_fmol" interface="public" id="b4dafb"/>
-    <variable name="q_8_init" units="fmol" interface="public" id="b4dafc"/>
-    <variable name="K_9" units="per_fmol" interface="public" id="b4dafd"/>
-    <variable name="q_9_init" units="fmol" interface="public" id="b4dafe"/>
-    <variable name="K_10" units="per_fmol" interface="public" id="b4daff"/>
-    <variable name="q_10_init" units="fmol" interface="public" id="b4db00"/>
-    <variable name="C_m" units="fF" interface="public" id="b4db01"/>
-    <variable name="kappa_re1" units="fmol_per_sec" interface="public" id="b4db02"/>
-    <variable name="kappa_re2" units="fmol_per_sec" interface="public" id="b4db03"/>
-    <variable name="kappa_re3" units="fmol_per_sec" interface="public" id="b4db04"/>
-    <variable name="kappa_re4" units="fmol_per_sec" interface="public" id="b4db05"/>
-    <variable name="kappa_re5" units="fmol_per_sec" interface="public" id="b4db06"/>
-    <variable name="kappa_re6" units="fmol_per_sec" interface="public" id="b4db07"/>
-    <variable name="kappa_re7" units="fmol_per_sec" interface="public" id="b4db08"/>
-    <variable name="F" units="C_per_mol" interface="public" id="b4db09"/>
-    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4db0a"/>
-    <variable name="T" units="kelvin" interface="public" id="b4db0b"/>
+  <component name="SLCT8_BG_ss" id="b4dae5">
+    <variable name="P_0" units="per_fmol3_sec7" interface="public" id="b4dae7"/>
+    <variable name="P_1" units="per_fmol3_sec7" interface="public" id="b4dae8"/>
+    <variable name="P_2" units="per_fmol_sec6" interface="public" id="b4dae9"/>
+    <variable name="P_3" units="per_fmol_sec6" interface="public" id="b4daea"/>
+    <variable name="P_4" units="per_fmol2_sec6" interface="public" id="b4daeb"/>
+    <variable name="P_5" units="per_fmol3_sec6" interface="public" id="b4daec"/>
+    <variable name="P_6" units="per_fmol3_sec6" interface="public" id="b4daed"/>
+    <variable name="P_7" units="per_fmol3_sec6" interface="public" id="b4daee"/>
+    <variable name="P_8" units="per_fmol3_sec6" interface="public" id="b4daef"/>
+    <variable name="P_9" units="per_fmol2_sec6" interface="public" id="b4daf0"/>
+    <variable name="P_10" units="per_fmol3_sec6" interface="public" id="b4daf1"/>
+    <variable name="P_11" units="per_fmol5_sec6" interface="public" id="b4daf2"/>
+    <variable name="E" units="fmol" interface="public" id="b4daf3"/>
+    <variable name="K_Nao" units="per_fmol" interface="public" id="b4daf4"/>
+    <variable name="K_Nai" units="per_fmol" interface="public" id="b4daf5"/>
+    <variable name="K_Gluo" units="per_fmol" interface="public" id="b4daf6"/>
+    <variable name="K_Glui" units="per_fmol" interface="public" id="b4daf7"/>
+    <variable name="K_5" units="per_fmol" interface="public" id="b4daf8"/>
+    <variable name="q_5_init" units="fmol" interface="public" id="b4daf9"/>
+    <variable name="K_6" units="per_fmol" interface="public" id="b4dafa"/>
+    <variable name="q_6_init" units="fmol" interface="public" id="b4dafb"/>
+    <variable name="K_7" units="per_fmol" interface="public" id="b4dafc"/>
+    <variable name="q_7_init" units="fmol" interface="public" id="b4dafd"/>
+    <variable name="K_8" units="per_fmol" interface="public" id="b4dafe"/>
+    <variable name="q_8_init" units="fmol" interface="public" id="b4daff"/>
+    <variable name="K_9" units="per_fmol" interface="public" id="b4db00"/>
+    <variable name="q_9_init" units="fmol" interface="public" id="b4db01"/>
+    <variable name="K_10" units="per_fmol" interface="public" id="b4db02"/>
+    <variable name="q_10_init" units="fmol" interface="public" id="b4db03"/>
+    <variable name="C_m" units="fF" interface="public" id="b4db04"/>
+    <variable name="kappa_re1" units="fmol_per_sec" interface="public" id="b4db05"/>
+    <variable name="kappa_re2" units="fmol_per_sec" interface="public" id="b4db06"/>
+    <variable name="kappa_re3" units="fmol_per_sec" interface="public" id="b4db07"/>
+    <variable name="kappa_re4" units="fmol_per_sec" interface="public" id="b4db08"/>
+    <variable name="kappa_re5" units="fmol_per_sec" interface="public" id="b4db09"/>
+    <variable name="kappa_re6" units="fmol_per_sec" interface="public" id="b4db0a"/>
+    <variable name="kappa_re7" units="fmol_per_sec" interface="public" id="b4db0b"/>
+    <variable name="F" units="C_per_mol" interface="public" id="b4db0c"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4db0d"/>
+    <variable name="T" units="kelvin" interface="public" id="b4db0e"/>
     <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
       <apply>
         <eq/>
@@ -416,12 +444,12 @@
           <ci>K_10</ci>
           <ci>K_5</ci>
           <ci>K_6</ci>
+          <ci>K_7</ci>
           <apply>
             <power/>
-            <ci>K_7</ci>
+            <ci>K_8</ci>
             <cn cellml:units="dimensionless">2</cn>
           </apply>
-          <ci>K_8</ci>
           <ci>K_9</ci>
           <ci>K_Gluo</ci>
           <apply>
@@ -446,12 +474,12 @@
           <ci>K_10</ci>
           <ci>K_5</ci>
           <ci>K_6</ci>
-          <ci>K_7</ci>
           <apply>
             <power/>
-            <ci>K_8</ci>
+            <ci>K_7</ci>
             <cn cellml:units="dimensionless">2</cn>
           </apply>
+          <ci>K_8</ci>
           <ci>K_9</ci>
           <ci>K_Glui</ci>
           <apply>
@@ -569,6 +597,73 @@
             <ci>K_5</ci>
             <ci>K_6</ci>
             <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_Nao</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_5</ci>
+            <ci>K_6</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_Nao</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_5</ci>
+            <ci>K_6</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_Nao</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_5</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_5</ci>
+            <ci>K_6</ci>
+            <ci>K_7</ci>
             <apply>
               <power/>
               <ci>K_8</ci>
@@ -661,7 +756,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_5</ci>
+        <ci>P_6</ci>
         <apply>
           <plus/>
           <apply>
@@ -678,7 +773,7 @@
             <ci>K_Gluo</ci>
             <apply>
               <power/>
-              <ci>K_Nai</ci>
+              <ci>K_Nao</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>kappa_re1</ci>
@@ -702,7 +797,7 @@
             <ci>K_Gluo</ci>
             <apply>
               <power/>
-              <ci>K_Nai</ci>
+              <ci>K_Nao</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>kappa_re1</ci>
@@ -726,7 +821,7 @@
             <ci>K_Gluo</ci>
             <apply>
               <power/>
-              <ci>K_Nai</ci>
+              <ci>K_Nao</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>kappa_re1</ci>
@@ -740,7 +835,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_6</ci>
+        <ci>P_7</ci>
         <apply>
           <times/>
           <ci>K_10</ci>
@@ -768,7 +863,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_7</ci>
+        <ci>P_8</ci>
         <apply>
           <plus/>
           <apply>
@@ -821,12 +916,12 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_8</ci>
+        <ci>P_9</ci>
         <apply>
           <plus/>
           <apply>
             <times/>
-            <cn cellml:units="dimensionless">4</cn>
+            <cn cellml:units="dimensionless">3</cn>
             <ci>K_10</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
@@ -847,7 +942,7 @@
           </apply>
           <apply>
             <times/>
-            <cn cellml:units="dimensionless">4</cn>
+            <cn cellml:units="dimensionless">3</cn>
             <ci>K_10</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
@@ -868,7 +963,7 @@
           </apply>
           <apply>
             <times/>
-            <cn cellml:units="dimensionless">4</cn>
+            <cn cellml:units="dimensionless">3</cn>
             <ci>K_10</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
@@ -891,7 +986,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_9</ci>
+        <ci>P_10</ci>
         <apply>
           <times/>
           <cn cellml:units="dimensionless">4</cn>
@@ -917,7 +1012,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_10</ci>
+        <ci>P_11</ci>
         <apply>
           <times/>
           <cn cellml:units="dimensionless">4</cn>
@@ -961,13 +1056,13 @@
       </apply>
     </math>
   </component>
-  <component name="SLCT8_BG_ss_io" id="b4db0c">
-    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4db0d"/>
-    <variable name="q_Gluo" units="fmol" initial_value="1" interface="public" id="b4db0e"/>
-    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4db0f"/>
-    <variable name="V_m" units="volt" initial_value="1" interface="public" id="b4db10"/>
-    <variable name="q_Glui" units="fmol" initial_value="1" interface="public" id="b4db11"/>
-    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4db12"/>
+  <component name="SLCT8_BG_ss_io" id="b4db0f">
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4db10"/>
+    <variable name="q_Gluo" units="fmol" initial_value="1" interface="public" id="b4db11"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4db12"/>
+    <variable name="V_m" units="volt" initial_value="1" interface="public" id="b4db13"/>
+    <variable name="q_Glui" units="fmol" initial_value="1" interface="public" id="b4db14"/>
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4db15"/>
   </component>
   <connection component_1="SLCT8_BG_ss_test" component_2="SLCT8_ss" id="b4da6e">
     <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da6f"/>
@@ -988,62 +1083,63 @@
     <map_variables variable_1="q_Glui" variable_2="q_Glui" id="b4da7c"/>
     <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da7e"/>
   </connection>
-  <connection component_1="SLCT8_ss" component_2="SLCT8_BG_ss" id="b4da96">
-    <map_variables variable_1="P_0" variable_2="P_0" id="b4da97"/>
-    <map_variables variable_1="P_1" variable_2="P_1" id="b4da98"/>
-    <map_variables variable_1="P_2" variable_2="P_2" id="b4da99"/>
-    <map_variables variable_1="P_3" variable_2="P_3" id="b4da9a"/>
-    <map_variables variable_1="P_4" variable_2="P_4" id="b4da9b"/>
-    <map_variables variable_1="P_5" variable_2="P_5" id="b4da9c"/>
-    <map_variables variable_1="P_6" variable_2="P_6" id="b4da9d"/>
-    <map_variables variable_1="P_7" variable_2="P_7" id="b4da9e"/>
-    <map_variables variable_1="P_8" variable_2="P_8" id="b4da9f"/>
-    <map_variables variable_1="P_9" variable_2="P_9" id="b4daa0"/>
-    <map_variables variable_1="P_10" variable_2="P_10" id="b4daa1"/>
-    <map_variables variable_1="E" variable_2="E" id="b4daa2"/>
-    <map_variables variable_1="F" variable_2="F" id="b4daa3"/>
-    <map_variables variable_1="R" variable_2="R" id="b4daa6"/>
-    <map_variables variable_1="T" variable_2="T" id="b4daa8"/>
-  </connection>
-  <connection component_1="SLCT8_ss" component_2="SLCT8_BG_param" id="b4daa4">
+  <connection component_1="SLCT8_ss" component_2="SLCT8_BG_ss" id="b4da97">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4da98"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4da99"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4da9a"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4da9b"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4da9c"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4da9d"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4da9e"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4da9f"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4daa0"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4daa1"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4daa2"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4daa3"/>
+    <map_variables variable_1="E" variable_2="E" id="b4daa4"/>
     <map_variables variable_1="F" variable_2="F" id="b4daa5"/>
-    <map_variables variable_1="R" variable_2="R" id="b4daa7"/>
-    <map_variables variable_1="T" variable_2="T" id="b4daa9"/>
+    <map_variables variable_1="R" variable_2="R" id="b4daa8"/>
+    <map_variables variable_1="T" variable_2="T" id="b4daaa"/>
   </connection>
-  <connection component_1="SLCT8_BG_param" component_2="SLCT8_BG_ss" id="b4dac7">
-    <map_variables variable_1="K_Nao" variable_2="K_Nao" id="b4dac8"/>
-    <map_variables variable_1="K_Nai" variable_2="K_Nai" id="b4dac9"/>
-    <map_variables variable_1="K_Gluo" variable_2="K_Gluo" id="b4daca"/>
-    <map_variables variable_1="K_Glui" variable_2="K_Glui" id="b4dacb"/>
-    <map_variables variable_1="K_5" variable_2="K_5" id="b4dacc"/>
-    <map_variables variable_1="q_5_init" variable_2="q_5_init" id="b4dacd"/>
-    <map_variables variable_1="K_6" variable_2="K_6" id="b4dace"/>
-    <map_variables variable_1="q_6_init" variable_2="q_6_init" id="b4dacf"/>
-    <map_variables variable_1="K_7" variable_2="K_7" id="b4dad0"/>
-    <map_variables variable_1="q_7_init" variable_2="q_7_init" id="b4dad1"/>
-    <map_variables variable_1="K_8" variable_2="K_8" id="b4dad2"/>
-    <map_variables variable_1="q_8_init" variable_2="q_8_init" id="b4dad3"/>
-    <map_variables variable_1="K_9" variable_2="K_9" id="b4dad4"/>
-    <map_variables variable_1="q_9_init" variable_2="q_9_init" id="b4dad5"/>
-    <map_variables variable_1="K_10" variable_2="K_10" id="b4dad6"/>
-    <map_variables variable_1="q_10_init" variable_2="q_10_init" id="b4dad7"/>
-    <map_variables variable_1="C_m" variable_2="C_m" id="b4dad8"/>
-    <map_variables variable_1="kappa_re1" variable_2="kappa_re1" id="b4dad9"/>
-    <map_variables variable_1="kappa_re2" variable_2="kappa_re2" id="b4dada"/>
-    <map_variables variable_1="kappa_re3" variable_2="kappa_re3" id="b4dadb"/>
-    <map_variables variable_1="kappa_re4" variable_2="kappa_re4" id="b4dadc"/>
-    <map_variables variable_1="kappa_re5" variable_2="kappa_re5" id="b4dadd"/>
-    <map_variables variable_1="kappa_re6" variable_2="kappa_re6" id="b4dade"/>
-    <map_variables variable_1="kappa_re7" variable_2="kappa_re7" id="b4dadf"/>
-    <map_variables variable_1="F" variable_2="F" id="b4dae0"/>
-    <map_variables variable_1="R" variable_2="R" id="b4dae1"/>
-    <map_variables variable_1="T" variable_2="T" id="b4dae2"/>
+  <connection component_1="SLCT8_ss" component_2="SLCT8_BG_param" id="b4daa6">
+    <map_variables variable_1="F" variable_2="F" id="b4daa7"/>
+    <map_variables variable_1="R" variable_2="R" id="b4daa9"/>
+    <map_variables variable_1="T" variable_2="T" id="b4daab"/>
   </connection>
-  <encapsulation id="b4db13">
+  <connection component_1="SLCT8_BG_param" component_2="SLCT8_BG_ss" id="b4dac9">
+    <map_variables variable_1="K_Nao" variable_2="K_Nao" id="b4daca"/>
+    <map_variables variable_1="K_Nai" variable_2="K_Nai" id="b4dacb"/>
+    <map_variables variable_1="K_Gluo" variable_2="K_Gluo" id="b4dacc"/>
+    <map_variables variable_1="K_Glui" variable_2="K_Glui" id="b4dacd"/>
+    <map_variables variable_1="K_5" variable_2="K_5" id="b4dace"/>
+    <map_variables variable_1="q_5_init" variable_2="q_5_init" id="b4dacf"/>
+    <map_variables variable_1="K_6" variable_2="K_6" id="b4dad0"/>
+    <map_variables variable_1="q_6_init" variable_2="q_6_init" id="b4dad1"/>
+    <map_variables variable_1="K_7" variable_2="K_7" id="b4dad2"/>
+    <map_variables variable_1="q_7_init" variable_2="q_7_init" id="b4dad3"/>
+    <map_variables variable_1="K_8" variable_2="K_8" id="b4dad4"/>
+    <map_variables variable_1="q_8_init" variable_2="q_8_init" id="b4dad5"/>
+    <map_variables variable_1="K_9" variable_2="K_9" id="b4dad6"/>
+    <map_variables variable_1="q_9_init" variable_2="q_9_init" id="b4dad7"/>
+    <map_variables variable_1="K_10" variable_2="K_10" id="b4dad8"/>
+    <map_variables variable_1="q_10_init" variable_2="q_10_init" id="b4dad9"/>
+    <map_variables variable_1="C_m" variable_2="C_m" id="b4dada"/>
+    <map_variables variable_1="kappa_re1" variable_2="kappa_re1" id="b4dadb"/>
+    <map_variables variable_1="kappa_re2" variable_2="kappa_re2" id="b4dadc"/>
+    <map_variables variable_1="kappa_re3" variable_2="kappa_re3" id="b4dadd"/>
+    <map_variables variable_1="kappa_re4" variable_2="kappa_re4" id="b4dade"/>
+    <map_variables variable_1="kappa_re5" variable_2="kappa_re5" id="b4dadf"/>
+    <map_variables variable_1="kappa_re6" variable_2="kappa_re6" id="b4dae0"/>
+    <map_variables variable_1="kappa_re7" variable_2="kappa_re7" id="b4dae1"/>
+    <map_variables variable_1="F" variable_2="F" id="b4dae2"/>
+    <map_variables variable_1="R" variable_2="R" id="b4dae3"/>
+    <map_variables variable_1="T" variable_2="T" id="b4dae4"/>
+  </connection>
+  <encapsulation id="b4db16">
     <component_ref component="SLCT8_BG_ss_test" id="b4da64">
       <component_ref component="SLCT8_ss" id="b4da80"/>
-      <component_ref component="SLCT8_BG_param" id="b4daab"/>
-      <component_ref component="SLCT8_BG_ss" id="b4dae4"/>
+      <component_ref component="SLCT8_BG_param" id="b4daad"/>
+      <component_ref component="SLCT8_BG_ss" id="b4dae6"/>
     </component_ref>
   </encapsulation>
 </model>

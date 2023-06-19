@@ -24,11 +24,13 @@ def algebraic_compute(system,simulation_parameters):
     variable_indices = apply_config(simulation_parameters['result']['config'], system.VARIABLE_INFO)
     variables = system.create_variables_array()
     system.initialise_variables(variables)
-    param_indices = apply_config(simulation_parameters['parameterization']['config'], system.VARIABLE_INFO)
     param_values = simulation_parameters['parameterization']['config']['values']
+    config_temp= simulation_parameters['parameterization']['config']['parameter_modifies']
     # modify the parameters
-    for index, param_index in enumerate(param_indices):
-        variables[param_index] = param_values[index]
+    for index, param in enumerate(config_temp):
+        if len(apply_config({'parameter_modifies':[param]}, system.VARIABLE_INFO))==1:
+           param_index = apply_config({'parameter_modifies':[param]}, system.VARIABLE_INFO)[0]
+           variables[param_index] = param_values[index]
 
     system.compute_computed_constants(variables)
     system.compute_computed_constants(variables)
@@ -83,6 +85,8 @@ def apply_config(config, y_info):
     elif 'parameter_modifies' in config and len(config['parameter_modifies']):
         info_items = info_items_list(config['parameter_modifies'])
         indices = [x for x, z in enumerate(y_info) if matching_info_items(z, info_items)]
+    else:
+        indices = []
 
     return indices
 
@@ -146,15 +150,19 @@ def module_type(module):
         return 'algebraic'
     
 def scipy_based_solver(system, method, simulation_parameters):
+    # Cannot modify the initial values of the states
     state_indices = apply_config(simulation_parameters['result']['config'], system.STATE_INFO)
     variable_indices = apply_config(simulation_parameters['result']['config'], system.VARIABLE_INFO)
-    param_indices = apply_config(simulation_parameters['parameterization']['config'], system.VARIABLE_INFO)
-    param_values = simulation_parameters['parameterization']['config']['values']
     states, rates, variables = initialize_system(system)
+    param_values = simulation_parameters['parameterization']['config']['values']
+    config_temp= simulation_parameters['parameterization']['config']['parameter_modifies']
     # modify the parameters
-    for index, param_index in enumerate(param_indices):
-        variables[param_index] = param_values[index]
+    for index, param in enumerate(config_temp):
+        if len(apply_config({'parameter_modifies':[param]}, system.VARIABLE_INFO))==1:
+           param_index = apply_config({'parameter_modifies':[param]}, system.VARIABLE_INFO)[0]
+           variables[param_index] = param_values[index]
     system.compute_computed_constants(variables)
+    
     # step_size = simulation_parameters['integration']['step_size']
     interval = simulation_parameters['integration']['interval']
     output_step_size = simulation_parameters['result']['step_size']

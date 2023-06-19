@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT8_BG_ss">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="fmol" name="fmol"/>
-    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
-    <units units_ref="per_fmol" name="per_fmol"/>
-    <units units_ref="C_per_mol" name="C_per_mol"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
     <units units_ref="per_fmol5_sec6" name="per_fmol5_sec6"/>
-    <units units_ref="per_fmol3_sec6" name="per_fmol3_sec6"/>
-    <units units_ref="per_fmol_sec6" name="per_fmol_sec6"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7"/>
     <units units_ref="fF" name="fF"/>
+    <units units_ref="per_fmol_sec6" name="per_fmol_sec6"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="per_fmol3_sec6" name="per_fmol3_sec6"/>
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="per_fmol" name="per_fmol"/>
     <units units_ref="per_fmol2_sec6" name="per_fmol2_sec6"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
   </import>
   <component name="SLCT8_BG_ss">
     <variable name="P_0" units="per_fmol3_sec7" interface="public"/>
     <variable name="P_1" units="per_fmol3_sec7" interface="public"/>
     <variable name="P_2" units="per_fmol_sec6" interface="public"/>
     <variable name="P_3" units="per_fmol_sec6" interface="public"/>
-    <variable name="P_4" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_4" units="per_fmol2_sec6" interface="public"/>
     <variable name="P_5" units="per_fmol3_sec6" interface="public"/>
     <variable name="P_6" units="per_fmol3_sec6" interface="public"/>
     <variable name="P_7" units="per_fmol3_sec6" interface="public"/>
-    <variable name="P_8" units="per_fmol2_sec6" interface="public"/>
-    <variable name="P_9" units="per_fmol3_sec6" interface="public"/>
-    <variable name="P_10" units="per_fmol5_sec6" interface="public"/>
+    <variable name="P_8" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_9" units="per_fmol2_sec6" interface="public"/>
+    <variable name="P_10" units="per_fmol3_sec6" interface="public"/>
+    <variable name="P_11" units="per_fmol5_sec6" interface="public"/>
     <variable name="E" units="fmol" interface="public"/>
     <variable name="K_Nao" units="per_fmol" interface="public"/>
     <variable name="K_Nai" units="per_fmol" interface="public"/>
@@ -62,12 +63,12 @@
           <ci>K_10</ci>
           <ci>K_5</ci>
           <ci>K_6</ci>
+          <ci>K_7</ci>
           <apply>
             <power/>
-            <ci>K_7</ci>
+            <ci>K_8</ci>
             <cn cellml:units="dimensionless">2</cn>
           </apply>
-          <ci>K_8</ci>
           <ci>K_9</ci>
           <ci>K_Gluo</ci>
           <apply>
@@ -92,12 +93,12 @@
           <ci>K_10</ci>
           <ci>K_5</ci>
           <ci>K_6</ci>
-          <ci>K_7</ci>
           <apply>
             <power/>
-            <ci>K_8</ci>
+            <ci>K_7</ci>
             <cn cellml:units="dimensionless">2</cn>
           </apply>
+          <ci>K_8</ci>
           <ci>K_9</ci>
           <ci>K_Glui</ci>
           <apply>
@@ -215,6 +216,73 @@
             <ci>K_5</ci>
             <ci>K_6</ci>
             <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_Nao</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_5</ci>
+            <ci>K_6</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_Nao</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re3</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_5</ci>
+            <ci>K_6</ci>
+            <ci>K_7</ci>
+            <ci>K_8</ci>
+            <ci>K_9</ci>
+            <apply>
+              <power/>
+              <ci>K_Nao</ci>
+              <cn cellml:units="dimensionless">2</cn>
+            </apply>
+            <ci>kappa_re1</ci>
+            <ci>kappa_re2</ci>
+            <ci>kappa_re4</ci>
+            <ci>kappa_re5</ci>
+            <ci>kappa_re6</ci>
+            <ci>kappa_re7</ci>
+          </apply>
+        </apply>
+      </apply>
+      <apply>
+        <eq/>
+        <ci>P_5</ci>
+        <apply>
+          <plus/>
+          <apply>
+            <times/>
+            <ci>K_10</ci>
+            <ci>K_5</ci>
+            <ci>K_6</ci>
+            <ci>K_7</ci>
             <apply>
               <power/>
               <ci>K_8</ci>
@@ -307,7 +375,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_5</ci>
+        <ci>P_6</ci>
         <apply>
           <plus/>
           <apply>
@@ -324,7 +392,7 @@
             <ci>K_Gluo</ci>
             <apply>
               <power/>
-              <ci>K_Nai</ci>
+              <ci>K_Nao</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>kappa_re1</ci>
@@ -348,7 +416,7 @@
             <ci>K_Gluo</ci>
             <apply>
               <power/>
-              <ci>K_Nai</ci>
+              <ci>K_Nao</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>kappa_re1</ci>
@@ -372,7 +440,7 @@
             <ci>K_Gluo</ci>
             <apply>
               <power/>
-              <ci>K_Nai</ci>
+              <ci>K_Nao</ci>
               <cn cellml:units="dimensionless">2</cn>
             </apply>
             <ci>kappa_re1</ci>
@@ -386,7 +454,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_6</ci>
+        <ci>P_7</ci>
         <apply>
           <times/>
           <ci>K_10</ci>
@@ -414,7 +482,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_7</ci>
+        <ci>P_8</ci>
         <apply>
           <plus/>
           <apply>
@@ -467,12 +535,12 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_8</ci>
+        <ci>P_9</ci>
         <apply>
           <plus/>
           <apply>
             <times/>
-            <cn cellml:units="dimensionless">4</cn>
+            <cn cellml:units="dimensionless">3</cn>
             <ci>K_10</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
@@ -493,7 +561,7 @@
           </apply>
           <apply>
             <times/>
-            <cn cellml:units="dimensionless">4</cn>
+            <cn cellml:units="dimensionless">3</cn>
             <ci>K_10</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
@@ -514,7 +582,7 @@
           </apply>
           <apply>
             <times/>
-            <cn cellml:units="dimensionless">4</cn>
+            <cn cellml:units="dimensionless">3</cn>
             <ci>K_10</ci>
             <ci>K_5</ci>
             <ci>K_6</ci>
@@ -537,7 +605,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_9</ci>
+        <ci>P_10</ci>
         <apply>
           <times/>
           <cn cellml:units="dimensionless">4</cn>
@@ -563,7 +631,7 @@
       </apply>
       <apply>
         <eq/>
-        <ci>P_10</ci>
+        <ci>P_11</ci>
         <apply>
           <times/>
           <cn cellml:units="dimensionless">4</cn>

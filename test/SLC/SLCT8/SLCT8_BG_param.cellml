@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT8_BG_param">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml">
-    <units units_ref="fmol" name="fmol"/>
-    <units units_ref="per_fmol" name="per_fmol"/>
-    <units units_ref="C_per_mol" name="C_per_mol"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
     <units units_ref="fF" name="fF"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol"/>
+    <units units_ref="fmol" name="fmol"/>
+    <units units_ref="C_per_mol" name="C_per_mol"/>
+    <units units_ref="per_fmol" name="per_fmol"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec"/>
   </import>
   <component name="SLCT8_BG_param">
     <variable name="K_Nao" units="per_fmol" initial_value="1" interface="public"/>

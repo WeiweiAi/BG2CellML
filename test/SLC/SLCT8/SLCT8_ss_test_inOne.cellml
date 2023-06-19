@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.cellml.org/cellml/2.0#" name="SLCT8_ss_test_inOne" id="b4da55">
   <import xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../units_BG.cellml" id="b4da56">
-    <units units_ref="fmol" name="fmol" id="b4da57"/>
-    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7" id="b4da58"/>
-    <units units_ref="C_per_mol" name="C_per_mol" id="b4da59"/>
-    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol" id="b4da5a"/>
-    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5b"/>
-    <units units_ref="per_fmol5_sec6" name="per_fmol5_sec6" id="b4da5c"/>
-    <units units_ref="per_fmol3_sec6" name="per_fmol3_sec6" id="b4da5d"/>
-    <units units_ref="per_fmol_sec6" name="per_fmol_sec6" id="b4da5e"/>
-    <units units_ref="per_fmol2_sec6" name="per_fmol2_sec6" id="b4da5f"/>
+    <units units_ref="per_fmol5_sec6" name="per_fmol5_sec6" id="b4da57"/>
+    <units units_ref="per_fmol_sec6" name="per_fmol_sec6" id="b4da58"/>
+    <units units_ref="J_per_K_per_mol" name="J_per_K_per_mol" id="b4da59"/>
+    <units units_ref="per_fmol3_sec6" name="per_fmol3_sec6" id="b4da5a"/>
+    <units units_ref="fmol" name="fmol" id="b4da5b"/>
+    <units units_ref="C_per_mol" name="C_per_mol" id="b4da5c"/>
+    <units units_ref="per_fmol3_sec7" name="per_fmol3_sec7" id="b4da5d"/>
+    <units units_ref="per_fmol2_sec6" name="per_fmol2_sec6" id="b4da5e"/>
+    <units units_ref="fmol_per_sec" name="fmol_per_sec" id="b4da5f"/>
   </import>
   <component name="SLCT8_ss_test_inOne" id="b4da60">
     <variable name="v_ss" units="fmol_per_sec" interface="public_and_private" id="b4da62"/>
@@ -27,23 +27,24 @@
     <variable name="P_1" units="per_fmol3_sec7" interface="public" id="b4da82"/>
     <variable name="P_2" units="per_fmol_sec6" interface="public" id="b4da83"/>
     <variable name="P_3" units="per_fmol_sec6" interface="public" id="b4da84"/>
-    <variable name="P_4" units="per_fmol3_sec6" interface="public" id="b4da85"/>
+    <variable name="P_4" units="per_fmol2_sec6" interface="public" id="b4da85"/>
     <variable name="P_5" units="per_fmol3_sec6" interface="public" id="b4da86"/>
     <variable name="P_6" units="per_fmol3_sec6" interface="public" id="b4da87"/>
     <variable name="P_7" units="per_fmol3_sec6" interface="public" id="b4da88"/>
-    <variable name="P_8" units="per_fmol2_sec6" interface="public" id="b4da89"/>
-    <variable name="P_9" units="per_fmol3_sec6" interface="public" id="b4da8a"/>
-    <variable name="P_10" units="per_fmol5_sec6" interface="public" id="b4da8b"/>
-    <variable name="E" units="fmol" interface="public" id="b4da8c"/>
-    <variable name="q_Gluo" units="fmol" interface="public" id="b4da8d"/>
-    <variable name="q_Nao" units="fmol" interface="public" id="b4da8e"/>
-    <variable name="F" units="C_per_mol" interface="public" id="b4da8f"/>
-    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4da90"/>
-    <variable name="T" units="kelvin" interface="public" id="b4da91"/>
-    <variable name="V_m" units="volt" interface="public" id="b4da92"/>
-    <variable name="q_Glui" units="fmol" interface="public" id="b4da93"/>
-    <variable name="q_Nai" units="fmol" interface="public" id="b4da94"/>
-    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4da95"/>
+    <variable name="P_8" units="per_fmol3_sec6" interface="public" id="b4da89"/>
+    <variable name="P_9" units="per_fmol2_sec6" interface="public" id="b4da8a"/>
+    <variable name="P_10" units="per_fmol3_sec6" interface="public" id="b4da8b"/>
+    <variable name="P_11" units="per_fmol5_sec6" interface="public" id="b4da8c"/>
+    <variable name="E" units="fmol" interface="public" id="b4da8d"/>
+    <variable name="q_Gluo" units="fmol" interface="public" id="b4da8e"/>
+    <variable name="q_Nao" units="fmol" interface="public" id="b4da8f"/>
+    <variable name="F" units="C_per_mol" interface="public" id="b4da90"/>
+    <variable name="R" units="J_per_K_per_mol" interface="public" id="b4da91"/>
+    <variable name="T" units="kelvin" interface="public" id="b4da92"/>
+    <variable name="V_m" units="volt" interface="public" id="b4da93"/>
+    <variable name="q_Glui" units="fmol" interface="public" id="b4da94"/>
+    <variable name="q_Nai" units="fmol" interface="public" id="b4da95"/>
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4da96"/>
     <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:cellml="http://www.cellml.org/cellml/2.0#">
       <apply>
         <eq/>
@@ -99,6 +100,33 @@
             <apply>
               <times/>
               <ci>P_10</ci>
+              <ci>q_Glui</ci>
+              <apply>
+                <power/>
+                <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <cn cellml:units="dimensionless">2</cn>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_11</ci>
               <ci>q_Glui</ci>
               <apply>
                 <power/>
@@ -173,10 +201,9 @@
             <apply>
               <times/>
               <ci>P_4</ci>
-              <ci>q_Glui</ci>
               <apply>
                 <power/>
-                <ci>q_Nai</ci>
+                <ci>q_Nao</ci>
                 <cn cellml:units="dimensionless">2</cn>
               </apply>
               <apply>
@@ -200,7 +227,7 @@
             <apply>
               <times/>
               <ci>P_5</ci>
-              <ci>q_Gluo</ci>
+              <ci>q_Glui</ci>
               <apply>
                 <power/>
                 <ci>q_Nai</ci>
@@ -227,61 +254,10 @@
             <apply>
               <times/>
               <ci>P_6</ci>
-              <ci>q_Glui</ci>
+              <ci>q_Gluo</ci>
               <apply>
                 <power/>
                 <ci>q_Nao</ci>
-                <cn cellml:units="dimensionless">2</cn>
-              </apply>
-              <apply>
-                <exp/>
-                <apply>
-                  <divide/>
-                  <apply>
-                    <times/>
-                    <ci>F</ci>
-                    <ci>V_m</ci>
-                  </apply>
-                  <apply>
-                    <times/>
-                    <ci>R</ci>
-                    <ci>T</ci>
-                  </apply>
-                </apply>
-              </apply>
-            </apply>
-            <apply>
-              <times/>
-              <ci>P_7</ci>
-              <ci>q_Glui</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
-                <cn cellml:units="dimensionless">2</cn>
-              </apply>
-              <apply>
-                <exp/>
-                <apply>
-                  <divide/>
-                  <apply>
-                    <times/>
-                    <ci>F</ci>
-                    <ci>V_m</ci>
-                  </apply>
-                  <apply>
-                    <times/>
-                    <ci>R</ci>
-                    <ci>T</ci>
-                  </apply>
-                </apply>
-              </apply>
-            </apply>
-            <apply>
-              <times/>
-              <ci>P_8</ci>
-              <apply>
-                <power/>
-                <ci>q_Nai</ci>
                 <cn cellml:units="dimensionless">2</cn>
               </apply>
               <apply>
@@ -304,11 +280,62 @@
             </apply>
             <apply>
               <times/>
-              <ci>P_9</ci>
+              <ci>P_7</ci>
               <ci>q_Glui</ci>
               <apply>
                 <power/>
                 <ci>q_Nao</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_8</ci>
+              <ci>q_Glui</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
+                <cn cellml:units="dimensionless">2</cn>
+              </apply>
+              <apply>
+                <exp/>
+                <apply>
+                  <divide/>
+                  <apply>
+                    <times/>
+                    <ci>F</ci>
+                    <ci>V_m</ci>
+                  </apply>
+                  <apply>
+                    <times/>
+                    <ci>R</ci>
+                    <ci>T</ci>
+                  </apply>
+                </apply>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci>P_9</ci>
+              <apply>
+                <power/>
+                <ci>q_Nai</ci>
                 <cn cellml:units="dimensionless">2</cn>
               </apply>
               <apply>
@@ -334,30 +361,31 @@
       </apply>
     </math>
   </component>
-  <component name="SLCT8_ss_param" id="b4daa3">
-    <variable name="P_0" units="per_fmol3_sec7" initial_value="1" interface="public" id="b4daa5"/>
-    <variable name="P_1" units="per_fmol3_sec7" initial_value="1" interface="public" id="b4daa6"/>
-    <variable name="P_2" units="per_fmol_sec6" initial_value="1" interface="public" id="b4daa7"/>
-    <variable name="P_3" units="per_fmol_sec6" initial_value="1" interface="public" id="b4daa8"/>
-    <variable name="P_4" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daa9"/>
-    <variable name="P_5" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daaa"/>
-    <variable name="P_6" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daab"/>
-    <variable name="P_7" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daac"/>
-    <variable name="P_8" units="per_fmol2_sec6" initial_value="1" interface="public" id="b4daad"/>
-    <variable name="P_9" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daae"/>
-    <variable name="P_10" units="per_fmol5_sec6" initial_value="1" interface="public" id="b4daaf"/>
-    <variable name="E" units="fmol" initial_value="1" interface="public" id="b4dab0"/>
+  <component name="SLCT8_ss_param" id="b4daa5">
+    <variable name="P_0" units="per_fmol3_sec7" initial_value="1" interface="public" id="b4daa7"/>
+    <variable name="P_1" units="per_fmol3_sec7" initial_value="1" interface="public" id="b4daa8"/>
+    <variable name="P_2" units="per_fmol_sec6" initial_value="1" interface="public" id="b4daa9"/>
+    <variable name="P_3" units="per_fmol_sec6" initial_value="1" interface="public" id="b4daaa"/>
+    <variable name="P_4" units="per_fmol2_sec6" initial_value="1" interface="public" id="b4daab"/>
+    <variable name="P_5" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daac"/>
+    <variable name="P_6" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daad"/>
+    <variable name="P_7" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daae"/>
+    <variable name="P_8" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4daaf"/>
+    <variable name="P_9" units="per_fmol2_sec6" initial_value="1" interface="public" id="b4dab0"/>
+    <variable name="P_10" units="per_fmol3_sec6" initial_value="1" interface="public" id="b4dab1"/>
+    <variable name="P_11" units="per_fmol5_sec6" initial_value="1" interface="public" id="b4dab2"/>
+    <variable name="E" units="fmol" initial_value="1" interface="public" id="b4dab3"/>
   </component>
-  <component name="SLCT8_ss_io" id="b4dab1">
-    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4dab2"/>
-    <variable name="q_Gluo" units="fmol" initial_value="1" interface="public" id="b4dab3"/>
-    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4dab4"/>
-    <variable name="V_m" units="volt" initial_value="1" interface="public" id="b4dab5"/>
-    <variable name="F" units="C_per_mol" initial_value="96485" interface="public" id="b4dab6"/>
-    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public" id="b4dab7"/>
-    <variable name="T" units="kelvin" initial_value="293" interface="public" id="b4dab8"/>
-    <variable name="q_Glui" units="fmol" initial_value="1" interface="public" id="b4dab9"/>
-    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4daba"/>
+  <component name="SLCT8_ss_io" id="b4dab4">
+    <variable name="v_ss" units="fmol_per_sec" interface="public" id="b4dab5"/>
+    <variable name="q_Gluo" units="fmol" initial_value="1" interface="public" id="b4dab6"/>
+    <variable name="q_Nao" units="fmol" initial_value="1" interface="public" id="b4dab7"/>
+    <variable name="V_m" units="volt" initial_value="1" interface="public" id="b4dab8"/>
+    <variable name="F" units="C_per_mol" initial_value="96485" interface="public" id="b4dab9"/>
+    <variable name="R" units="J_per_K_per_mol" initial_value="8.31" interface="public" id="b4daba"/>
+    <variable name="T" units="kelvin" initial_value="293" interface="public" id="b4dabb"/>
+    <variable name="q_Glui" units="fmol" initial_value="1" interface="public" id="b4dabc"/>
+    <variable name="q_Nai" units="fmol" initial_value="1" interface="public" id="b4dabd"/>
   </component>
   <connection component_1="SLCT8_ss_test_inOne" component_2="SLCT8_ss" id="b4da6b">
     <map_variables variable_1="v_ss" variable_2="v_ss" id="b4da6c"/>
@@ -381,24 +409,25 @@
     <map_variables variable_1="q_Glui" variable_2="q_Glui" id="b4da7c"/>
     <map_variables variable_1="q_Nai" variable_2="q_Nai" id="b4da7e"/>
   </connection>
-  <connection component_1="SLCT8_ss" component_2="SLCT8_ss_param" id="b4da96">
-    <map_variables variable_1="P_0" variable_2="P_0" id="b4da97"/>
-    <map_variables variable_1="P_1" variable_2="P_1" id="b4da98"/>
-    <map_variables variable_1="P_2" variable_2="P_2" id="b4da99"/>
-    <map_variables variable_1="P_3" variable_2="P_3" id="b4da9a"/>
-    <map_variables variable_1="P_4" variable_2="P_4" id="b4da9b"/>
-    <map_variables variable_1="P_5" variable_2="P_5" id="b4da9c"/>
-    <map_variables variable_1="P_6" variable_2="P_6" id="b4da9d"/>
-    <map_variables variable_1="P_7" variable_2="P_7" id="b4da9e"/>
-    <map_variables variable_1="P_8" variable_2="P_8" id="b4da9f"/>
-    <map_variables variable_1="P_9" variable_2="P_9" id="b4daa0"/>
-    <map_variables variable_1="P_10" variable_2="P_10" id="b4daa1"/>
-    <map_variables variable_1="E" variable_2="E" id="b4daa2"/>
+  <connection component_1="SLCT8_ss" component_2="SLCT8_ss_param" id="b4da97">
+    <map_variables variable_1="P_0" variable_2="P_0" id="b4da98"/>
+    <map_variables variable_1="P_1" variable_2="P_1" id="b4da99"/>
+    <map_variables variable_1="P_2" variable_2="P_2" id="b4da9a"/>
+    <map_variables variable_1="P_3" variable_2="P_3" id="b4da9b"/>
+    <map_variables variable_1="P_4" variable_2="P_4" id="b4da9c"/>
+    <map_variables variable_1="P_5" variable_2="P_5" id="b4da9d"/>
+    <map_variables variable_1="P_6" variable_2="P_6" id="b4da9e"/>
+    <map_variables variable_1="P_7" variable_2="P_7" id="b4da9f"/>
+    <map_variables variable_1="P_8" variable_2="P_8" id="b4daa0"/>
+    <map_variables variable_1="P_9" variable_2="P_9" id="b4daa1"/>
+    <map_variables variable_1="P_10" variable_2="P_10" id="b4daa2"/>
+    <map_variables variable_1="P_11" variable_2="P_11" id="b4daa3"/>
+    <map_variables variable_1="E" variable_2="E" id="b4daa4"/>
   </connection>
-  <encapsulation id="b4dabb">
+  <encapsulation id="b4dabe">
     <component_ref component="SLCT8_ss_test_inOne" id="b4da61">
       <component_ref component="SLCT8_ss" id="b4da80"/>
-      <component_ref component="SLCT8_ss_param" id="b4daa4"/>
+      <component_ref component="SLCT8_ss_param" id="b4daa6"/>
     </component_ref>
   </encapsulation>
 </model>

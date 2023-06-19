@@ -86,7 +86,7 @@ def initialise_variables(variables):
     variables[2] = 1.0
     variables[3] = 1.0
     variables[4] = 1.0
-    variables[5] = 1.0
+    variables[5] = -0.01
     variables[6] = 96485.0
     variables[7] = 8.31
     variables[8] = 293.0

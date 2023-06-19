@@ -118,7 +118,7 @@ def initialise_variables(states, rates, variables):
     variables[3] = 1.0
     variables[5] = 1.0
     variables[7] = 1.0
-    variables[9] = 1.0
+    variables[9] = -0.01
     variables[11] = 8.31
     variables[12] = 1.0
     variables[13] = 293.0
